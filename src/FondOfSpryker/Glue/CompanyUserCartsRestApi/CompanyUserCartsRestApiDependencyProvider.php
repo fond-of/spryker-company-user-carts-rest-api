@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use FondOfSpryker\Glue\PersistentCartsRestApi\Plugin\CartsRestApiExtension\CartQuoteCollectionReaderPlugin;
@@ -17,7 +19,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
      *
      * @return \Spryker\Glue\Kernel\Container
      */
-    public function provideDependencies(Container $container)
+    public function provideDependencies(Container $container): Container
     {
         $container = parent::provideDependencies($container);
 
