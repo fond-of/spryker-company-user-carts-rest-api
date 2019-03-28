@@ -1,46 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
-use Generated\Shared\Transfer\QuoteCollectionTransfer;
-use Generated\Shared\Transfer\QuoteCriteriaFilterTransfer;
-use Generated\Shared\Transfer\QuoteResponseTransfer;
-use Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
-use Spryker\Glue\CartsRestApiExtension\Dependency\Plugin\QuoteCollectionReaderPluginInterface;
+use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
+use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponse;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
 class CartReader implements CartReaderInterface
 {
     /**
-     * @var \Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface
-     */
-    protected $cartsResourceMapper;
-
-    /**
      * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
      */
     protected $restResourceBuilder;
 
     /**
-     * @var \Spryker\Glue\CartsRestApiExtension\Dependency\Plugin\QuoteCollectionReaderPluginInterface
+     * @var \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface
      */
-    protected $quoteCollectionReader;
+    protected $companyUsersRestApiClient;
 
     /**
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
-     * @param \Spryker\Glue\CartsRestApiExtension\Dependency\Plugin\QuoteCollectionReaderPluginInterface $quoteCollectionReader
+     * @param \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface $companyUsersRestApiClient
      */
     public function __construct(
         RestResourceBuilderInterface $restResourceBuilder,
-        CartsResourceMapperInterface $cartsResourceMapper,
-        QuoteCollectionReaderPluginInterface $quoteCollectionReader
+        CompanyUsersRestApiClientInterface $companyUsersRestApiClient
     ) {
         $this->restResourceBuilder = $restResourceBuilder;
-        $this->cartsResourceMapper = $cartsResourceMapper;
-        $this->quoteCollectionReader = $quoteCollectionReader;
+        $this->companyUsersRestApiClient = $companyUsersRestApiClient;
     }
 
     /**
@@ -50,82 +42,23 @@ class CartReader implements CartReaderInterface
      */
     public function readCurrentCompanyUserCarts(RestRequestInterface $restRequest): RestResponseInterface
     {
-        $quoteCollectionTransfer = $this->getCompanyUserQuotes($restRequest);
+        $companyUserIdentifier = $this->findCompanyUserIdentifier($restRequest);
 
-        $restResponse = $this->restResourceBuilder->createRestResponse(count($quoteCollectionTransfer->getQuotes()));
-        if (count($quoteCollectionTransfer->getQuotes()) === 0) {
-            return $restResponse;
-        }
-
-        foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
-            $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
-            $restResponse->addResource($cartResource);
-        }
-
-        return $restResponse;
+        return new RestResponse();
     }
 
     /**
-     * @param string $uuidCart
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
      *
-     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
+     * @return string|null
      */
-    public function getQuoteTransferByUuid(string $uuidCart, RestRequestInterface $restRequest): QuoteResponseTransfer
+    protected function findCompanyUserIdentifier(RestRequestInterface $restRequest): ?string
     {
-        $quoteCollectionTransfer = $this->getCompanyUserQuotes($restRequest);
-
-        if ($quoteCollectionTransfer->getQuotes()->count() === 0) {
-            return (new QuoteResponseTransfer())
-                ->setIsSuccessful(false);
+        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS);
+        if ($companyUsersResource !== null) {
+            return $companyUsersResource->getId();
         }
 
-        foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
-            if ($quoteTransfer->getUuid() === $uuidCart) {
-                return (new QuoteResponseTransfer())
-                    ->setIsSuccessful(true)
-                    ->setQuoteTransfer($quoteTransfer);
-            }
-        }
-
-        return (new QuoteResponseTransfer())
-            ->setIsSuccessful(false);
-    }
-
-    /**
-     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     *
-     * @return \Generated\Shared\Transfer\QuoteCollectionTransfer
-     */
-    protected function getCompanyUserQuotes(RestRequestInterface $restRequest): QuoteCollectionTransfer
-    {
-        $companyUserReference = $restRequest->getHttpRequest()->query->get('company-user-reference');
-
-        $quoteCriteriaFilterTransfer = new QuoteCriteriaFilterTransfer();
-        $quoteCriteriaFilterTransfer->setCustomerReference($restRequest->getUser()->getNaturalIdentifier());
-        $quoteCriteriaFilterTransfer->setCompanyUserReference($companyUserReference);
-        $quoteCollectionTransfer = $this->quoteCollectionReader->getQuoteCollectionByCriteria($quoteCriteriaFilterTransfer);
-
-        return $quoteCollectionTransfer;
-    }
-
-    /**
-     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     * @param \Generated\Shared\Transfer\QuoteResponseTransfer $quoteResponseTransfer
-     *
-     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
-     */
-    protected function getRestResponse(
-        RestRequestInterface $restRequest,
-        QuoteResponseTransfer $quoteResponseTransfer
-    ): RestResponseInterface {
-        $restResponse = $this->restResourceBuilder->createRestResponse();
-        $cartResource = $this->cartsResourceMapper->mapCartsResource(
-            $quoteResponseTransfer->getQuoteTransfer(),
-            $restRequest
-        );
-        $restResponse->addResource($cartResource);
-
-        return $restResponse;
+        return null;
     }
 }

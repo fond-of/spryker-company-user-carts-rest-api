@@ -6,7 +6,6 @@ use Spryker\Glue\Kernel\AbstractBundleConfig;
 
 class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
 {
-    public const ACTION_CART_ITEMS_POST = 'post';
-    public const RESOURCE_CART_ITEMS = 'items';
-    public const CONTROLLER_CART_ITEMS = 'cart-items-resource';
+    public const RESOURCE_CARTS = 'cu-carts';
+    public const CONTROLLER_CARTS = 'carts-resource';
 }

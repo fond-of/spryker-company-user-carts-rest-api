@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Plugin\ResourceRoute;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
-use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
+use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
+use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRouteCollectionInterface;
 use Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRoutePluginInterface;
 use Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceWithParentPluginInterface;
@@ -12,69 +15,50 @@ use Spryker\Glue\Kernel\AbstractPlugin;
 /**
  * @method \FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiFactory getFactory()
  */
-class CartItemsResourceRoutePlugin extends AbstractPlugin implements ResourceRoutePluginInterface, ResourceWithParentPluginInterface
+class CompanyUserCartsResourceRoutePlugin extends AbstractPlugin implements ResourceRoutePluginInterface, ResourceWithParentPluginInterface
 {
     /**
-     * {@inheritdoc}
-     *
-     * @api
-     *
      * @param \Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRouteCollectionInterface $resourceRouteCollection
      *
      * @return \Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRouteCollectionInterface
      */
     public function configure(ResourceRouteCollectionInterface $resourceRouteCollection): ResourceRouteCollectionInterface
     {
-        $resourceRouteCollection->addPost(CompanyUserCartsRestApiConfig::ACTION_CART_ITEMS_POST);
+        $resourceRouteCollection
+            ->addGet('get');
 
         return $resourceRouteCollection;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @api
-     *
      * @return string
      */
     public function getResourceType(): string
     {
-        return CompanyUserCartsRestApiConfig::RESOURCE_CART_ITEMS;
+        return CompanyUserCartsRestApiConfig::RESOURCE_CARTS;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @api
-     *
      * @return string
      */
     public function getController(): string
     {
-        return CompanyUserCartsRestApiConfig::CONTROLLER_CART_ITEMS;
+        return CompanyUserCartsRestApiConfig::CONTROLLER_CARTS;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @api
-     *
      * @return string
      */
     public function getResourceAttributesClassName(): string
     {
-        return RestCartItemsRequestAttributesTransfer::class;
+        return RestCartsAttributesTransfer::class;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @api
-     *
      * @return string
      */
     public function getParentResourceType(): string
     {
-        return CartsRestApiConfig::RESOURCE_CARTS;
+        return CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS;
     }
 }

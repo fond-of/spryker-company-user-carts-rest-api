@@ -29,10 +29,5 @@
     "psr-4": {
       "FondOfSpryker\\": "src/FondOfSpryker/"
     }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "FondOfSpryker\\": "tests/FondOfSpryker/"
-    }
   }
 }

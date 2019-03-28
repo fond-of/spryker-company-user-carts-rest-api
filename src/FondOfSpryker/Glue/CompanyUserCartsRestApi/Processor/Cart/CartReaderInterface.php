@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
 use Generated\Shared\Transfer\QuoteResponseTransfer;
@@ -14,12 +16,4 @@ interface CartReaderInterface
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
     public function readCurrentCompanyUserCarts(RestRequestInterface $restRequest): RestResponseInterface;
-
-    /**
-     * @param string $uuidCart
-     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     *
-     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
-     */
-    public function getQuoteTransferByUuid(string $uuidCart, RestRequestInterface $restRequest): QuoteResponseTransfer;
 }
