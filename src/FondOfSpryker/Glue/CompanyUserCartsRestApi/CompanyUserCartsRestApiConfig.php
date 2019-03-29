@@ -8,6 +8,6 @@ use Spryker\Glue\Kernel\AbstractBundleConfig;
 
 class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
 {
-    public const RESOURCE_CARTS = 'cu-carts';
+    public const RESOURCE_CARTS = 'carts';
     public const CONTROLLER_CARTS = 'carts-resource';
 }

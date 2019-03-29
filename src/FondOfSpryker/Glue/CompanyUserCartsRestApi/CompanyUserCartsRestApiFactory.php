@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
+use FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface;
 use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReader;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface;
-use Spryker\Glue\CartsRestApiExtension\Dependency\Plugin\QuoteCollectionReaderPluginInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapper;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapper;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use Spryker\Glue\Kernel\AbstractFactory;
 
 class CompanyUserCartsRestApiFactory extends AbstractFactory
@@ -19,18 +23,38 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     {
         return new CartReader(
             $this->getResourceBuilder(),
-            $this->getCompanyUserRestApiClient()
+            $this->getCompanyUserQuoteClient(),
+            $this->createCartsResourceMapper()
         );
     }
 
     /**
-     * @return \Spryker\Glue\CartsRestApiExtension\Dependency\Plugin\QuoteCollectionReaderPluginInterface
+     *
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface
      */
-    protected function getCartQuoteCollectionReaderPlugin(): QuoteCollectionReaderPluginInterface
+    protected function createCartsResourceMapper(): CartsResourceMapperInterface
     {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::PLUGIN_QUOTE_COLLECTION_READER);
+        return new CartsResourceMapper(
+            $this->createCartItemsResourceMapper(),
+            $this->getResourceBuilder()
+        );
     }
 
+    /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface
+     */
+    protected function createCartItemsResourceMapper(): CartItemsResourceMapperInterface
+    {
+        return new CartItemsResourceMapper();
+    }
+
+    /**
+     * @return \FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface
+     */
+    protected function getCompanyUserQuoteClient(): CompanyUserQuoteClientInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_COMPANY_USER_QUOTE);
+    }
 
     /**
      * @return \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface

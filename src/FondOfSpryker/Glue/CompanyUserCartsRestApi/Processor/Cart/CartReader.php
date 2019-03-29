@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
-use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
+use FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
+use Generated\Shared\Transfer\QuoteCollectionTransfer;
+use Generated\Shared\Transfer\QuoteCriteriaFilterTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
-use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponse;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
@@ -19,20 +21,28 @@ class CartReader implements CartReaderInterface
     protected $restResourceBuilder;
 
     /**
-     * @var \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface
+     * @var \FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface
      */
-    protected $companyUsersRestApiClient;
+    protected $companyUserQuoteClient;
+
+    /**
+     * @var \Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface
+     */
+    protected $cartsResourceMapper;
 
     /**
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface $companyUsersRestApiClient
+     * @param \FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface $companyUserQuoteClient
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
      */
     public function __construct(
         RestResourceBuilderInterface $restResourceBuilder,
-        CompanyUsersRestApiClientInterface $companyUsersRestApiClient
+        CompanyUserQuoteClientInterface $companyUserQuoteClient,
+        CartsResourceMapperInterface $cartsResourceMapper
     ) {
         $this->restResourceBuilder = $restResourceBuilder;
-        $this->companyUsersRestApiClient = $companyUsersRestApiClient;
+        $this->companyUserQuoteClient = $companyUserQuoteClient;
+        $this->cartsResourceMapper = $cartsResourceMapper;
     }
 
     /**
@@ -42,9 +52,35 @@ class CartReader implements CartReaderInterface
      */
     public function readCurrentCompanyUserCarts(RestRequestInterface $restRequest): RestResponseInterface
     {
-        $companyUserIdentifier = $this->findCompanyUserIdentifier($restRequest);
+        $quoteCollectionTransfer = $this->getCustomerCompanyUserQuotes($restRequest);
 
-        return new RestResponse();
+        $restResponse = $this->restResourceBuilder->createRestResponse(\count($quoteCollectionTransfer->getQuotes()));
+        if (count($quoteCollectionTransfer->getQuotes()) === 0) {
+            return $restResponse;
+        }
+
+        foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
+            $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
+            $restResponse->addResource($cartResource);
+        }
+
+        return $restResponse;
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return \Generated\Shared\Transfer\QuoteCollectionTransfer
+     */
+    public function getCustomerCompanyUserQuotes(RestRequestInterface $restRequest): QuoteCollectionTransfer
+    {
+        $quoteCriteriaFilterTransfer = new QuoteCriteriaFilterTransfer();
+        $quoteCriteriaFilterTransfer->setCustomerReference($restRequest->getUser()->getNaturalIdentifier());
+        $quoteCriteriaFilterTransfer->setCompanyUserReference($this->findCompanyUserIdentifier($restRequest));
+
+        $quoteCollectionTransfer = $this->companyUserQuoteClient->getCompanyUserQuoteCollectionByCriteria($quoteCriteriaFilterTransfer);
+
+        return $quoteCollectionTransfer;
     }
 
     /**
