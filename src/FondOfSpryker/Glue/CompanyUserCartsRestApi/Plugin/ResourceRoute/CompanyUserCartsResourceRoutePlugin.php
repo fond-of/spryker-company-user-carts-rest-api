@@ -25,7 +25,8 @@ class CompanyUserCartsResourceRoutePlugin extends AbstractPlugin implements Reso
     public function configure(ResourceRouteCollectionInterface $resourceRouteCollection): ResourceRouteCollectionInterface
     {
         $resourceRouteCollection
-            ->addGet('get');
+            ->addGet('get')
+            ->addPost('post');
 
         return $resourceRouteCollection;
     }

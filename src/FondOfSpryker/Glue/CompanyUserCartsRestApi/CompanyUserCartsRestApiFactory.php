@@ -6,12 +6,17 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface;
 use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreator;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreatorInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleter;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReader;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapper;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapper;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use Spryker\Client\PersistentCart\PersistentCartClientInterface;
 use Spryker\Glue\Kernel\AbstractFactory;
 
 class CompanyUserCartsRestApiFactory extends AbstractFactory
@@ -25,6 +30,30 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->getResourceBuilder(),
             $this->getCompanyUserQuoteClient(),
             $this->createCartsResourceMapper()
+        );
+    }
+
+    /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleterInterface
+     */
+    public function createCartDeleter(): CartDeleterInterface
+    {
+        return new CartDeleter(
+            $this->getResourceBuilder(),
+            $this->getPersistentCartClient(),
+            $this->createCartReader()
+        );
+    }
+
+    /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreatorInterface
+     */
+    public function createCartCreator(): CartCreatorInterface
+    {
+        return new CartCreator(
+            $this->createCartsResourceMapper(),
+            $this->getPersistentCartClient(),
+            $this->getResourceBuilder()
         );
     }
 
@@ -62,5 +91,13 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     protected function getCompanyUserRestApiClient(): CompanyUsersRestApiClientInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_REST_API_COMPANY_USER);
+    }
+
+    /**
+     * @return \Spryker\Client\PersistentCart\PersistentCartClientInterface
+     */
+    protected function getPersistentCartClient(): PersistentCartClientInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_PERSISTENT_CART);
     }
 }

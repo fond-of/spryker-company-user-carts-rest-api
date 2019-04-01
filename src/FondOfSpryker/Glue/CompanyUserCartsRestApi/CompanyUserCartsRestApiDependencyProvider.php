@@ -11,6 +11,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
 {
     public const CLIENT_COMPANY_USER_QUOTE = 'CLIENT_COMPANY_USER_QUOTE';
     public const CLIENT_REST_API_COMPANY_USER = 'CLIENT_REST_API_COMPANY_USER';
+    public const CLIENT_PERSISTENT_CART = 'CLIENT_PERSISTENT_CART';
 
     /**
      * @param \Spryker\Glue\Kernel\Container $container
@@ -23,6 +24,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
 
         $container = $this->addCompanyUserQuoteClient($container);
         $container = $this->addCompanyUserRestApiClient($container);
+        $container = $this->addPersistentCartClient($container);
 
         return $container;
     }
@@ -50,6 +52,20 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     {
         $container[static::CLIENT_REST_API_COMPANY_USER] = static function (Container $container) {
             return $container->getLocator()->companyUsersRestApi()->client();
+        };
+
+        return $container;
+    }
+
+    /**
+     * @param \Spryker\Glue\Kernel\Container $container
+     *
+     * @return \Spryker\Glue\Kernel\Container
+     */
+    protected function addPersistentCartClient(Container $container): Container
+    {
+        $container[static::CLIENT_PERSISTENT_CART] = static function (Container $container) {
+            return $container->getLocator()->persistentCart()->client();
         };
 
         return $container;

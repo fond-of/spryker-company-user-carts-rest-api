@@ -9,6 +9,7 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMap
 use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\QuoteCollectionTransfer;
 use Generated\Shared\Transfer\QuoteCriteriaFilterTransfer;
+use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
@@ -65,6 +66,33 @@ class CartReader implements CartReaderInterface
         }
 
         return $restResponse;
+    }
+
+    /**
+     * @param string $uuidCart
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
+     */
+    public function getQuoteTransferByUuid(string $uuidCart, RestRequestInterface $restRequest): QuoteResponseTransfer
+    {
+        $quoteCollectionTransfer = $this->getCustomerCompanyUserQuotes($restRequest);
+
+        if ($quoteCollectionTransfer->getQuotes()->count() === 0) {
+            return (new QuoteResponseTransfer())
+                ->setIsSuccessful(false);
+        }
+
+        foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
+            if ($quoteTransfer->getUuid() === $uuidCart) {
+                return (new QuoteResponseTransfer())
+                    ->setIsSuccessful(true)
+                    ->setQuoteTransfer($quoteTransfer);
+            }
+        }
+
+        return (new QuoteResponseTransfer())
+            ->setIsSuccessful(false);
     }
 
     /**
