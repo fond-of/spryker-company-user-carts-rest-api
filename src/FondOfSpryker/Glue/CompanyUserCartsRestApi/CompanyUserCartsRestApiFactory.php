@@ -1,17 +1,20 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface;
 use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreator;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreatorInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleter;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReader;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartUpdater;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartUpdaterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapper;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapper;
@@ -58,7 +61,14 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     *
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartUpdaterInterface
+     */
+    public function createCartUpdater(): CartUpdaterInterface
+    {
+        return new CartUpdater();
+    }
+
+    /**
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface
      */
     protected function createCartsResourceMapper(): CartsResourceMapperInterface
@@ -78,6 +88,8 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
+     * @throws
+     *
      * @return \FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface
      */
     protected function getCompanyUserQuoteClient(): CompanyUserQuoteClientInterface
@@ -86,6 +98,8 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
+     * @throws
+     *
      * @return \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface
      */
     protected function getCompanyUserRestApiClient(): CompanyUsersRestApiClientInterface
@@ -94,10 +108,22 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
+     * @throws
+     *
      * @return \Spryker\Client\PersistentCart\PersistentCartClientInterface
      */
     protected function getPersistentCartClient(): PersistentCartClientInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_PERSISTENT_CART);
+    }
+
+    /**
+     * @throws
+     *
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface
+     */
+    public function getCartClient(): CompanyUserCartsRestApiToCartClientInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_CART);
     }
 }

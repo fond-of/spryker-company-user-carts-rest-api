@@ -1,9 +1,11 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientBridge;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientBridge;
 use Spryker\Glue\Kernel\AbstractBundleDependencyProvider;
 use Spryker\Glue\Kernel\Container;
 
@@ -12,6 +14,8 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     public const CLIENT_COMPANY_USER_QUOTE = 'CLIENT_COMPANY_USER_QUOTE';
     public const CLIENT_REST_API_COMPANY_USER = 'CLIENT_REST_API_COMPANY_USER';
     public const CLIENT_PERSISTENT_CART = 'CLIENT_PERSISTENT_CART';
+    public const CLIENT_CART = 'CLIENT_CART';
+    public const CLIENT_QUOTE = 'CLIENT_QUOTE';
 
     /**
      * @param \Spryker\Glue\Kernel\Container $container
@@ -24,7 +28,9 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
 
         $container = $this->addCompanyUserQuoteClient($container);
         $container = $this->addCompanyUserRestApiClient($container);
+        $container = $this->addQuoteClient($container);
         $container = $this->addPersistentCartClient($container);
+        $container = $this->addCartClient($container);
 
         return $container;
     }
@@ -66,6 +72,29 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     {
         $container[static::CLIENT_PERSISTENT_CART] = static function (Container $container) {
             return $container->getLocator()->persistentCart()->client();
+        };
+
+        return $container;
+    }
+
+    /**
+     * @param \Spryker\Glue\Kernel\Container $container
+     *
+     * @return \Spryker\Glue\Kernel\Container
+     */
+    protected function addCartClient(Container $container): Container
+    {
+        $container[static::CLIENT_CART] = function (Container $container) {
+            return new CompanyUserCartsRestApiToCartClientBridge($container->getLocator()->cart()->client());
+        };
+
+        return $container;
+    }
+
+    protected function addQuoteClient(Container $container): Container
+    {
+        $container[static::CLIENT_QUOTE] = function (Container $container) {
+            return new CompanyUserCartsRestApiToQuoteClientBridge($container->getLocator()->quote()->client());
         };
 
         return $container;
