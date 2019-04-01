@@ -26,7 +26,8 @@ class CompanyUserCartsResourceRoutePlugin extends AbstractPlugin implements Reso
     {
         $resourceRouteCollection
             ->addGet('get')
-            ->addPost('post');
+            ->addPost('post')
+            ->addDelete('delete');
 
         return $resourceRouteCollection;
     }
