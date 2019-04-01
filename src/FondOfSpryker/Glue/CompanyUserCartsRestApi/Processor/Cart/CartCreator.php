@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\CurrencyTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
@@ -92,10 +93,27 @@ class CartCreator implements CartCreatorInterface
         $quoteTransfer = (new QuoteTransfer())
             ->setCurrency($currencyTransfer)
             ->setCustomer($customerTransfer)
+            ->setCompanyUserReference($this->findCompanyUserIdentifier($restRequest))
             ->setPriceMode($restCartsAttributesTransfer->getPriceMode())
             ->setStore($storeTransfer);
 
         return $quoteTransfer;
+    }
+
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return string|null
+     */
+    protected function findCompanyUserIdentifier(RestRequestInterface $restRequest): ?string
+    {
+        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS);
+        if ($companyUsersResource !== null) {
+            return $companyUsersResource->getId();
+        }
+
+        return null;
     }
 
     /**
