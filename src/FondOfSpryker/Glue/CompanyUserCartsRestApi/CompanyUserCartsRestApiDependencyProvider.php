@@ -84,16 +84,21 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
      */
     protected function addCartClient(Container $container): Container
     {
-        $container[static::CLIENT_CART] = function (Container $container) {
+        $container[static::CLIENT_CART] = static function (Container $container) {
             return new CompanyUserCartsRestApiToCartClientBridge($container->getLocator()->cart()->client());
         };
 
         return $container;
     }
 
+    /**
+     * @param \Spryker\Glue\Kernel\Container $container
+     *
+     * @return \Spryker\Glue\Kernel\Container
+     */
     protected function addQuoteClient(Container $container): Container
     {
-        $container[static::CLIENT_QUOTE] = function (Container $container) {
+        $container[static::CLIENT_QUOTE] = static function (Container $container) {
             return new CompanyUserCartsRestApiToQuoteClientBridge($container->getLocator()->quote()->client());
         };
 

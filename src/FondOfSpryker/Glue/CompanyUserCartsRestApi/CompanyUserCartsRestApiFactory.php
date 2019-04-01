@@ -7,6 +7,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 use FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface;
 use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreator;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreatorInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleter;
@@ -19,6 +20,8 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourc
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapper;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiError;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
 use Spryker\Client\PersistentCart\PersistentCartClientInterface;
 use Spryker\Glue\Kernel\AbstractFactory;
 
@@ -65,7 +68,15 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
      */
     public function createCartUpdater(): CartUpdaterInterface
     {
-        return new CartUpdater();
+        return new CartUpdater(
+            $this->getResourceBuilder(),
+            $this->createCartReader(),
+            $this->createCartsResourceMapper(),
+            $this->getPersistentCartClient(),
+            $this->getCartClient(),
+            $this->getQuoteClient(),
+            $this->createRestApiError()
+        );
     }
 
     /**
@@ -122,8 +133,26 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
      *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface
      */
-    public function getCartClient(): CompanyUserCartsRestApiToCartClientInterface
+    protected function getCartClient(): CompanyUserCartsRestApiToCartClientInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_CART);
+    }
+
+    /**
+     * @throws
+     *
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface
+     */
+    protected function getQuoteClient(): CompanyUserCartsRestApiToQuoteClientInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_QUOTE);
+    }
+
+    /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
+     */
+    protected function createRestApiError(): RestApiErrorInterface
+    {
+        return new RestApiError();
     }
 }

@@ -2,14 +2,13 @@
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
-use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
+use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Spryker\Client\PersistentCart\PersistentCartClientInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
@@ -81,13 +80,13 @@ class CartUpdater implements CartUpdaterInterface
 
     /**
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
     public function update(
         RestRequestInterface $restRequest,
-        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+        RestCartsAttributesTransfer $restCartsAttributesTransfer
     ): RestResponseInterface {
         $restResponse = $this->restResourceBuilder->createRestResponse();
 
@@ -111,7 +110,7 @@ class CartUpdater implements CartUpdaterInterface
 
         $this->quoteClient->setQuote($quoteTransfer);
 
-        $quoteTransfer = $this->persistItems($restCartsRequestAttributesTransfer);
+        $quoteTransfer = $this->persistItems($restCartsAttributesTransfer);
         $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
         $restResponse->addResource($cartResource);
 
@@ -119,16 +118,16 @@ class CartUpdater implements CartUpdaterInterface
     }
 
     /**
-     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
      */
     protected function persistItems(
-        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+        RestCartsAttributesTransfer $restCartsAttributesTransfer
     ): QuoteTransfer {
         $itemsTransferList = [];
 
-        foreach ($restCartsRequestAttributesTransfer->getItems() as $item) {
+        foreach ($restCartsAttributesTransfer->getItems() as $item) {
             $itemTransfer = new ItemTransfer();
             $itemTransfer->fromArray($item->toArray(), true);
             $itemsTransferList[] = $itemTransfer;
@@ -144,7 +143,7 @@ class CartUpdater implements CartUpdaterInterface
      */
     protected function findCartIdentifier(RestRequestInterface $restRequest): ?string
     {
-        $cartsResource = $restRequest->findParentResourceByType(CompanyUserCartsRestApiConfig::RESOURCE_CARTS);
+        $cartsResource = $restRequest->getResource();
 
         if ($cartsResource !== null) {
             return $cartsResource->getId();

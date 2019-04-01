@@ -3,23 +3,8 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="spryker:transfer-01 http://static.spryker.com/transfer-01.xsd">
 
-    <transfer name="RestCartsRequestAttributes">
-        <property name="priceMode" type="string" restRequestParameter="required" />
-        <property name="currency" type="string" restRequestParameter="required" />
-        <property name="store" type="string" restRequestParameter="required" />
-        <property name="store" type="string" restRequestParameter="required" />
-        <property name="discounts" type="RestCartsDiscounts[]" singular="discount" />
+    <transfer name="RestCartsAttributes">
         <property name="items" type="RestCartItem[]" singular="item" />
-        <property name="totals" type="RestCartsTotals" />
-    </transfer>
-
-    <transfer name="RestCartsResponseAttributes">
-        <property name="priceMode" type="string" restRequestParameter="required" />
-        <property name="currency" type="string" restRequestParameter="required" />
-        <property name="store" type="string" restRequestParameter="required" />
-        <property name="store" type="string" restRequestParameter="required" />
-        <property name="discounts" type="RestCartsDiscounts[]" singular="discount" />
-        <property name="totals" type="RestCartsTotals" />
     </transfer>
 
     <transfer name="RestCartItem">

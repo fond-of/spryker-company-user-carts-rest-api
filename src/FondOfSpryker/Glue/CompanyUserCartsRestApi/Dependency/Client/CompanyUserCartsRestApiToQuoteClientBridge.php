@@ -4,7 +4,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client;
 
 use Generated\Shared\Transfer\QuoteTransfer;
 
-class CompanyUserCartsRestApiToQuoteClientBridge
+class CompanyUserCartsRestApiToQuoteClientBridge implements CompanyUserCartsRestApiToQuoteClientInterface
 {
     /**
      * @var \Spryker\Client\Quote\QuoteClientInterface
