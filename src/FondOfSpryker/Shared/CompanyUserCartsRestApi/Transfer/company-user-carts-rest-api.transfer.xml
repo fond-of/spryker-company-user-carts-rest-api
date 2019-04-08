@@ -5,6 +5,11 @@
 
     <transfer name="RestCartsAttributes">
         <property name="items" type="RestCartItem[]" singular="item" />
+        <property name="name" type="string"/>
+        <property name="reference" type="string"/>
+        <property name="filter" type="string"/>
+        <property name="comment" type="string"/>
+        <property name="dates" type="string"/>
     </transfer>
 
     <transfer name="RestCartItem">

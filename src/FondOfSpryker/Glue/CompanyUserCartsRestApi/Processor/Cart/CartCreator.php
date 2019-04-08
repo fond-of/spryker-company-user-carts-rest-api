@@ -68,12 +68,14 @@ class CartCreator implements CartCreatorInterface
             return $this->createFailedCreatingCartError($quoteResponseTransfer, $restResponse);
         }
 
-        $restResource = $this->cartsResourceMapper->mapCartsResource(
+        $cartsRestResource = $this->cartsResourceMapper->mapCartsResource(
             $quoteResponseTransfer->getQuoteTransfer(),
             $restRequest
         );
 
-        return $restResponse->addResource($restResource);
+        $restResponse = $restResponse->addResource($cartsRestResource);
+
+        return $restResponse;
     }
 
     /**
@@ -90,7 +92,13 @@ class CartCreator implements CartCreatorInterface
         $customerTransfer = $this->getCustomerTransfer($restRequest);
         $storeTransfer = $this->getStoreTransfer($restCartsAttributesTransfer);
 
+
         $quoteTransfer = (new QuoteTransfer())
+            ->setReference($restCartsAttributesTransfer->getReference())
+            ->setFilter($restCartsAttributesTransfer->getFilter())
+            ->setComment($restCartsAttributesTransfer->getComment())
+            ->setDates($restCartsAttributesTransfer->getDates())
+            ->setName($restCartsAttributesTransfer->getName())
             ->setCurrency($currencyTransfer)
             ->setCustomer($customerTransfer)
             ->setCompanyUserReference($this->findCompanyUserIdentifier($restRequest))
