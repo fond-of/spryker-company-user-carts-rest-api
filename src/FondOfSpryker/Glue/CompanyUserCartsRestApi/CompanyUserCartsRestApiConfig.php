@@ -17,4 +17,6 @@ class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
 
     public const RESPONSE_MESSAGE_REQUIRED_PARAMETER_IS_MISSING = 'Required parameter is missing.';
     public const RESPONSE_MESSAGE_CART_NOT_FOUND = 'Cart not found.';
+
+    public const FORMAT_SELF_LINK_CART_RESOURCE = '%s/%s/%s/%s';
 }

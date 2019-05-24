@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
@@ -15,6 +15,7 @@ use Generated\Shared\Transfer\RestErrorMessageTransfer;
 use Generated\Shared\Transfer\StoreTransfer;
 use Spryker\Client\PersistentCart\PersistentCartClientInterface;
 use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
+use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CartCreator implements CartCreatorInterface
 {
+    use SelfLinkCreatorTrait;
+
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface
      */
@@ -68,9 +71,16 @@ class CartCreator implements CartCreatorInterface
             return $this->createFailedCreatingCartError($quoteResponseTransfer, $restResponse);
         }
 
+        $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
+
         $cartsRestResource = $this->cartsResourceMapper->mapCartsResource(
-            $quoteResponseTransfer->getQuoteTransfer(),
+            $quoteTransfer,
             $restRequest
+        );
+
+        $cartsRestResource->addLink(
+            RestLinkInterface::LINK_SELF,
+            $this->createSelfLink($quoteTransfer)
         );
 
         $restResponse = $restResponse->addResource($cartsRestResource);
@@ -92,7 +102,6 @@ class CartCreator implements CartCreatorInterface
         $customerTransfer = $this->getCustomerTransfer($restRequest);
         $storeTransfer = $this->getStoreTransfer($restCartsAttributesTransfer);
 
-
         $quoteTransfer = (new QuoteTransfer())
             ->setReference($restCartsAttributesTransfer->getReference())
             ->setFilter($restCartsAttributesTransfer->getFilter())
@@ -107,7 +116,6 @@ class CartCreator implements CartCreatorInterface
 
         return $quoteTransfer;
     }
-
 
     /**
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest

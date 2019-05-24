@@ -10,12 +10,15 @@ use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Spryker\Client\PersistentCart\PersistentCartClientInterface;
+use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
 class CartUpdater implements CartUpdaterInterface
 {
+    use SelfLinkCreatorTrait;
+
     /**
      * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
      */
@@ -112,6 +115,10 @@ class CartUpdater implements CartUpdaterInterface
 
         $quoteTransfer = $this->persistItems($restCartsAttributesTransfer);
         $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
+        $cartResource->addLink(
+            RestLinkInterface::LINK_SELF,
+            $this->createSelfLink($quoteTransfer)
+        );
         $restResponse->addResource($cartResource);
 
         return $restResponse;

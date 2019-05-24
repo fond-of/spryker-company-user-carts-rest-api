@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
@@ -10,12 +10,15 @@ use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\QuoteCollectionTransfer;
 use Generated\Shared\Transfer\QuoteCriteriaFilterTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
+use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
 class CartReader implements CartReaderInterface
 {
+    use SelfLinkCreatorTrait;
+
     /**
      * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
      */
@@ -55,13 +58,19 @@ class CartReader implements CartReaderInterface
     {
         $quoteCollectionTransfer = $this->getCustomerCompanyUserQuotes($restRequest);
 
-        $restResponse = $this->restResourceBuilder->createRestResponse(\count($quoteCollectionTransfer->getQuotes()));
+        $restResponse = $this->restResourceBuilder->createRestResponse(count($quoteCollectionTransfer->getQuotes()));
         if (count($quoteCollectionTransfer->getQuotes()) === 0) {
             return $restResponse;
         }
 
         foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
             $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
+
+            $cartResource->addLink(
+                RestLinkInterface::LINK_SELF,
+                $this->createSelfLink($quoteTransfer)
+            );
+
             $restResponse->addResource($cartResource);
         }
 
