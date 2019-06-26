@@ -4,12 +4,15 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
-use FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
+use Generated\Shared\Transfer\CompanyUserTransfer;
+use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\QuoteCollectionTransfer;
 use Generated\Shared\Transfer\QuoteCriteriaFilterTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
+use Generated\Shared\Transfer\QuoteTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
@@ -20,12 +23,12 @@ class CartReader implements CartReaderInterface
     use SelfLinkCreatorTrait;
 
     /**
-     * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
      */
-    protected $restResourceBuilder;
+    protected $cartOperation;
 
     /**
-     * @var \FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface
      */
     protected $companyUserQuoteClient;
 
@@ -35,18 +38,26 @@ class CartReader implements CartReaderInterface
     protected $cartsResourceMapper;
 
     /**
-     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \FondOfSpryker\Client\CompanyUserQuote\CompanyUserQuoteClientInterface $companyUserQuoteClient
+     * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
+     */
+    protected $restResourceBuilder;
+
+    /**
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface $cartOperation
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface $companyUserQuoteClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
+     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
      */
     public function __construct(
-        RestResourceBuilderInterface $restResourceBuilder,
-        CompanyUserQuoteClientInterface $companyUserQuoteClient,
-        CartsResourceMapperInterface $cartsResourceMapper
+        CartOperationInterface $cartOperation,
+        CompanyUserCartsRestApiToCompanyUserQuoteClientInterface $companyUserQuoteClient,
+        CartsResourceMapperInterface $cartsResourceMapper,
+        RestResourceBuilderInterface $restResourceBuilder
     ) {
-        $this->restResourceBuilder = $restResourceBuilder;
+        $this->cartOperation = $cartOperation;
         $this->companyUserQuoteClient = $companyUserQuoteClient;
         $this->cartsResourceMapper = $cartsResourceMapper;
+        $this->restResourceBuilder = $restResourceBuilder;
     }
 
     /**
@@ -64,6 +75,11 @@ class CartReader implements CartReaderInterface
         }
 
         foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
+            $quoteTransfer = $this->prepareQuote($quoteTransfer);
+
+            $this->cartOperation->setQuoteTransfer($quoteTransfer)
+                ->reloadItems();
+
             $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
 
             $cartResource->addLink(
@@ -94,6 +110,8 @@ class CartReader implements CartReaderInterface
 
         foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
             if ($quoteTransfer->getUuid() === $uuidCart) {
+                $this->prepareQuote($quoteTransfer);
+
                 return (new QuoteResponseTransfer())
                     ->setIsSuccessful(true)
                     ->setQuoteTransfer($quoteTransfer);
@@ -133,5 +151,28 @@ class CartReader implements CartReaderInterface
         }
 
         return null;
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    protected function prepareQuote(QuoteTransfer $quoteTransfer): QuoteTransfer
+    {
+        if ($quoteTransfer->getCustomer() === null && $quoteTransfer->getCustomerReference() !== null) {
+            $customerTransfer = (new CustomerTransfer())->setCustomerReference($quoteTransfer->getCustomerReference());
+
+            $quoteTransfer->setCustomer($customerTransfer);
+        }
+
+        if ($quoteTransfer->getCompanyUser() === null && $quoteTransfer->getCompanyUserReference() !== null) {
+            $companyUserTransfer = (new CompanyUserTransfer())
+                ->setCompanyUserReference($quoteTransfer->getCompanyUserReference());
+
+            $quoteTransfer->setCompanyUser($companyUserTransfer);
+        }
+
+        return $quoteTransfer;
     }
 }

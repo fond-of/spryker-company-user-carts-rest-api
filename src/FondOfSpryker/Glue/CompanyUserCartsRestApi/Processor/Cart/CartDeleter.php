@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use Generated\Shared\Transfer\RestErrorMessageTransfer;
-use Spryker\Client\PersistentCart\PersistentCartClientInterface;
 use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
@@ -20,7 +20,7 @@ class CartDeleter implements CartDeleterInterface
     protected $cartReader;
 
     /**
-     * @var \Spryker\Client\PersistentCart\PersistentCartClientInterface
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface
      */
     protected $persistentCartClient;
 
@@ -30,18 +30,18 @@ class CartDeleter implements CartDeleterInterface
     protected $restResourceBuilder;
 
     /**
-     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \Spryker\Client\PersistentCart\PersistentCartClientInterface $persistentCartClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface $cartReader
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient
+     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
      */
     public function __construct(
-        RestResourceBuilderInterface $restResourceBuilder,
-        PersistentCartClientInterface $persistentCartClient,
-        CartReaderInterface $cartReader
+        CartReaderInterface $cartReader,
+        CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient,
+        RestResourceBuilderInterface $restResourceBuilder
     ) {
-        $this->restResourceBuilder = $restResourceBuilder;
-        $this->persistentCartClient = $persistentCartClient;
         $this->cartReader = $cartReader;
+        $this->persistentCartClient = $persistentCartClient;
+        $this->restResourceBuilder = $restResourceBuilder;
     }
 
     /**
@@ -53,6 +53,7 @@ class CartDeleter implements CartDeleterInterface
     {
         $restResponse = $this->restResourceBuilder->createRestResponse();
         $idCart = $restRequest->getResource()->getId();
+
         if ($idCart === null) {
             return $this->createCartIdMissingError($restResponse);
         }
@@ -67,6 +68,7 @@ class CartDeleter implements CartDeleterInterface
         $quoteTransfer->setCustomer($quoteResponseTransfer->getCustomer());
 
         $quoteResponseTransfer = $this->persistentCartClient->deleteQuote($quoteTransfer);
+
         if (!$quoteResponseTransfer->getIsSuccessful()) {
             return $this->createFailedDeletingCartError($restResponse);
         }

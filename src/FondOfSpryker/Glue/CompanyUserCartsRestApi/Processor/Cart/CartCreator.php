@@ -4,16 +4,15 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
-use Generated\Shared\Transfer\CurrencyTransfer;
+use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
-use Generated\Shared\Transfer\RestCartsAttributesTransfer;
+use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Generated\Shared\Transfer\RestErrorMessageTransfer;
-use Generated\Shared\Transfer\StoreTransfer;
-use Spryker\Client\PersistentCart\PersistentCartClientInterface;
 use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
@@ -26,14 +25,19 @@ class CartCreator implements CartCreatorInterface
     use SelfLinkCreatorTrait;
 
     /**
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
+     */
+    protected $cartOperation;
+
+    /**
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface
+     */
+    protected $persistentCartClient;
+
+    /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface
      */
     protected $cartsResourceMapper;
-
-    /**
-     * @var \Spryker\Client\PersistentCart\PersistentCartClientInterface
-     */
-    protected $persistentCartClient;
 
     /**
      * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
@@ -41,37 +45,118 @@ class CartCreator implements CartCreatorInterface
     protected $restResourceBuilder;
 
     /**
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface $cartOperation
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
-     * @param \Spryker\Client\PersistentCart\PersistentCartClientInterface $persistentCartClient
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
      */
     public function __construct(
+        CartOperationInterface $cartOperation,
+        CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient,
         CartsResourceMapperInterface $cartsResourceMapper,
-        PersistentCartClientInterface $persistentCartClient,
         RestResourceBuilderInterface $restResourceBuilder
     ) {
-        $this->cartsResourceMapper = $cartsResourceMapper;
+        $this->cartOperation = $cartOperation;
         $this->persistentCartClient = $persistentCartClient;
+        $this->cartsResourceMapper = $cartsResourceMapper;
         $this->restResourceBuilder = $restResourceBuilder;
     }
 
     /**
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
+     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function create(RestRequestInterface $restRequest, RestCartsAttributesTransfer $restCartsAttributesTransfer): RestResponseInterface
-    {
-        $restResponse = $this->restResourceBuilder->createRestResponse();
-        $quoteTransfer = $this->createQuoteTransfer($restCartsAttributesTransfer, $restRequest);
+    public function create(
+        RestRequestInterface $restRequest,
+        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+    ): RestResponseInterface {
+        $quoteTransfer = $this->createQuoteTransfer($restRequest, $restCartsRequestAttributesTransfer);
         $quoteResponseTransfer = $this->persistentCartClient->createQuote($quoteTransfer);
 
         if (!$quoteResponseTransfer->getIsSuccessful()) {
-            return $this->createFailedCreatingCartError($quoteResponseTransfer, $restResponse);
+            return $this->createFailedCreatingCartError($quoteResponseTransfer);
         }
 
         $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
+
+        if ($restCartsRequestAttributesTransfer->getItems()->count() === 0) {
+            return $this->createRestResponse($restRequest, $quoteTransfer);
+        }
+
+        $this->cartOperation->setQuoteTransfer($quoteTransfer)
+            ->handleItems($restCartsRequestAttributesTransfer->getItems())
+            ->reloadItems();
+
+        return $this->createRestResponse($restRequest, $quoteTransfer);
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    protected function createQuoteTransfer(
+        RestRequestInterface $restRequest,
+        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+    ): QuoteTransfer {
+        $customerReference = $this->findCustomerIdentifier($restRequest);
+        $companyUserReference = $this->findCustomerIdentifier($restRequest);
+
+        $quoteTransfer = $this->cartsResourceMapper
+            ->mapRestCartsRequestAttributesTransferToQuoteTransfer($restCartsRequestAttributesTransfer);
+
+        return $quoteTransfer->setCustomer((new CustomerTransfer())->setCustomerReference($customerReference))
+            ->setCompanyUser((new CompanyUserTransfer())->setCompanyUserReference($companyUserReference))
+            ->setCustomerReference($customerReference)
+            ->setCompanyUserReference($companyUserReference);
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return string|null
+     */
+    protected function findCompanyUserIdentifier(RestRequestInterface $restRequest): ?string
+    {
+        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS);
+
+        if ($companyUsersResource !== null) {
+            return $companyUsersResource->getId();
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return string|null
+     */
+    protected function findCustomerIdentifier(RestRequestInterface $restRequest): ?string
+    {
+        $restUserTransfer = $restRequest->getRestUser();
+
+        if ($restUserTransfer !== null) {
+            return $restUserTransfer->getNaturalIdentifier();
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     *
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function createRestResponse(
+        RestRequestInterface $restRequest,
+        QuoteTransfer $quoteTransfer
+    ): RestResponseInterface {
+        $restResponse = $this->restResourceBuilder->createRestResponse();
 
         $cartsRestResource = $this->cartsResourceMapper->mapCartsResource(
             $quoteTransfer,
@@ -83,97 +168,21 @@ class CartCreator implements CartCreatorInterface
             $this->createSelfLink($quoteTransfer)
         );
 
-        $restResponse = $restResponse->addResource($cartsRestResource);
-
-        return $restResponse;
-    }
-
-    /**
-     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
-     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     *
-     * @return \Generated\Shared\Transfer\QuoteTransfer
-     */
-    protected function createQuoteTransfer(
-        RestCartsAttributesTransfer $restCartsAttributesTransfer,
-        RestRequestInterface $restRequest
-    ): QuoteTransfer {
-        $currencyTransfer = $this->getCurrencyTransfer($restCartsAttributesTransfer);
-        $customerTransfer = $this->getCustomerTransfer($restRequest);
-        $storeTransfer = $this->getStoreTransfer($restCartsAttributesTransfer);
-
-        $quoteTransfer = (new QuoteTransfer())
-            ->setReference($restCartsAttributesTransfer->getReference())
-            ->setFilter($restCartsAttributesTransfer->getFilter())
-            ->setComment($restCartsAttributesTransfer->getComment())
-            ->setDates($restCartsAttributesTransfer->getDates())
-            ->setName($restCartsAttributesTransfer->getName())
-            ->setCurrency($currencyTransfer)
-            ->setCustomer($customerTransfer)
-            ->setCompanyUserReference($this->findCompanyUserIdentifier($restRequest))
-            ->setPriceMode($restCartsAttributesTransfer->getPriceMode())
-            ->setStore($storeTransfer);
-
-        return $quoteTransfer;
-    }
-
-    /**
-     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     *
-     * @return string|null
-     */
-    protected function findCompanyUserIdentifier(RestRequestInterface $restRequest): ?string
-    {
-        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS);
-        if ($companyUsersResource !== null) {
-            return $companyUsersResource->getId();
-        }
-
-        return null;
-    }
-
-    /**
-     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
-     *
-     * @return \Generated\Shared\Transfer\CurrencyTransfer
-     */
-    protected function getCurrencyTransfer(RestCartsAttributesTransfer $restCartsAttributesTransfer): CurrencyTransfer
-    {
-        return (new CurrencyTransfer())
-            ->setCode($restCartsAttributesTransfer->getCurrency());
-    }
-
-    /**
-     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     *
-     * @return \Generated\Shared\Transfer\CustomerTransfer
-     */
-    protected function getCustomerTransfer(RestRequestInterface $restRequest): CustomerTransfer
-    {
-        return (new CustomerTransfer())->setCustomerReference($restRequest->getUser()->getNaturalIdentifier());
-    }
-
-    /**
-     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
-     *
-     * @return \Generated\Shared\Transfer\StoreTransfer
-     */
-    protected function getStoreTransfer(RestCartsAttributesTransfer $restCartsAttributesTransfer): StoreTransfer
-    {
-        return (new StoreTransfer())
-            ->setName($restCartsAttributesTransfer->getStore());
+        return $restResponse->addResource($cartsRestResource);
     }
 
     /**
      * @param \Generated\Shared\Transfer\QuoteResponseTransfer $quoteResponseTransfer
-     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface $response
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    protected function createFailedCreatingCartError(QuoteResponseTransfer $quoteResponseTransfer, RestResponseInterface $response): RestResponseInterface
-    {
+    protected function createFailedCreatingCartError(
+        QuoteResponseTransfer $quoteResponseTransfer
+    ): RestResponseInterface {
+        $restResponse = $this->restResourceBuilder->createRestResponse();
+
         if ($quoteResponseTransfer->getErrors()->count() === 0) {
-            return $response->addError($this->createRestErrorMessageTransfer(
+            return $restResponse->addError($this->createRestErrorMessageTransfer(
                 CartsRestApiConfig::RESPONSE_CODE_FAILED_CREATING_CART,
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 CartsRestApiConfig::EXCEPTION_MESSAGE_FAILED_TO_CREATE_CART
@@ -182,7 +191,7 @@ class CartCreator implements CartCreatorInterface
 
         foreach ($quoteResponseTransfer->getErrors() as $error) {
             if ($error->getMessage() === CartsRestApiConfig::EXCEPTION_MESSAGE_CUSTOMER_ALREADY_HAS_CART) {
-                $response->addError($this->createRestErrorMessageTransfer(
+                $restResponse->addError($this->createRestErrorMessageTransfer(
                     CartsRestApiConfig::RESPONSE_CODE_CUSTOMER_ALREADY_HAS_CART,
                     Response::HTTP_UNPROCESSABLE_ENTITY,
                     CartsRestApiConfig::EXCEPTION_MESSAGE_CUSTOMER_ALREADY_HAS_CART
@@ -191,14 +200,14 @@ class CartCreator implements CartCreatorInterface
                 continue;
             }
 
-            $response->addError($this->createRestErrorMessageTransfer(
+            $restResponse->addError($this->createRestErrorMessageTransfer(
                 CartsRestApiConfig::RESPONSE_CODE_FAILED_CREATING_CART,
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 $error->getMessage()
             ));
         }
 
-        return $response;
+        return $restResponse;
     }
 
     /**
@@ -208,8 +217,11 @@ class CartCreator implements CartCreatorInterface
      *
      * @return \Generated\Shared\Transfer\RestErrorMessageTransfer
      */
-    protected function createRestErrorMessageTransfer(string $code, int $status, string $detail): RestErrorMessageTransfer
-    {
+    protected function createRestErrorMessageTransfer(
+        string $code,
+        int $status,
+        string $detail
+    ): RestErrorMessageTransfer {
         return (new RestErrorMessageTransfer())
             ->setCode($code)
             ->setStatus($status)

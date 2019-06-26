@@ -4,9 +4,20 @@
            xsi:schemaLocation="spryker:transfer-01 http://static.spryker.com/transfer-01.xsd">
 
     <transfer name="RestCartsAttributes">
-        <property name="items" type="RestCartItem[]" singular="item" />
         <property name="name" type="string"/>
         <property name="reference" type="string"/>
+        <property name="filter" type="string"/>
+        <property name="comment" type="string"/>
+        <property name="dates" type="string"/>
+    </transfer>
+
+    <transfer name="RestCartsRequestAttributes">
+        <property name="name" type="string"/>
+        <property name="reference" type="string"/>
+        <property name="priceMode" type="string" restRequestParameter="required" />
+        <property name="currency" type="string" restRequestParameter="required" />
+        <property name="store" type="string" restRequestParameter="required" />
+        <property name="items" type="RestCartItem[]" singular="item" />
         <property name="filter" type="string"/>
         <property name="comment" type="string"/>
         <property name="dates" type="string"/>
@@ -15,9 +26,9 @@
     <transfer name="RestCartItem">
         <property name="sku" type="string" restRequestParameter="required" />
         <property name="quantity" type="int" restRequestParameter="required" />
-        <property name="groupKey" type="string" />
-        <property name="abstractSku" type="string" />
-        <property name="amount" type="int" />
-        <property name="calculations" type="RestCartItemCalculations" />
+    </transfer>
+
+    <transfer name="RestCartItemsAttributes">
+        <property name="messages" type="Message[]" singular="message"/>
     </transfer>
 </transfers>
