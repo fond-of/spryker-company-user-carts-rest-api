@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Controller;
 
-use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
@@ -33,7 +32,7 @@ class CartsResourceController extends AbstractController
      */
     public function postAction(RestRequestInterface $restRequest, RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer): RestResponseInterface
     {
-        return $this->getFactory()->createCartCreator()->create($restRequest, $restCartsAttributesTransfer);
+        return $this->getFactory()->createCartCreator()->create($restRequest, $restCartsRequestAttributesTransfer);
     }
 
     /**
