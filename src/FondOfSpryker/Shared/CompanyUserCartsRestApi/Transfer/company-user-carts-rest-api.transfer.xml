@@ -30,5 +30,6 @@
 
     <transfer name="RestCartItemsAttributes">
         <property name="messages" type="Message[]" singular="message"/>
+        <property name="validationMessages" type="Message[]" singular="validationMessage"/>
     </transfer>
 </transfers>
