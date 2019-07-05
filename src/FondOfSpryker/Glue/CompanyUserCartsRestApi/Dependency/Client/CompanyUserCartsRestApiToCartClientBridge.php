@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client;
 
 use ArrayObject;
+use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Spryker\Client\Cart\CartClientInterface;
 
@@ -48,5 +49,17 @@ class CompanyUserCartsRestApiToCartClientBridge implements CompanyUserCartsRestA
     public function removeItems(array $itemTransfers): QuoteTransfer
     {
         return $this->cartClient->removeItems(new ArrayObject($itemTransfers));
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param string $sku
+     * @param string|null $groupKey
+     *
+     * @return \Generated\Shared\Transfer\ItemTransfer|null
+     */
+    public function findQuoteItem(QuoteTransfer $quoteTransfer, string $sku, ?string $groupKey = null): ?ItemTransfer
+    {
+        return $this->cartClient->findQuoteItem($quoteTransfer, $sku, $groupKey);
     }
 }

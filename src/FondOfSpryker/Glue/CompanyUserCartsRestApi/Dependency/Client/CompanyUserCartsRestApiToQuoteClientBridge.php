@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client;
 
 use Generated\Shared\Transfer\QuoteTransfer;
+use Spryker\Client\Quote\QuoteClientInterface;
 
 class CompanyUserCartsRestApiToQuoteClientBridge implements CompanyUserCartsRestApiToQuoteClientInterface
 {
@@ -14,7 +15,7 @@ class CompanyUserCartsRestApiToQuoteClientBridge implements CompanyUserCartsRest
     /**
      * @param \Spryker\Client\Quote\QuoteClientInterface $quoteClient
      */
-    public function __construct($quoteClient)
+    public function __construct(QuoteClientInterface $quoteClient)
     {
         $this->quoteClient = $quoteClient;
     }
@@ -27,5 +28,13 @@ class CompanyUserCartsRestApiToQuoteClientBridge implements CompanyUserCartsRest
     public function setQuote(QuoteTransfer $quoteTransfer): void
     {
         $this->quoteClient->setQuote($quoteTransfer);
+    }
+
+    /**
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    public function getQuote(): QuoteTransfer
+    {
+        return $this->quoteClient->getQuote();
     }
 }

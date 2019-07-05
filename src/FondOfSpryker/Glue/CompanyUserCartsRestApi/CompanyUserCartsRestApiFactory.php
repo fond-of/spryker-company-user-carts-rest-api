@@ -156,7 +156,18 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
         return new CartOperation(
             $this->getCartClient(),
             $this->getQuoteClient(),
-            $this->createCartItemsResourceMapper()
+            $this->createCartItemsResourceMapper(),
+            $this->getRestCartItemExpanderPlugins()
         );
+    }
+
+    /**
+     * @throws
+     *
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface[]
+     */
+    protected function getRestCartItemExpanderPlugins(): array
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::PLUGINS_REST_CART_ITEM_EXPANDER);
     }
 }

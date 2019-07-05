@@ -11,5 +11,10 @@ interface CompanyUserCartsRestApiToQuoteClientInterface
      *
      * @return void
      */
-    public function setQuote(QuoteTransfer $quoteTransfer);
+    public function setQuote(QuoteTransfer $quoteTransfer): void;
+
+    /**
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    public function getQuote(): QuoteTransfer;
 }

@@ -26,6 +26,7 @@
     <transfer name="RestCartItem">
         <property name="sku" type="string" restRequestParameter="required" />
         <property name="quantity" type="int" restRequestParameter="required" />
+        <property name="groupKey" type="string" />
     </transfer>
 
     <transfer name="RestCartItemsAttributes">

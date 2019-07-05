@@ -17,6 +17,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     public const CLIENT_PERSISTENT_CART = 'CLIENT_PERSISTENT_CART';
     public const CLIENT_CART = 'CLIENT_CART';
     public const CLIENT_QUOTE = 'CLIENT_QUOTE';
+    public const PLUGINS_REST_CART_ITEM_EXPANDER = 'PLUGINS_REST_CART_ITEM_EXPANDER';
 
     /**
      * @param \Spryker\Glue\Kernel\Container $container
@@ -31,6 +32,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
         $container = $this->addQuoteClient($container);
         $container = $this->addPersistentCartClient($container);
         $container = $this->addCartClient($container);
+        $container = $this->addRestCartItemExpanderPlugins($container);
 
         return $container;
     }
@@ -93,5 +95,27 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
         };
 
         return $container;
+    }
+
+    /**
+     * @param \Spryker\Glue\Kernel\Container $container
+     *
+     * @return \Spryker\Glue\Kernel\Container
+     */
+    protected function addRestCartItemExpanderPlugins(Container $container): Container
+    {
+        $container[static::PLUGINS_REST_CART_ITEM_EXPANDER] = function (Container $container) {
+            return $this->getRestCartItemExpanderPlugins();
+        };
+
+        return $container;
+    }
+
+    /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface[]
+     */
+    protected function getRestCartItemExpanderPlugins(): array
+    {
+        return [];
     }
 }
