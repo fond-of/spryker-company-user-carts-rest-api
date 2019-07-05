@@ -103,7 +103,7 @@ class CartCreator implements CartCreatorInterface
         RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
     ): QuoteTransfer {
         $customerReference = $this->findCustomerIdentifier($restRequest);
-        $companyUserReference = $this->findCustomerIdentifier($restRequest);
+        $companyUserReference = $this->findCompanyUserIdentifier($restRequest);
 
         $quoteTransfer = $this->cartsResourceMapper
             ->mapRestCartsRequestAttributesTransferToQuoteTransfer($restCartsRequestAttributesTransfer);
