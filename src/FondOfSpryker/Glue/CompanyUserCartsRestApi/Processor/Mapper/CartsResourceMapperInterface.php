@@ -12,6 +12,17 @@ use Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface as S
 interface CartsResourceMapperInterface extends SprykerCartsResourceMapperInterface
 {
     /**
+     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    public function mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer(
+        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer,
+        QuoteTransfer $quoteTransfer
+    ): QuoteTransfer;
+
+    /**
      * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer

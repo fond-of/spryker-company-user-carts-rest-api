@@ -31,4 +31,10 @@
         <property name="messages" type="Message[]" singular="message"/>
         <property name="validationMessages" type="Message[]" singular="validationMessage"/>
     </transfer>
+
+    <transfer name="QuoteUpdateRequestAttributes">
+        <property name="comment" type="string"/>
+        <property name="filter" type="string"/>
+        <property name="reference" type="string"/>
+    </transfer>
 </transfers>

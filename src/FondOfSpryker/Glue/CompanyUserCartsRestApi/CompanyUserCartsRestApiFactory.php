@@ -26,6 +26,9 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiError
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
 use Spryker\Glue\Kernel\AbstractFactory;
 
+/**
+ * @method \FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig getConfig()
+ */
 class CompanyUserCartsRestApiFactory extends AbstractFactory
 {
     /**
@@ -88,7 +91,8 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     {
         return new CartsResourceMapper(
             $this->createCartItemsResourceMapper(),
-            $this->getResourceBuilder()
+            $this->getResourceBuilder(),
+            $this->getConfig()->getAllowedFieldsToPatchInQuote()
         );
     }
 

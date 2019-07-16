@@ -5,7 +5,10 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
+use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
+use Generated\Shared\Transfer\QuoteUpdateRequestAttributesTransfer;
+use Generated\Shared\Transfer\QuoteUpdateRequestTransfer;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
@@ -100,6 +103,14 @@ class CartUpdater implements CartUpdaterInterface
             return $this->restApiError->addCartNotFoundError($restResponse);
         }
 
+        $quoteResponseTransfer = $this->updateCart($quoteTransfer, $restCartsRequestAttributesTransfer);
+
+        if (! $quoteResponseTransfer->getIsSuccessful()) {
+            return $this->restApiError->addCouldNotUpdateCartError($restResponse);
+        }
+
+        $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
+
         if ($restCartsRequestAttributesTransfer->getItems()->count() === 0) {
             return $this->createRestResponse($restRequest, $quoteTransfer);
         }
@@ -109,6 +120,32 @@ class CartUpdater implements CartUpdaterInterface
             ->reloadItems();
 
         return $this->createRestResponse($restRequest, $quoteTransfer);
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
+     */
+    protected function updateCart(
+        QuoteTransfer $quoteTransfer,
+        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+    ): QuoteResponseTransfer {
+        $quoteTransfer = $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer(
+            $restCartsRequestAttributesTransfer,
+            $quoteTransfer
+        );
+
+        $quoteUpdateRequestAttributesTransfer = new QuoteUpdateRequestAttributesTransfer();
+        $quoteUpdateRequestAttributesTransfer->fromArray($quoteTransfer->toArray(), true);
+
+        $quoteUpdateRequestTransfer = new QuoteUpdateRequestTransfer();
+        $quoteUpdateRequestTransfer->setCustomer($quoteTransfer->getCustomer());
+        $quoteUpdateRequestTransfer->setIdQuote($quoteTransfer->getIdQuote());
+        $quoteUpdateRequestTransfer->setQuoteUpdateRequestAttributes($quoteUpdateRequestAttributesTransfer);
+
+        return $this->persistentCartClient->updateQuote($quoteUpdateRequestTransfer);
     }
 
     /**

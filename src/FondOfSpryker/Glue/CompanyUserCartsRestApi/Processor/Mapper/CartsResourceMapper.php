@@ -10,10 +10,58 @@ use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Generated\Shared\Transfer\StoreTransfer;
+use Spryker\Glue\CartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
 use Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapper as SprykerCartsResourceMapper;
+use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
+
+use function in_array;
 
 class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsResourceMapperInterface
 {
+    /**
+     * @var string[]
+     */
+    protected $allowedFieldsToPatch;
+
+    /**
+     * @param \Spryker\Glue\CartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface $cartItemsResourceMapper
+     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
+     * @param string[] $allowedFieldsToUpdate
+     */
+    public function __construct(
+        CartItemsResourceMapperInterface $cartItemsResourceMapper,
+        RestResourceBuilderInterface $restResourceBuilder,
+        array $allowedFieldsToUpdate
+    ) {
+        parent::__construct($cartItemsResourceMapper, $restResourceBuilder);
+        $this->allowedFieldsToPatch = $allowedFieldsToUpdate;
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    public function mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer(
+        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer,
+        QuoteTransfer $quoteTransfer
+    ): QuoteTransfer {
+
+        $quoteAttributes = $quoteTransfer->toArray();
+        $restAttributes = $restCartsRequestAttributesTransfer->toArray();
+
+        foreach ($restAttributes as $restAttributeKey => $restAttributeValue) {
+            if (!in_array($restAttributeKey, $this->allowedFieldsToPatch, true)) {
+                continue;
+            }
+
+            $quoteAttributes[$restAttributeKey] = $restAttributeValue;
+        }
+
+        return $quoteTransfer->fromArray($quoteAttributes, true);
+    }
+
     /**
      * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
      *
