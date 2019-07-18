@@ -69,8 +69,9 @@ class CartOperation implements CartOperationInterface
      */
     public function handleItems(ArrayObject $restCartItemTransfers): CartOperationInterface
     {
-        $itemTransfersToPersist = [];
+        $itemTransfersToAdd = [];
         $itemTransfersToRemove = [];
+        $itemTransfersToUpdate = [];
 
         foreach ($restCartItemTransfers as $restCartItemTransfer) {
             $this->executeExpandRestCartItemPlugins($restCartItemTransfer);
@@ -81,7 +82,7 @@ class CartOperation implements CartOperationInterface
             $existingItemTransfer = $this->findItemInQuote($itemTransfer);
 
             if ($this->canAddItem($itemTransfer, $existingItemTransfer)) {
-                $itemTransfersToPersist[] = $itemTransfer;
+                $itemTransfersToAdd[] = $itemTransfer;
                 continue;
             }
 
@@ -91,14 +92,14 @@ class CartOperation implements CartOperationInterface
             }
 
             if ($this->canUpdateItem($itemTransfer, $existingItemTransfer)) {
-                $quantity = $itemTransfer->getQuantity() - $existingItemTransfer->getQuantity();
-                $itemTransfersToPersist[] = $itemTransfer->setQuantity($quantity);
+                $itemTransfersToUpdate[] = $itemTransfer;
                 continue;
             }
         }
 
-        $this->persistItems($itemTransfersToPersist)
-            ->removeItems($itemTransfersToRemove);
+        $this->addItems($itemTransfersToAdd)
+            ->removeItems($itemTransfersToRemove)
+            ->updateItems($itemTransfersToUpdate);
 
         return $this;
     }
@@ -148,7 +149,7 @@ class CartOperation implements CartOperationInterface
      *
      * @return $this
      */
-    protected function persistItems(array $itemTransfersToPersist)
+    protected function addItems(array $itemTransfersToPersist)
     {
         if (count($itemTransfersToPersist) === 0) {
             return $this;
@@ -160,19 +161,19 @@ class CartOperation implements CartOperationInterface
     }
 
     /**
-     * @deprecated
-     *
      * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfersToUpdate
      *
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
+     * @return $this
      */
-    protected function updateItems(array $itemTransfersToUpdate): CartOperationInterface
+    protected function updateItems(array $itemTransfersToUpdate): self
     {
-        if (count($itemTransfersToUpdate) === 0) {
-            return $this;
+        foreach ($itemTransfersToUpdate as $itemTransfer) {
+            $this->cartClient->changeItemQuantity(
+                $itemTransfer->getSku(),
+                $itemTransfer->getGroupKey(),
+                $itemTransfer->getQuantity()
+            );
         }
-
-        $this->cartClient->addItems($itemTransfersToUpdate);
 
         return $this;
     }
@@ -182,7 +183,7 @@ class CartOperation implements CartOperationInterface
      *
      * @return $this
      */
-    protected function removeItems(array $itemTransfersToRemove)
+    protected function removeItems(array $itemTransfersToRemove): self
     {
         if (count($itemTransfersToRemove) === 0) {
             return $this;

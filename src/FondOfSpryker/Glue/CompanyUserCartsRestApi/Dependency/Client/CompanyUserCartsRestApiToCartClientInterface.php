@@ -35,4 +35,13 @@ interface CompanyUserCartsRestApiToCartClientInterface
      * @return \Generated\Shared\Transfer\ItemTransfer|null
      */
     public function findQuoteItem(QuoteTransfer $quoteTransfer, string $sku, ?string $groupKey = null): ?ItemTransfer;
+
+    /**
+     * @param string $sku
+     * @param string|null $groupKey
+     * @param int $quantity
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    public function changeItemQuantity(string $sku, ?string $groupKey = null, int $quantity = 1): QuoteTransfer;
 }

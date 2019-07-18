@@ -62,4 +62,16 @@ class CompanyUserCartsRestApiToCartClientBridge implements CompanyUserCartsRestA
     {
         return $this->cartClient->findQuoteItem($quoteTransfer, $sku, $groupKey);
     }
+
+    /**
+     * @param string $sku
+     * @param string|null $groupKey
+     * @param int $quantity
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer
+     */
+    public function changeItemQuantity(string $sku, ?string $groupKey = null, int $quantity = 1): QuoteTransfer
+    {
+        return $this->cartClient->changeItemQuantity($sku, $groupKey, $quantity);
+    }
 }
