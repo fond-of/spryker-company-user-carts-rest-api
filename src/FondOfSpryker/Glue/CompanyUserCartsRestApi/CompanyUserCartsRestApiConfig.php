@@ -29,6 +29,7 @@ class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
     public function getAllowedFieldsToPatchInQuote(): array
     {
         return [
+            QuoteTransfer::NAME,
             QuoteTransfer::COMMENT,
             QuoteTransfer::FILTER,
             QuoteTransfer::REFERENCE,
