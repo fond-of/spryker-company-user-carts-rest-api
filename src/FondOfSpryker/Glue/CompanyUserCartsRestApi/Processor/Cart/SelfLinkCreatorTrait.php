@@ -19,7 +19,7 @@ trait SelfLinkCreatorTrait
             CompanyUserCartsRestApiConfig::FORMAT_SELF_LINK_CART_RESOURCE,
             CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS,
             $quoteTransfer->getCompanyUserReference(),
-            CompanyUserCartsRestApiConfig::RESOURCE_CARTS,
+            CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USER_CARTS,
             $quoteTransfer->getUuid()
         );
     }

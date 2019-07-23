@@ -105,7 +105,7 @@ class CartUpdater implements CartUpdaterInterface
 
         $quoteResponseTransfer = $this->updateCart($quoteTransfer, $restCartsRequestAttributesTransfer);
 
-        if (! $quoteResponseTransfer->getIsSuccessful()) {
+        if (!$quoteResponseTransfer->getIsSuccessful()) {
             return $this->restApiError->addCouldNotUpdateCartError($restResponse);
         }
 

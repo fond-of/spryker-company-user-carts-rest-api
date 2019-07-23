@@ -37,7 +37,7 @@ class CompanyUserCartsResourceRoutePlugin extends AbstractPlugin implements Reso
      */
     public function getResourceType(): string
     {
-        return CompanyUserCartsRestApiConfig::RESOURCE_CARTS;
+        return CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USER_CARTS;
     }
 
     /**

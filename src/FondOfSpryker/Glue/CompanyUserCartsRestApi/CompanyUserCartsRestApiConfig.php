@@ -9,7 +9,7 @@ use Spryker\Glue\Kernel\AbstractBundleConfig;
 
 class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
 {
-    public const RESOURCE_CARTS = 'carts';
+    public const RESOURCE_COMPANY_USER_CARTS = 'company-user-carts';
 
     public const CONTROLLER_CARTS = 'carts-resource';
 
@@ -22,6 +22,8 @@ class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
     public const RESPONSE_MESSAGE_COULD_NOT_UPDATE_CART = 'Could not update cart properties.';
 
     public const FORMAT_SELF_LINK_CART_RESOURCE = '%s/%s/%s/%s';
+    public const RESOURCE_CARTS = 'carts';
+    public const RESOURCE_CART_ITEMS = 'items';
 
     /**
      * @return string[]
