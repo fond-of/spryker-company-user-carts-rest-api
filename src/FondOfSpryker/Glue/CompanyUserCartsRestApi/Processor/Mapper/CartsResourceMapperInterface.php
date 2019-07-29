@@ -23,15 +23,6 @@ interface CartsResourceMapperInterface extends SprykerCartsResourceMapperInterfa
     ): QuoteTransfer;
 
     /**
-     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
-     *
-     * @return \Generated\Shared\Transfer\QuoteTransfer
-     */
-    public function mapRestCartsAttributesTransferToQuoteTransfer(
-        RestCartsAttributesTransfer $restCartsAttributesTransfer
-    ): QuoteTransfer;
-
-    /**
      * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer

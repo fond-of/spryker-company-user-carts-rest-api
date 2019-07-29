@@ -49,6 +49,6 @@ class CompanyUserCartsRestApiToPersistentCartClientBridge implements CompanyUser
      */
     public function deleteQuote(QuoteTransfer $quoteTransfer): QuoteResponseTransfer
     {
-        $this->persistentCartClient->deleteQuote($quoteTransfer);
+        return $this->persistentCartClient->deleteQuote($quoteTransfer);
     }
 }

@@ -24,6 +24,7 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMap
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiError;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
+use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\Kernel\AbstractFactory;
 
 /**
@@ -92,6 +93,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
         return new CartsResourceMapper(
             $this->createCartItemsResourceMapper(),
             $this->getResourceBuilder(),
+            $this->getCartsRestApiConfig(),
             $this->getConfig()->getAllowedFieldsToPatchInQuote()
         );
     }
@@ -142,6 +144,16 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     protected function getQuoteClient(): CompanyUserCartsRestApiToQuoteClientInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_QUOTE);
+    }
+
+    /**
+     * @throws
+     *
+     * @return \Spryker\Glue\CartsRestApi\CartsRestApiConfig
+     */
+    protected function getCartsRestApiConfig(): CartsRestApiConfig
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CART_REST_API_CONFIG);
     }
 
     /**

@@ -30,14 +30,21 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
     /**
      * @param \Spryker\Glue\CartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface $cartItemsResourceMapper
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
+     * @param \Spryker\Glue\CartsRestApi\CartsRestApiConfig $config
      * @param string[] $allowedFieldsToUpdate
      */
     public function __construct(
         CartItemsResourceMapperInterface $cartItemsResourceMapper,
         RestResourceBuilderInterface $restResourceBuilder,
+        CartsRestApiConfig $config,
         array $allowedFieldsToUpdate
     ) {
-        parent::__construct($cartItemsResourceMapper, $restResourceBuilder);
+        parent::__construct(
+            $cartItemsResourceMapper,
+            $restResourceBuilder,
+            $config
+        );
+
         $this->allowedFieldsToPatch = $allowedFieldsToUpdate;
     }
 
@@ -123,27 +130,6 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
         }
 
         return $quoteTransfer->fromArray($quoteAttributes, true);
-    }
-
-    /**
-     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
-     *
-     * @return \Generated\Shared\Transfer\QuoteTransfer
-     */
-    public function mapRestCartsAttributesTransferToQuoteTransfer(
-        RestCartsAttributesTransfer $restCartsAttributesTransfer
-    ): QuoteTransfer {
-        $quoteTransfer = new QuoteTransfer();
-
-        $currencyTransfer = (new CurrencyTransfer())->setCode($restCartsAttributesTransfer->getCurrency());
-        $storeTransfer = (new StoreTransfer())->setName($restCartsAttributesTransfer->getStore());
-
-        return $quoteTransfer
-            ->fromArray($restCartsAttributesTransfer->toArray(), true)
-            ->setCurrency($currencyTransfer)
-            ->setPriceMode($restCartsAttributesTransfer->getPriceMode())
-            ->setStore($storeTransfer)
-            ->setItems(new ArrayObject());
     }
 
     /**
