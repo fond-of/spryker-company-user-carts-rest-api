@@ -6,7 +6,7 @@
     <transfer name="RestCartsAttributes">
         <property name="name" type="string"/>
         <property name="reference" type="string"/>
-        <property name="filter" type="string"/>
+        <property name="filters" type="string"/>
         <property name="comment" type="string"/>
     </transfer>
 
@@ -17,7 +17,7 @@
         <property name="currency" type="string" restRequestParameter="required" />
         <property name="store" type="string" restRequestParameter="required" />
         <property name="items" type="RestCartItem[]" singular="item" />
-        <property name="filter" type="string"/>
+        <property name="filters" type="string"/>
         <property name="comment" type="string"/>
     </transfer>
 
@@ -34,7 +34,7 @@
 
     <transfer name="QuoteUpdateRequestAttributes">
         <property name="comment" type="string"/>
-        <property name="filter" type="string"/>
+        <property name="filters" type="string"/>
         <property name="reference" type="string"/>
     </transfer>
 </transfers>

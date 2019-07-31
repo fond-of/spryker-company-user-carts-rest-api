@@ -33,7 +33,7 @@ class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
         return [
             QuoteTransfer::NAME,
             QuoteTransfer::COMMENT,
-            QuoteTransfer::FILTER,
+            QuoteTransfer::FILTERS,
             QuoteTransfer::REFERENCE,
         ];
     }
