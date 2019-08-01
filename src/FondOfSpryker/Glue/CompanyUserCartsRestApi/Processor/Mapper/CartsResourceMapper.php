@@ -119,7 +119,7 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
     ): QuoteTransfer {
 
         $quoteAttributes = $quoteTransfer->toArray();
-        $restAttributes = $restCartsRequestAttributesTransfer->toArray();
+        $restAttributes = $restCartsRequestAttributesTransfer->modifiedToArray();
 
         foreach ($restAttributes as $restAttributeKey => $restAttributeValue) {
             if (!in_array($restAttributeKey, $this->allowedFieldsToPatch, true)) {
