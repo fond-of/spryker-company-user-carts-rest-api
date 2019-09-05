@@ -34,14 +34,6 @@ class CompanyUserCartsRestApiToCartClientBridge implements CompanyUserCartsRestA
     }
 
     /**
-     * @return void
-     */
-    public function reloadItems(): void
-    {
-        $this->cartClient->reloadItems();
-    }
-
-    /**
      * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfers
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer

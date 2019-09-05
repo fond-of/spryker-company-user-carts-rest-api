@@ -116,8 +116,7 @@ class CartUpdater implements CartUpdaterInterface
         }
 
         $this->cartOperation->setQuoteTransfer($quoteTransfer)
-            ->handleItems($restCartsRequestAttributesTransfer->getItems())
-            ->reloadItems();
+            ->handleItems($restCartsRequestAttributesTransfer->getItems());
 
         return $this->createRestResponse($restRequest, $quoteTransfer);
     }

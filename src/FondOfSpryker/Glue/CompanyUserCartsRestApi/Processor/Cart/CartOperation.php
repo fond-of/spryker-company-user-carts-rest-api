@@ -165,7 +165,7 @@ class CartOperation implements CartOperationInterface
      *
      * @return $this
      */
-    protected function updateItems(array $itemTransfersToUpdate): self
+    protected function updateItems(array $itemTransfersToUpdate)
     {
         foreach ($itemTransfersToUpdate as $itemTransfer) {
             $this->cartClient->changeItemQuantity(
@@ -183,7 +183,7 @@ class CartOperation implements CartOperationInterface
      *
      * @return $this
      */
-    protected function removeItems(array $itemTransfersToRemove): self
+    protected function removeItems(array $itemTransfersToRemove)
     {
         if (count($itemTransfersToRemove) === 0) {
             return $this;
@@ -204,16 +204,6 @@ class CartOperation implements CartOperationInterface
         $quoteTransfer = $this->quoteClient->getQuote();
 
         return $this->cartClient->findQuoteItem($quoteTransfer, $itemTransfer->getSku(), $itemTransfer->getGroupKey());
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
-     */
-    public function reloadItems(): CartOperationInterface
-    {
-        $this->cartClient->reloadItems();
-
-        return $this;
     }
 
     /**

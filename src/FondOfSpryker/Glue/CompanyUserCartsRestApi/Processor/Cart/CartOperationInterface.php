@@ -20,9 +20,4 @@ interface CartOperationInterface
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
      */
     public function handleItems(ArrayObject $restCartItemTransfers): self;
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
-     */
-    public function reloadItems(): self;
 }

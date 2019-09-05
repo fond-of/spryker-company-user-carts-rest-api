@@ -77,8 +77,7 @@ class CartReader implements CartReaderInterface
         foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
             $quoteTransfer = $this->prepareQuote($quoteTransfer);
 
-            $this->cartOperation->setQuoteTransfer($quoteTransfer)
-                ->reloadItems();
+            $this->cartOperation->setQuoteTransfer($quoteTransfer);
 
             $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
 
