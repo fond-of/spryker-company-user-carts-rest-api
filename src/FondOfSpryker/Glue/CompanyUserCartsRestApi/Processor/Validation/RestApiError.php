@@ -14,6 +14,21 @@ class RestApiError implements RestApiErrorInterface
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
+    public function addCompanyUserNotFoundErrorResponse(RestResponseInterface $restResponse): RestResponseInterface
+    {
+        $restErrorMessageTransfer = (new RestErrorMessageTransfer())
+            ->setCode(CompanyUserCartsRestApiConfig::RESPONSE_CODE_COMPANY_USER_NOT_FOUND)
+            ->setStatus(Response::HTTP_NOT_FOUND)
+            ->setDetail(CompanyUserCartsRestApiConfig::RESPONSE_MESSAGE_COMPANY_USER_NOT_FOUND);
+
+        return $restResponse->addError($restErrorMessageTransfer);
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface $restResponse
+     *
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
     public function addCouldNotUpdateCartError(RestResponseInterface $restResponse): RestResponseInterface
     {
         $restErrorMessageTransfer = (new RestErrorMessageTransfer())

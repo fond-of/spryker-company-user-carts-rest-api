@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
+use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
@@ -66,7 +67,9 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->createCartOperation(),
             $this->getPersistentCartClient(),
             $this->createCartsResourceMapper(),
-            $this->getResourceBuilder()
+            $this->getResourceBuilder(),
+            $this->getCompanyUsersRestApiClient(),
+            $this->createRestApiError()
         );
     }
 
@@ -144,6 +147,14 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     protected function getQuoteClient(): CompanyUserCartsRestApiToQuoteClientInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_QUOTE);
+    }
+
+    /**
+     * @return \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface
+     */
+    protected function getCompanyUsersRestApiClient(): CompanyUsersRestApiClientInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_COMPANY_USER_REST_API);
     }
 
     /**

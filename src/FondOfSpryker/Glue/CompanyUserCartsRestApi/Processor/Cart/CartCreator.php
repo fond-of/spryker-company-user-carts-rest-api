@@ -4,9 +4,12 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
+use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
 use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
+use Generated\Shared\Transfer\CompanyUserResponseTransfer;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
@@ -45,21 +48,37 @@ class CartCreator implements CartCreatorInterface
     protected $restResourceBuilder;
 
     /**
+     * @var \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface
+     */
+    protected $companyUsersRestApiClient;
+
+    /**
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
+     */
+    protected $restApiError;
+
+    /**
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface $cartOperation
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
+     * @param \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface $companyUsersRestApiClient
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface $restApiError
      */
     public function __construct(
         CartOperationInterface $cartOperation,
         CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient,
         CartsResourceMapperInterface $cartsResourceMapper,
-        RestResourceBuilderInterface $restResourceBuilder
+        RestResourceBuilderInterface $restResourceBuilder,
+        CompanyUsersRestApiClientInterface $companyUsersRestApiClient,
+        RestApiErrorInterface $restApiError
     ) {
         $this->cartOperation = $cartOperation;
         $this->persistentCartClient = $persistentCartClient;
         $this->cartsResourceMapper = $cartsResourceMapper;
         $this->restResourceBuilder = $restResourceBuilder;
+        $this->companyUsersRestApiClient = $companyUsersRestApiClient;
+        $this->restApiError = $restApiError;
     }
 
     /**
@@ -72,7 +91,19 @@ class CartCreator implements CartCreatorInterface
         RestRequestInterface $restRequest,
         RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
     ): RestResponseInterface {
+        $companyUserResponseTransfer = $this->findCompanyUserByCompanyUserReference(
+            $this->findCompanyUserIdentifier($restRequest)
+        );
+
+        if (! $companyUserResponseTransfer->getIsSuccessful() ||
+            ! $this->isCompanyUserFromCurrentUser($restRequest, $companyUserResponseTransfer->getCompanyUser())) {
+            return $this->restApiError->addCompanyUserNotFoundErrorResponse(
+                $this->restResourceBuilder->createRestResponse()
+            );
+        }
+
         $quoteTransfer = $this->createQuoteTransfer($restRequest, $restCartsRequestAttributesTransfer);
+
         $quoteResponseTransfer = $this->persistentCartClient->createQuote($quoteTransfer);
 
         if (!$quoteResponseTransfer->getIsSuccessful()) {
@@ -89,6 +120,39 @@ class CartCreator implements CartCreatorInterface
             ->handleItems($restCartsRequestAttributesTransfer->getItems());
 
         return $this->createRestResponse($restRequest, $quoteTransfer);
+    }
+
+    /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     * @param \Generated\Shared\Transfer\CompanyUserTransfer $companyUserTransfer
+     *
+     * @return bool
+     */
+    protected function isCompanyUserFromCurrentUser(
+        RestRequestInterface $restRequest,
+        CompanyUserTransfer $companyUserTransfer
+    ): bool {
+        if ($restRequest->getRestUser() === null) {
+            return false;
+        }
+
+        $test = $restRequest->getRestUser()->getSurrogateIdentifier() === $companyUserTransfer->getFkCustomer();
+
+        return $test;
+    }
+
+    /**
+     * @param string $companyUserIdentifier
+     *
+     * @return \Generated\Shared\Transfer\CompanyUserResponseTransfer
+     */
+    public function findCompanyUserByCompanyUserReference(string $companyUserIdentifier): CompanyUserResponseTransfer
+    {
+        $companyUserTransfer = (new CompanyUserTransfer())
+            ->setCompanyUserReference($companyUserIdentifier);
+
+        return $this->companyUsersRestApiClient
+            ->findCompanyUserByCompanyUserReference($companyUserTransfer);
     }
 
     /**
