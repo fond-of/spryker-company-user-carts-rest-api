@@ -91,15 +91,9 @@ class CartUpdater implements CartUpdaterInterface
             return $this->restApiError->addRequiredParameterIsMissingError($restResponse);
         }
 
-        $quoteResponseTransfer = $this->cartReader->getQuoteTransferByUuid($idCart, $restRequest);
+        $quoteTransfer = $this->cartReader->getQuoteTransferByUuid($idCart, $restRequest);
 
-        if (!$quoteResponseTransfer->getIsSuccessful()) {
-            return $this->restApiError->addCartNotFoundError($restResponse);
-        }
-
-        $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
-
-        if ($quoteTransfer === null || $quoteTransfer->getIdQuote() === null) {
+        if ($quoteTransfer === null) {
             return $this->restApiError->addCartNotFoundError($restResponse);
         }
 
@@ -117,6 +111,8 @@ class CartUpdater implements CartUpdaterInterface
 
         $this->cartOperation->setQuoteTransfer($quoteTransfer)
             ->handleItems($restCartsRequestAttributesTransfer->getItems());
+
+        $quoteTransfer = $this->cartReader->getQuoteTransferByUuid($idCart, $restRequest);
 
         return $this->createRestResponse($restRequest, $quoteTransfer);
     }
