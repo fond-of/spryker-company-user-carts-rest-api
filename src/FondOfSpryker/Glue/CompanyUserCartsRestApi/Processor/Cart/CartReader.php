@@ -109,16 +109,16 @@ class CartReader implements CartReaderInterface
     {
         $restResponse = $this->restResourceBuilder->createRestResponse();
 
-        $quoteResponseTransfer = $this->getQuoteTransferByUuid(
+        $quoteTransfer = $this->getQuoteTransferByUuid(
             $restRequest->getResource()->getId(),
             $restRequest
         );
 
-        if (!$quoteResponseTransfer->getIsSuccessful()) {
+        if ($quoteTransfer === null) {
             return $this->restApiError->addCartNotFoundError($restResponse);
         }
 
-        $quoteTransfer = $this->prepareQuote($quoteResponseTransfer->getQuoteTransfer());
+        $quoteTransfer = $this->prepareQuote($quoteTransfer);
 
         $this->cartOperation->setQuoteTransfer($quoteTransfer);
 
