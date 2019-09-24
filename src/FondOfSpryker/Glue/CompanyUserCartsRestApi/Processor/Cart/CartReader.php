@@ -143,6 +143,11 @@ class CartReader implements CartReaderInterface
     {
         $quoteCollectionTransfer = $this->getCustomerCompanyUserQuotes($restRequest);
 
+        if ($quoteCollectionTransfer->getQuotes()->count() === 0) {
+            return (new QuoteResponseTransfer())
+                ->setIsSuccessful(false);
+        }
+
         foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
             if ($quoteTransfer->getUuid() === $uuidCart) {
                 $this->prepareQuote($quoteTransfer);
