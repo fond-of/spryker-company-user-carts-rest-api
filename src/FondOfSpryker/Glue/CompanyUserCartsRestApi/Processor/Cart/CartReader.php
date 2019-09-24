@@ -6,6 +6,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
 use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
@@ -43,21 +44,29 @@ class CartReader implements CartReaderInterface
     protected $restResourceBuilder;
 
     /**
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
+     */
+    protected $restApiError;
+
+    /**
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface $cartOperation
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface $companyUserQuoteClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface $restApiError
      */
     public function __construct(
         CartOperationInterface $cartOperation,
         CompanyUserCartsRestApiToCompanyUserQuoteClientInterface $companyUserQuoteClient,
         CartsResourceMapperInterface $cartsResourceMapper,
-        RestResourceBuilderInterface $restResourceBuilder
+        RestResourceBuilderInterface $restResourceBuilder,
+        RestApiErrorInterface $restApiError
     ) {
         $this->cartOperation = $cartOperation;
         $this->companyUserQuoteClient = $companyUserQuoteClient;
         $this->cartsResourceMapper = $cartsResourceMapper;
         $this->restResourceBuilder = $restResourceBuilder;
+        $this->restApiError = $restApiError;
     }
 
     /**
@@ -93,6 +102,38 @@ class CartReader implements CartReaderInterface
     }
 
     /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function readCompanyUserCartByUuid(RestRequestInterface $restRequest): RestResponseInterface
+    {
+        $restResponse = $this->restResourceBuilder->createRestResponse();
+
+        $quoteResponseTransfer = $this->getQuoteTransferByUuid(
+            $restRequest->getResource()->getId(),
+            $restRequest
+        );
+
+        if (!$quoteResponseTransfer->getIsSuccessful()) {
+            return $this->restApiError->addCartNotFoundError($restResponse);
+        }
+
+        $quoteTransfer = $this->prepareQuote($quoteResponseTransfer->getQuoteTransfer());
+
+        $this->cartOperation->setQuoteTransfer($quoteTransfer);
+
+        $cartResource = $this->cartsResourceMapper->mapCartsResource($quoteTransfer, $restRequest);
+
+        $cartResource->addLink(
+            RestLinkInterface::LINK_SELF,
+            $this->createSelfLink($quoteTransfer)
+        );
+
+        return $restResponse->addResource($cartResource);
+    }
+
+    /**
      * @param string $uuidCart
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
      *
@@ -101,11 +142,6 @@ class CartReader implements CartReaderInterface
     public function getQuoteTransferByUuid(string $uuidCart, RestRequestInterface $restRequest): QuoteResponseTransfer
     {
         $quoteCollectionTransfer = $this->getCustomerCompanyUserQuotes($restRequest);
-
-        if ($quoteCollectionTransfer->getQuotes()->count() === 0) {
-            return (new QuoteResponseTransfer())
-                ->setIsSuccessful(false);
-        }
 
         foreach ($quoteCollectionTransfer->getQuotes() as $quoteTransfer) {
             if ($quoteTransfer->getUuid() === $uuidCart) {

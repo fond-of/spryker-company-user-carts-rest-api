@@ -42,7 +42,8 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->createCartOperation(),
             $this->getCompanyUserQuoteClient(),
             $this->createCartsResourceMapper(),
-            $this->getResourceBuilder()
+            $this->getResourceBuilder(),
+            $this->createRestApiError()
         );
     }
 

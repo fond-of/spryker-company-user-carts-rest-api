@@ -18,6 +18,13 @@ interface CartReaderInterface
     public function readCurrentCompanyUserCarts(RestRequestInterface $restRequest): RestResponseInterface;
 
     /**
+     * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
+     *
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function readCompanyUserCartByUuid(RestRequestInterface $restRequest): RestResponseInterface;
+
+    /**
      * @param string $uuidCart
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
      *

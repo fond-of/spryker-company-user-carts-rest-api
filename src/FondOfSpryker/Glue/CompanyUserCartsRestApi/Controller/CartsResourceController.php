@@ -21,7 +21,15 @@ class CartsResourceController extends AbstractController
      */
     public function getAction(RestRequestInterface $restRequest): RestResponseInterface
     {
-        return $this->getFactory()->createCartReader()->readCurrentCompanyUserCarts($restRequest);
+        if ($restRequest->getResource()->getId() !== null) {
+            return $this->getFactory()
+                ->createCartReader()
+                ->readCompanyUserCartByUuid($restRequest);
+        }
+
+        return $this->getFactory()
+            ->createCartReader()
+            ->readCurrentCompanyUserCarts($restRequest);
     }
 
     /**
