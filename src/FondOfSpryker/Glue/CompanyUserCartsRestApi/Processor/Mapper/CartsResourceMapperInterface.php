@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper;
 
 use Generated\Shared\Transfer\QuoteTransfer;
-use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface as SprykerCartsResourceMapperInterface;
 
