@@ -6,9 +6,9 @@ use ArrayObject;
 use Codeception\Test\Unit;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\QuoteCollectionTransfer;
-use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface;
@@ -95,11 +95,20 @@ class CartReaderTest extends Unit
     private $companyUserTransferMock;
 
     /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|\FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
+     */
+    protected $restApiErrorMock;
+
+    /**
      * @return void
      */
     protected function _before(): void
     {
         parent::_before();
+
+        $this->restApiErrorMock = $this->getMockBuilder(RestApiErrorInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->cartOperationMock = $this->getMockBuilder(CartOperationInterface::class)
             ->disableOriginalConstructor()
@@ -159,8 +168,124 @@ class CartReaderTest extends Unit
             $this->cartOperationMock,
             $this->companyUserQuoteClientMock,
             $this->cartsResourceMapperMock,
-            $this->restResourceBuilderMock
+            $this->restResourceBuilderMock,
+            $this->restApiErrorMock
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testReadCompanyUserCartByUuid(): void
+    {
+        $this->restResourceBuilderMock->expects($this->atLeastOnce())
+            ->method('createRestResponse')
+            ->willReturn($this->restResponseInterfaceMock);
+
+        $this->restRequestMock->expects($this->atLeastOnce())
+            ->method('getResource')
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
+            ->method('getId')
+            ->willReturn($this->string);
+
+        $this->restRequestMock->expects($this->atLeastOnce())
+            ->method('getUser')
+            ->willReturn($this->userInterfaceMock);
+
+        $this->userInterfaceMock->expects($this->atLeastOnce())
+            ->method('getNaturalIdentifier')
+            ->willReturn($this->string);
+
+        $this->companyUserQuoteClientMock->expects($this->atLeastOnce())
+            ->method('getCompanyUserQuoteCollectionByCriteria')
+            ->willReturn($this->quoteCollectionTransferMock);
+
+        $this->quoteCollectionTransferMock->expects($this->atLeastOnce())
+            ->method('getQuotes')
+            ->willReturn($this->quoteTransfers);
+
+        $this->restResourceBuilderMock->expects($this->atLeastOnce())
+            ->method('createRestResponse')
+            ->willReturn($this->restResponseInterfaceMock);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getCustomer')
+            ->willReturn($this->customerInterfaceMock);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getCompanyUser')
+            ->willReturn($this->companyUserTransferMock);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getCompanyUserReference')
+            ->willReturn($this->string);
+
+        $this->cartOperationMock->expects($this->atLeastOnce())
+            ->method('setQuoteTransfer')
+            ->with($this->quoteTransferMock)
+            ->willReturn($this->cartOperationMock);
+
+        $this->cartsResourceMapperMock->expects($this->atLeastOnce())
+            ->method('mapCartsResource')
+            ->with($this->quoteTransferMock, $this->restRequestMock)
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getCompanyUserReference')
+            ->willReturn($this->string);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getUuid')
+            ->willReturn($this->string);
+
+        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
+            ->method('addLink')
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->restResponseInterfaceMock->expects($this->atLeastOnce())
+            ->method('addResource')
+            ->with($this->restResourceInterfaceMock)
+            ->willReturn($this->restResponseInterfaceMock);
+
+        $this->assertInstanceOf(RestResponseInterface::class, $this->cartReader->readCompanyUserCartByUuid($this->restRequestMock));
+    }
+
+    /**
+     * @return void
+     */
+    public function testReadCompanyUserCartByUuidCardNotFoundException(): void
+    {
+        $this->restResourceBuilderMock->expects($this->atLeastOnce())
+            ->method('createRestResponse')
+            ->willReturn($this->restResponseInterfaceMock);
+
+        $this->restRequestMock->expects($this->atLeastOnce())
+            ->method('getResource')
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
+            ->method('getId')
+            ->willReturn($this->string);
+
+        $this->restRequestMock->expects($this->atLeastOnce())
+            ->method('getUser')
+            ->willReturn($this->userInterfaceMock);
+
+        $this->userInterfaceMock->expects($this->atLeastOnce())
+            ->method('getNaturalIdentifier')
+            ->willReturn($this->string);
+
+        $this->companyUserQuoteClientMock->expects($this->atLeastOnce())
+            ->method('getCompanyUserQuoteCollectionByCriteria')
+            ->willReturn($this->quoteCollectionTransferMock);
+
+        $this->quoteCollectionTransferMock->expects($this->atLeastOnce())
+            ->method('getQuotes')
+            ->willReturn(new ArrayObject([]));
+
+        $this->assertInstanceOf(RestResponseInterface::class, $this->cartReader->readCompanyUserCartByUuid($this->restRequestMock));
     }
 
     /**
@@ -211,10 +336,6 @@ class CartReaderTest extends Unit
         $this->cartOperationMock->expects($this->atLeastOnce())
             ->method('setQuoteTransfer')
             ->with($this->quoteTransferMock)
-            ->willReturn($this->cartOperationMock);
-
-        $this->cartOperationMock->expects($this->atLeastOnce())
-            ->method('reloadItems')
             ->willReturn($this->cartOperationMock);
 
         $this->cartsResourceMapperMock->expects($this->atLeastOnce())
@@ -320,10 +441,6 @@ class CartReaderTest extends Unit
             ->with($this->quoteTransferMock)
             ->willReturn($this->cartOperationMock);
 
-        $this->cartOperationMock->expects($this->atLeastOnce())
-            ->method('reloadItems')
-            ->willReturn($this->cartOperationMock);
-
         $this->cartsResourceMapperMock->expects($this->atLeastOnce())
             ->method('mapCartsResource')
             ->with($this->quoteTransferMock, $this->restRequestMock)
@@ -379,10 +496,6 @@ class CartReaderTest extends Unit
             ->willReturn($this->quoteTransfers);
 
         $this->quoteTransferMock->expects($this->atLeastOnce())
-            ->method('getUuId')
-            ->willReturn($this->string);
-
-        $this->quoteTransferMock->expects($this->atLeastOnce())
             ->method('getCustomer')
             ->willReturn($this->customerInterfaceMock);
 
@@ -390,7 +503,7 @@ class CartReaderTest extends Unit
             ->method('getCompanyUser')
             ->willReturn($this->companyUserTransferMock);
 
-        $this->assertInstanceOf(QuoteResponseTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
+        $this->assertInstanceOf(QuoteTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
     }
 
     /**
@@ -422,7 +535,7 @@ class CartReaderTest extends Unit
             ->method('getQuotes')
             ->willReturn(new ArrayObject([]));
 
-        $this->assertInstanceOf(QuoteResponseTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
+        $this->assertNull($this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
     }
 
     /**
@@ -454,11 +567,7 @@ class CartReaderTest extends Unit
             ->method('getQuotes')
             ->willReturn($this->quoteTransfers);
 
-        $this->quoteTransferMock->expects($this->atLeastOnce())
-            ->method('getUuId')
-            ->willReturn("empty");
-
-        $this->assertInstanceOf(QuoteResponseTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
+        $this->assertInstanceOf(QuoteTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
     }
 
     /**
@@ -491,10 +600,6 @@ class CartReaderTest extends Unit
             ->willReturn($this->quoteTransfers);
 
         $this->quoteTransferMock->expects($this->atLeastOnce())
-            ->method('getUuId')
-            ->willReturn($this->string);
-
-        $this->quoteTransferMock->expects($this->atLeastOnce())
             ->method('getCustomer')
             ->willReturn(null);
 
@@ -502,7 +607,7 @@ class CartReaderTest extends Unit
             ->method('getCustomerReference')
             ->willReturn($this->string);
 
-        $this->assertInstanceOf(QuoteResponseTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
+        $this->assertInstanceOf(QuoteTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
     }
 
     /**
@@ -535,10 +640,6 @@ class CartReaderTest extends Unit
             ->willReturn($this->quoteTransfers);
 
         $this->quoteTransferMock->expects($this->atLeastOnce())
-            ->method('getUuId')
-            ->willReturn($this->string);
-
-        $this->quoteTransferMock->expects($this->atLeastOnce())
             ->method('getCustomer')
             ->willReturn($this->customerInterfaceMock);
 
@@ -550,6 +651,6 @@ class CartReaderTest extends Unit
             ->method('getCompanyUserReference')
             ->willReturn($this->string);
 
-        $this->assertInstanceOf(QuoteResponseTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
+        $this->assertInstanceOf(QuoteTransfer::class, $this->cartReader->getQuoteTransferByUuid($this->string, $this->restRequestMock));
     }
 }
