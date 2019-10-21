@@ -3,6 +3,9 @@ language: php
 php:
   - 7.1
 
+env:
+  - COMPOSER_MEMORY_LIMIT=-1
+
 cache:
   directories:
     - vendor
