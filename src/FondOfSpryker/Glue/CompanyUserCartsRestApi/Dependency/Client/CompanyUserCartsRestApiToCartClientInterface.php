@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client;
 
 use Generated\Shared\Transfer\ItemTransfer;

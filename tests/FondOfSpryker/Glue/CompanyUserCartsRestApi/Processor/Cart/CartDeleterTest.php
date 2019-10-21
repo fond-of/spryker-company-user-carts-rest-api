@@ -141,28 +141,16 @@ class CartDeleterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->idCart, $this->restRequestInterfaceMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeast(2))
-            ->method('getIsSuccessful')
-            ->willReturn(true);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getQuoteTransfer')
             ->willReturn($this->quoteTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn($this->customerTransferMock);
-
-        $this->quoteTransferMock->expects($this->atLeastOnce())
-            ->method('setCustomer')
-            ->willReturn($this->customerTransferMock);
 
         $this->persistentCartClientMock->expects($this->atLeastOnce())
             ->method('deleteQuote')
             ->with($this->quoteTransferMock)
             ->willReturn($this->quoteResponseTransferMock);
+
+        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
+            ->method('getIsSuccessful')
+            ->willReturn(true);
 
         $this->assertInstanceOf(RestResponseInterface::class, $this->cartDeleter->delete($this->restRequestInterfaceMock));
     }
@@ -211,11 +199,7 @@ class CartDeleterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->idCart, $this->restRequestInterfaceMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(false);
+            ->willReturn(null);
 
         $this->restResponseInterfaceMock->expects($this->atLeastOnce())
             ->method('addError')
@@ -244,26 +228,7 @@ class CartDeleterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->idCart, $this->restRequestInterfaceMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeast(2))
-            ->method('getIsSuccessful')
-            ->willReturnOnConsecutiveCalls([
-                true,
-                false,
-            ]);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getQuoteTransfer')
             ->willReturn($this->quoteTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn($this->customerTransferMock);
-
-        $this->quoteTransferMock->expects($this->atLeastOnce())
-            ->method('setCustomer')
-            ->willReturn($this->customerTransferMock);
 
         $this->persistentCartClientMock->expects($this->atLeastOnce())
             ->method('deleteQuote')
@@ -273,6 +238,10 @@ class CartDeleterTest extends Unit
         $this->restResponseInterfaceMock->expects($this->atLeastOnce())
             ->method('addError')
             ->willReturn($this->restResponseInterfaceMock);
+
+        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
+            ->method('getIsSuccessful')
+            ->willReturn(false);
 
         $this->assertInstanceOf(RestResponseInterface::class, $this->cartDeleter->delete($this->restRequestInterfaceMock));
     }

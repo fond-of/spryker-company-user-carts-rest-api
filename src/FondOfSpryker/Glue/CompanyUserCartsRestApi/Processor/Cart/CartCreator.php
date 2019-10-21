@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
-use FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
@@ -48,7 +48,7 @@ class CartCreator implements CartCreatorInterface
     protected $restResourceBuilder;
 
     /**
-     * @var \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface
      */
     protected $companyUsersRestApiClient;
 
@@ -62,7 +62,7 @@ class CartCreator implements CartCreatorInterface
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \FondOfSpryker\Client\CompanyUsersRestApi\CompanyUsersRestApiClientInterface $companyUsersRestApiClient
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface $companyUsersRestApiClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface $restApiError
      */
     public function __construct(
@@ -70,7 +70,7 @@ class CartCreator implements CartCreatorInterface
         CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient,
         CartsResourceMapperInterface $cartsResourceMapper,
         RestResourceBuilderInterface $restResourceBuilder,
-        CompanyUsersRestApiClientInterface $companyUsersRestApiClient,
+        CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface $companyUsersRestApiClient,
         RestApiErrorInterface $restApiError
     ) {
         $this->cartOperation = $cartOperation;
@@ -95,8 +95,9 @@ class CartCreator implements CartCreatorInterface
             $this->findCompanyUserIdentifier($restRequest)
         );
 
-        if (! $companyUserResponseTransfer->getIsSuccessful() ||
-            ! $this->isCompanyUserFromCurrentUser($restRequest, $companyUserResponseTransfer->getCompanyUser())) {
+        if (!$companyUserResponseTransfer->getIsSuccessful()
+            || !$this->isCompanyUserFromCurrentUser($restRequest, $companyUserResponseTransfer->getCompanyUser())
+        ) {
             return $this->restApiError->addCompanyUserNotFoundErrorResponse(
                 $this->restResourceBuilder->createRestResponse()
             );
@@ -142,11 +143,11 @@ class CartCreator implements CartCreatorInterface
     }
 
     /**
-     * @param string $companyUserIdentifier
+     * @param string|null $companyUserIdentifier
      *
      * @return \Generated\Shared\Transfer\CompanyUserResponseTransfer
      */
-    public function findCompanyUserByCompanyUserReference(string $companyUserIdentifier): CompanyUserResponseTransfer
+    protected function findCompanyUserByCompanyUserReference(?string $companyUserIdentifier): CompanyUserResponseTransfer
     {
         $companyUserTransfer = (new CompanyUserTransfer())
             ->setCompanyUserReference($companyUserIdentifier);
