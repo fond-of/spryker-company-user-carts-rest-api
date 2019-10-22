@@ -271,12 +271,4 @@ class CartOperationTest extends Unit
 
         $this->assertInstanceOf(CartOperationInterface::class, $this->cartOperation->handleItems($this->restCartItemTransfers));
     }
-
-    /**
-     * @return void
-     */
-    public function testReloadItems(): void
-    {
-        $this->assertInstanceOf(CartOperationInterface::class, $this->cartOperation->reloadItems());
-    }
 }

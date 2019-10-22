@@ -55,7 +55,7 @@ class CartUpdaterTest extends Unit
     protected $restResourceBuilderMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Generated\Shared\Transfer\RestCartsAttributesTransfer
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Generated\Shared\Transfer\RestCartsRequestAttributesTransfer
      */
     protected $restCartsRequestAttributesTransferMock;
 
@@ -203,9 +203,9 @@ class CartUpdaterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->string, $this->restRequestMock)
-            ->willReturn($this->quoteResponseTransferMock);
+            ->willReturn($this->quoteTransferMock);
 
-        $this->quoteResponseTransferMock->expects($this->atLeast(2))
+        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
             ->method('getIsSuccessful')
             ->willReturn(true);
 
@@ -250,10 +250,6 @@ class CartUpdaterTest extends Unit
         $this->cartOperationMock->expects($this->atLeastOnce())
             ->method('handleItems')
             ->with($this->restCartItems)
-            ->willReturn($this->cartOperationMock);
-
-        $this->cartOperationMock->expects($this->atLeastOnce())
-            ->method('reloadItems')
             ->willReturn($this->cartOperationMock);
 
         $this->restResourceBuilderMock->expects($this->atLeastOnce())
@@ -330,48 +326,6 @@ class CartUpdaterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->string, $this->restRequestMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(false);
-
-        $this->restApiErrorMock->expects($this->atLeastOnce())
-            ->method('addCartNotFoundError')
-            ->with($this->restResponseInterfaceMock)
-            ->willReturn($this->restResponseInterfaceMock);
-
-        $this->assertInstanceOf(RestResponseInterface::class, $this->cartUpdater->update($this->restRequestMock, $this->restCartsRequestAttributesTransferMock));
-    }
-
-    /**
-     * @return void
-     */
-    public function testUpdateCartNotFound2(): void
-    {
-        $this->restResourceBuilderMock->expects($this->atLeastOnce())
-            ->method('createRestResponse')
-            ->willReturn($this->restResponseInterfaceMock);
-
-        $this->restRequestMock->expects($this->atLeastOnce())
-            ->method('getResource')
-            ->willReturn($this->restResourceInterfaceMock);
-
-        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
-            ->method('getId')
-            ->willReturn($this->string);
-
-        $this->cartReaderMock->expects($this->atLeastOnce())
-            ->method('getQuoteTransferByUuid')
-            ->with($this->string, $this->restRequestMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(true);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getQuoteTransfer')
             ->willReturn(null);
 
         $this->restApiErrorMock->expects($this->atLeastOnce())
@@ -402,17 +356,6 @@ class CartUpdaterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->string, $this->restRequestMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        $this->quoteResponseTransferMock->expects($this->atLeast(2))
-            ->method('getIsSuccessful')
-            ->willReturnOnConsecutiveCalls([
-                true,
-                false,
-            ]);
-
-        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
-            ->method('getQuoteTransfer')
             ->willReturn($this->quoteTransferMock);
 
         $this->cartsResourceMapperMock->expects($this->atLeastOnce())
@@ -435,6 +378,10 @@ class CartUpdaterTest extends Unit
         $this->persistentCartClientMock->expects($this->atLeastOnce())
             ->method('updateQuote')
             ->willReturn($this->quoteResponseTransferMock);
+
+        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
+            ->method('getIsSuccessful')
+            ->willReturn(false);
 
         $this->restApiErrorMock->expects($this->atLeastOnce())
             ->method('addCouldNotUpdateCartError')
@@ -464,9 +411,9 @@ class CartUpdaterTest extends Unit
         $this->cartReaderMock->expects($this->atLeastOnce())
             ->method('getQuoteTransferByUuid')
             ->with($this->string, $this->restRequestMock)
-            ->willReturn($this->quoteResponseTransferMock);
+            ->willReturn($this->quoteTransferMock);
 
-        $this->quoteResponseTransferMock->expects($this->atLeast(2))
+        $this->quoteResponseTransferMock->expects($this->atLeastOnce())
             ->method('getIsSuccessful')
             ->willReturn(true);
 

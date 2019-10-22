@@ -84,14 +84,6 @@ class CompanyUserCartsRestApiToCartClientBridgeTest extends Unit
     /**
      * @return void
      */
-    public function testReloadItems(): void
-    {
-        $this->companyUserCartsRestApiToCartClientBridge->reloadItems();
-    }
-
-    /**
-     * @return void
-     */
     public function testRemoveItems(): void
     {
         $this->cartClientInterfaceMock->expects($this->atLeastOnce())

@@ -6,6 +6,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientBridge;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientBridge;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientBridge;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientBridge;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientBridge;
 use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
@@ -37,7 +38,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
         $container = $this->addPersistentCartClient($container);
         $container = $this->addCartClient($container);
         $container = $this->addRestCartItemExpanderPlugins($container);
-        $container = $this->addCompanyUserRestApiClient($container);
+        $container = $this->addCompanyUsersRestApiClient($container);
 
         return $container;
     }
@@ -47,10 +48,12 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
      *
      * @return \Spryker\Glue\Kernel\Container
      */
-    protected function addCompanyUserRestApiClient(Container $container): Container
+    protected function addCompanyUsersRestApiClient(Container $container): Container
     {
         $container[static::CLIENT_COMPANY_USER_REST_API] = static function (Container $container) {
-            return $container->getLocator()->companyUsersRestApi()->client();
+            return new CompanyUserCartsRestApiToCompanyUsersRestApiClientBridge(
+                $container->getLocator()->companyUsersRestApi()->client()
+            );
         };
 
         return $container;
