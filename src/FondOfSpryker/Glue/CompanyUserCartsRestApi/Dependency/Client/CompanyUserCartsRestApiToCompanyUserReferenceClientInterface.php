@@ -7,7 +7,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client;
 use Generated\Shared\Transfer\CompanyUserResponseTransfer;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 
-interface CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface
+interface CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
 {
     /**
      * @param \Generated\Shared\Transfer\CompanyUserTransfer $companyUserTransfer

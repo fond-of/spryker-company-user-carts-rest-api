@@ -6,7 +6,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreator;
@@ -69,7 +69,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->getPersistentCartClient(),
             $this->createCartsResourceMapper(),
             $this->getResourceBuilder(),
-            $this->getCompanyUsersRestApiClient(),
+            $this->getCompanyUserReferenceClient(),
             $this->createRestApiError()
         );
     }
@@ -153,11 +153,11 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     /**
      * @throws
      *
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
      */
-    protected function getCompanyUsersRestApiClient(): CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface
+    protected function getCompanyUserReferenceClient(): CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
     {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_COMPANY_USER_REST_API);
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_COMPANY_USER_REFERENCE);
     }
 
     /**

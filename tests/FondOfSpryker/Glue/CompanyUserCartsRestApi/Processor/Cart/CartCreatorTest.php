@@ -5,7 +5,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 use ArrayObject;
 use Codeception\Test\Unit;
 use Exception;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
@@ -113,9 +113,9 @@ class CartCreatorTest extends Unit
     protected $quoteErrorTransferMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface
+     * @var \PHPUnit\Framework\MockObject\MockObject|\FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
      */
-    protected $companyUserRestApiClientMock;
+    protected $companyUserReferenceClientMock;
 
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|\FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
@@ -196,7 +196,7 @@ class CartCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->companyUserRestApiClientMock = $this->getMockBuilder(CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface::class)
+        $this->companyUserReferenceClientMock = $this->getMockBuilder(CompanyUserCartsRestApiToCompanyUserReferenceClientInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -228,7 +228,7 @@ class CartCreatorTest extends Unit
             $this->persistentCartClientMock,
             $this->cartsResourceMapperMock,
             $this->restResourceBuilderMock,
-            $this->companyUserRestApiClientMock,
+            $this->companyUserReferenceClientMock,
             $this->restApiErrorMock
         );
     }
@@ -250,7 +250,7 @@ class CartCreatorTest extends Unit
             ->method('getSurrogateIdentifier')
             ->willReturn($this->surrogateIdentifier);
 
-        $this->companyUserRestApiClientMock->expects($this->atLeastOnce())
+        $this->companyUserReferenceClientMock->expects($this->atLeastOnce())
             ->method('findCompanyUserByCompanyUserReference')
             ->with($this->isInstanceOf(CompanyUserTransfer::class))
             ->willReturn($this->companyUserResponseTransferMock);
@@ -361,7 +361,7 @@ class CartCreatorTest extends Unit
             ->method('getSurrogateIdentifier')
             ->willReturn($this->surrogateIdentifier);
 
-        $this->companyUserRestApiClientMock->expects($this->atLeastOnce())
+        $this->companyUserReferenceClientMock->expects($this->atLeastOnce())
             ->method('findCompanyUserByCompanyUserReference')
             ->with($this->isInstanceOf(CompanyUserTransfer::class))
             ->willReturn($this->companyUserResponseTransferMock);
@@ -452,7 +452,7 @@ class CartCreatorTest extends Unit
             ->method('getSurrogateIdentifier')
             ->willReturn($this->surrogateIdentifier);
 
-        $this->companyUserRestApiClientMock->expects($this->atLeastOnce())
+        $this->companyUserReferenceClientMock->expects($this->atLeastOnce())
             ->method('findCompanyUserByCompanyUserReference')
             ->with($this->isInstanceOf(CompanyUserTransfer::class))
             ->willReturn($this->companyUserResponseTransferMock);
@@ -547,7 +547,7 @@ class CartCreatorTest extends Unit
             ->method('getSurrogateIdentifier')
             ->willReturn($this->surrogateIdentifier);
 
-        $this->companyUserRestApiClientMock->expects($this->atLeastOnce())
+        $this->companyUserReferenceClientMock->expects($this->atLeastOnce())
             ->method('findCompanyUserByCompanyUserReference')
             ->with($this->isInstanceOf(CompanyUserTransfer::class))
             ->willReturn($this->companyUserResponseTransferMock);
@@ -642,7 +642,7 @@ class CartCreatorTest extends Unit
             ->method('getSurrogateIdentifier')
             ->willReturn($this->surrogateIdentifier);
 
-        $this->companyUserRestApiClientMock->expects($this->atLeastOnce())
+        $this->companyUserReferenceClientMock->expects($this->atLeastOnce())
             ->method('findCompanyUserByCompanyUserReference')
             ->with($this->isInstanceOf(CompanyUserTransfer::class))
             ->willReturn($this->companyUserResponseTransferMock);
@@ -749,7 +749,7 @@ class CartCreatorTest extends Unit
         $this->restUserTransferMock->expects($this->never())
             ->method('getNaturalIdentifier');
 
-        $this->companyUserRestApiClientMock->expects($this->atLeastOnce())
+        $this->companyUserReferenceClientMock->expects($this->atLeastOnce())
             ->method('findCompanyUserByCompanyUserReference')
             ->with($this->isInstanceOf(CompanyUserTransfer::class))
             ->willReturn($this->companyUserResponseTransferMock);

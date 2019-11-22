@@ -16,7 +16,7 @@
     "php": ">=7.1",
     "spryker/carts-rest-api": "^5.0.0",
     "fond-of-spryker/company-user-quote": "dev-master",
-    "fond-of-spryker/company-users-rest-api": "dev-master",
+    "fond-of-spryker/company-user-reference": "dev-master",
     "spryker/discount": "^9.0.0"
   },
   "require-dev": {

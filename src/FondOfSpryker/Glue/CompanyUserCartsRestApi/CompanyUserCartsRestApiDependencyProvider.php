@@ -6,7 +6,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientBridge;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientBridge;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientBridge;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientBridge;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientBridge;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientBridge;
 use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
@@ -19,7 +19,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     public const CLIENT_PERSISTENT_CART = 'CLIENT_PERSISTENT_CART';
     public const CLIENT_CART = 'CLIENT_CART';
     public const CLIENT_QUOTE = 'CLIENT_QUOTE';
-    public const CLIENT_COMPANY_USER_REST_API = 'CLIENT_COMPANY_USER_REST_API';
+    public const CLIENT_COMPANY_USER_REFERENCE = 'CLIENT_COMPANY_USER_REFERENCE';
     public const CART_REST_API_CONFIG = 'CART_REST_API_CONFIG';
     public const PLUGINS_REST_CART_ITEM_EXPANDER = 'PLUGINS_REST_CART_ITEM_EXPANDER';
 
@@ -38,7 +38,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
         $container = $this->addPersistentCartClient($container);
         $container = $this->addCartClient($container);
         $container = $this->addRestCartItemExpanderPlugins($container);
-        $container = $this->addCompanyUsersRestApiClient($container);
+        $container = $this->addCompanyUserReferenceClient($container);
 
         return $container;
     }
@@ -48,11 +48,11 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
      *
      * @return \Spryker\Glue\Kernel\Container
      */
-    protected function addCompanyUsersRestApiClient(Container $container): Container
+    protected function addCompanyUserReferenceClient(Container $container): Container
     {
-        $container[static::CLIENT_COMPANY_USER_REST_API] = static function (Container $container) {
-            return new CompanyUserCartsRestApiToCompanyUsersRestApiClientBridge(
-                $container->getLocator()->companyUsersRestApi()->client()
+        $container[static::CLIENT_COMPANY_USER_REFERENCE] = static function (Container $container) {
+            return new CompanyUserCartsRestApiToCompanyUserReferenceClientBridge(
+                $container->getLocator()->companyUserReference()->client()
             );
         };
 

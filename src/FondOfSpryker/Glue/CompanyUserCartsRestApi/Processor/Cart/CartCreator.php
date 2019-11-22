@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
@@ -48,9 +48,9 @@ class CartCreator implements CartCreatorInterface
     protected $restResourceBuilder;
 
     /**
-     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
      */
-    protected $companyUsersRestApiClient;
+    protected $companyUserReferenceClient;
 
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
@@ -62,7 +62,7 @@ class CartCreator implements CartCreatorInterface
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface $cartsResourceMapper
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface $companyUsersRestApiClient
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface $companyUserReferenceClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface $restApiError
      */
     public function __construct(
@@ -70,14 +70,14 @@ class CartCreator implements CartCreatorInterface
         CompanyUserCartsRestApiToPersistentCartClientInterface $persistentCartClient,
         CartsResourceMapperInterface $cartsResourceMapper,
         RestResourceBuilderInterface $restResourceBuilder,
-        CompanyUserCartsRestApiToCompanyUsersRestApiClientInterface $companyUsersRestApiClient,
+        CompanyUserCartsRestApiToCompanyUserReferenceClientInterface $companyUserReferenceClient,
         RestApiErrorInterface $restApiError
     ) {
         $this->cartOperation = $cartOperation;
         $this->persistentCartClient = $persistentCartClient;
         $this->cartsResourceMapper = $cartsResourceMapper;
         $this->restResourceBuilder = $restResourceBuilder;
-        $this->companyUsersRestApiClient = $companyUsersRestApiClient;
+        $this->companyUserReferenceClient = $companyUserReferenceClient;
         $this->restApiError = $restApiError;
     }
 
@@ -152,7 +152,7 @@ class CartCreator implements CartCreatorInterface
         $companyUserTransfer = (new CompanyUserTransfer())
             ->setCompanyUserReference($companyUserIdentifier);
 
-        return $this->companyUsersRestApiClient
+        return $this->companyUserReferenceClient
             ->findCompanyUserByCompanyUserReference($companyUserTransfer);
     }
 
