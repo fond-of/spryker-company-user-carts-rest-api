@@ -95,7 +95,8 @@ class CartCreator implements CartCreatorInterface
             $this->findCompanyUserIdentifier($restRequest)
         );
 
-        if (!$companyUserResponseTransfer->getIsSuccessful()
+        if (
+            !$companyUserResponseTransfer->getIsSuccessful()
             || !$this->isCompanyUserFromCurrentUser($restRequest, $companyUserResponseTransfer->getCompanyUser())
         ) {
             return $this->restApiError->addCompanyUserNotFoundErrorResponse(
@@ -137,9 +138,7 @@ class CartCreator implements CartCreatorInterface
             return false;
         }
 
-        $test = $restRequest->getRestUser()->getSurrogateIdentifier() === $companyUserTransfer->getFkCustomer();
-
-        return $test;
+        return $restRequest->getRestUser()->getSurrogateIdentifier() === $companyUserTransfer->getFkCustomer();
     }
 
     /**

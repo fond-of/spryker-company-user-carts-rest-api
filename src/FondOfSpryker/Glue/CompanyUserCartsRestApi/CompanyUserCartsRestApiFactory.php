@@ -111,8 +111,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface
      */
     protected function getCompanyUserQuoteClient(): CompanyUserCartsRestApiToCompanyUserQuoteClientInterface
@@ -121,8 +119,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface
      */
     protected function getPersistentCartClient(): CompanyUserCartsRestApiToPersistentCartClientInterface
@@ -131,8 +127,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface
      */
     protected function getCartClient(): CompanyUserCartsRestApiToCartClientInterface
@@ -141,8 +135,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface
      */
     protected function getQuoteClient(): CompanyUserCartsRestApiToQuoteClientInterface
@@ -151,8 +143,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
      */
     protected function getCompanyUserReferenceClient(): CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
@@ -161,8 +151,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \Spryker\Glue\CartsRestApi\CartsRestApiConfig
      */
     protected function getCartsRestApiConfig(): CartsRestApiConfig
@@ -192,8 +180,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface[]
      */
     protected function getRestCartItemExpanderPlugins(): array
