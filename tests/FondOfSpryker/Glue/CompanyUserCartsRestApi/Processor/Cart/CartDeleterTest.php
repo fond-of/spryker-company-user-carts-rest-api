@@ -112,7 +112,7 @@ class CartDeleterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->idCart = 1;
+        $this->idCart = '6f58954c-9903-11ea-bb37-0242ac130002';
 
         $this->cartDeleter = new CartDeleter(
             $this->cartReaderMock,

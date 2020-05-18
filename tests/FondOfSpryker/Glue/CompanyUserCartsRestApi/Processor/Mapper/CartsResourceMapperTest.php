@@ -4,6 +4,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper;
 
 use ArrayObject;
 use Codeception\Test\Unit;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use Generated\Shared\Transfer\CurrencyTransfer;
 use Generated\Shared\Transfer\DiscountTransfer;
 use Generated\Shared\Transfer\ItemTransfer;
@@ -13,7 +14,6 @@ use Generated\Shared\Transfer\RestItemsAttributesTransfer;
 use Generated\Shared\Transfer\StoreTransfer;
 use Generated\Shared\Transfer\TaxTotalTransfer;
 use Generated\Shared\Transfer\TotalsTransfer;
-use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
@@ -36,7 +36,7 @@ class CartsResourceMapperTest extends Unit
     protected $restResourceBuilderMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Glue\CartsRestApi\CartsRestApiConfig
+     * @var \PHPUnit\Framework\MockObject\MockObject|\FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig
      */
     protected $configMock;
 
@@ -145,7 +145,7 @@ class CartsResourceMapperTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->configMock = $this->getMockBuilder(CartsRestApiConfig::class)
+        $this->configMock = $this->getMockBuilder(CompanyUserCartsRestApiConfig::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -193,20 +193,20 @@ class CartsResourceMapperTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->code = "code";
+        $this->code = 'code';
 
-        $this->nameStore = "name";
+        $this->nameStore = 'name';
 
-        $this->uuid = "uuid";
+        $this->uuid = 'uuid';
 
-        $this->groupKey = "group key";
+        $this->groupKey = 'group key';
 
         $this->itemTransfers = new ArrayObject([
            $this->itemTransferMock,
         ]);
 
         $this->allowedFieldsToUpdate = [
-            "in",
+            'in',
         ];
 
         $this->discountTransfers = new ArrayObject([
@@ -216,8 +216,7 @@ class CartsResourceMapperTest extends Unit
         $this->cartsResourceMapper = new CartsResourceMapper(
             $this->cartItemsResourceMapperMock,
             $this->restResourceBuilderMock,
-            $this->configMock,
-            $this->allowedFieldsToUpdate
+            $this->configMock
         );
     }
 
@@ -316,7 +315,99 @@ class CartsResourceMapperTest extends Unit
             ->with($this->restResourceInterfaceMock)
             ->willReturn($this->restResourceInterfaceMock);
 
-        $this->assertInstanceOf(RestResourceInterface::class, $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock));
+        $this->assertInstanceOf(
+            RestResourceInterface::class,
+            $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock)
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testMapCartsResourceWithTotalsEqualsNull(): void
+    {
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('toArray')
+            ->willReturn([]);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getCurrency')
+            ->willReturn($this->currencyTransferMock);
+
+        $this->currencyTransferMock->expects($this->atLeastOnce())
+            ->method('getCode')
+            ->willReturn($this->code);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getStore')
+            ->willReturn($this->storeTransferMock);
+
+        $this->storeTransferMock->expects($this->atLeastOnce())
+            ->method('getName')
+            ->willReturn($this->nameStore);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getTotals')
+            ->willReturn(null);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getVoucherDiscounts')
+            ->willReturn($this->discountTransfers);
+
+        $this->discountTransferMock->expects($this->atLeast(2))
+            ->method('toArray')
+            ->willReturn([]);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getCartRuleDiscounts')
+            ->willReturn($this->discountTransfers);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getUuid')
+            ->willReturn($this->uuid);
+
+        $this->restResourceBuilderMock->expects($this->atLeastOnce())
+            ->method('createRestResource')
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->quoteTransferMock->expects($this->atLeastOnce())
+            ->method('getItems')
+            ->willReturn($this->itemTransfers);
+
+        $this->itemTransferMock->expects($this->atLeastOnce())
+            ->method('getGroupKey')
+            ->willReturn($this->groupKey);
+
+        $this->cartItemsResourceMapperMock->expects($this->atLeastOnce())
+            ->method('mapCartItemAttributes')
+            ->with($this->itemTransferMock)
+            ->willReturn($this->restItemsAttributesTransferMock);
+
+        $this->restResourceBuilderMock->expects($this->atLeastOnce())
+            ->method('createRestResource')
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
+            ->method('getId')
+            ->willReturn($this->uuid);
+
+        $this->itemTransferMock->expects($this->atLeastOnce())
+            ->method('getGroupKey')
+            ->willReturn($this->groupKey);
+
+        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
+            ->method('addLink')
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->restResourceInterfaceMock->expects($this->atLeastOnce())
+            ->method('addRelationship')
+            ->with($this->restResourceInterfaceMock)
+            ->willReturn($this->restResourceInterfaceMock);
+
+        $this->assertInstanceOf(
+            RestResourceInterface::class,
+            $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock)
+        );
     }
 
     /**
@@ -330,13 +421,16 @@ class CartsResourceMapperTest extends Unit
 
         $this->restCartsRequestAttributesTransferMock->expects($this->atLeastOnce())
             ->method('modifiedToArray')
-            ->willReturn(["Test"]);
+            ->willReturn(['Test']);
 
         $this->quoteTransferMock->expects($this->atLeastOnce())
             ->method('fromArray')
             ->willReturn($this->quoteTransferMock);
 
-        $this->assertInstanceOf(QuoteTransfer::class, $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock));
+        $this->assertInstanceOf(
+            QuoteTransfer::class,
+            $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock)
+        );
     }
 
     /**
@@ -344,19 +438,26 @@ class CartsResourceMapperTest extends Unit
      */
     public function testMapMinimalRestCartsRequestAttributesTransferToQuoteTransfer(): void
     {
+        $this->configMock->expects($this->atLeastOnce())
+            ->method('getAllowedFieldsToPatchInQuote')
+            ->willReturn($this->allowedFieldsToUpdate);
+
         $this->quoteTransferMock->expects($this->atLeastOnce())
             ->method('toArray')
             ->willReturn([]);
 
         $this->restCartsRequestAttributesTransferMock->expects($this->atLeastOnce())
             ->method('modifiedToArray')
-            ->willReturn(["in" => true]);
+            ->willReturn(['in' => true]);
 
         $this->quoteTransferMock->expects($this->atLeastOnce())
             ->method('fromArray')
             ->willReturn($this->quoteTransferMock);
 
-        $this->assertInstanceOf(QuoteTransfer::class, $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock));
+        $this->assertInstanceOf(
+            QuoteTransfer::class,
+            $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock)
+        );
     }
 
     /**
@@ -376,6 +477,9 @@ class CartsResourceMapperTest extends Unit
             ->method('toArray')
             ->willReturn([]);
 
-        $this->assertInstanceOf(QuoteTransfer::class, $this->cartsResourceMapper->mapRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock));
+        $this->assertInstanceOf(
+            QuoteTransfer::class,
+            $this->cartsResourceMapper->mapRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock)
+        );
     }
 }

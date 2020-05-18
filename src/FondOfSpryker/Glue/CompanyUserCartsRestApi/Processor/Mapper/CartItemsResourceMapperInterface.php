@@ -4,10 +4,18 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper;
 
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\RestCartItemTransfer;
-use Spryker\Glue\CartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface as SprykerCartItemsResourceMapperInterface;
+use Generated\Shared\Transfer\RestItemsAttributesTransfer;
 
-interface CartItemsResourceMapperInterface extends SprykerCartItemsResourceMapperInterface
+interface CartItemsResourceMapperInterface
 {
+    /**
+     * @param \Generated\Shared\Transfer\ItemTransfer $itemTransfer
+     * @param string $localeName
+     *
+     * @return \Generated\Shared\Transfer\RestItemsAttributesTransfer
+     */
+    public function mapCartItemAttributes(ItemTransfer $itemTransfer, string $localeName): RestItemsAttributesTransfer;
+
     /**
      * @param \Generated\Shared\Transfer\RestCartItemTransfer $restCartItemTransfer
      *

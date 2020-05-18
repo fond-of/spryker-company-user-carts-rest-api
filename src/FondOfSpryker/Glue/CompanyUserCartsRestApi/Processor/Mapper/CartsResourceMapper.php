@@ -9,43 +9,47 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use Generated\Shared\Transfer\CurrencyTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCartsAttributesTransfer;
+use Generated\Shared\Transfer\RestCartsDiscountsTransfer;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
+use Generated\Shared\Transfer\RestCartsTotalsTransfer;
 use Generated\Shared\Transfer\StoreTransfer;
 use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
-use Spryker\Glue\CartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
-use Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapper as SprykerCartsResourceMapper;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 use function in_array;
 
-class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsResourceMapperInterface
+class CartsResourceMapper implements CartsResourceMapperInterface
 {
     /**
-     * @var string[]
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface
      */
-    protected $allowedFieldsToPatch;
+    protected $cartItemsResourceMapper;
 
     /**
-     * @param \Spryker\Glue\CartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface $cartItemsResourceMapper
+     * @var \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface
+     */
+    protected $restResourceBuilder;
+
+    /**
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig
+     */
+    protected $config;
+
+    /**
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface $cartItemsResourceMapper
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface $restResourceBuilder
-     * @param \Spryker\Glue\CartsRestApi\CartsRestApiConfig $config
-     * @param string[] $allowedFieldsToUpdate
+     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig $config
      */
     public function __construct(
         CartItemsResourceMapperInterface $cartItemsResourceMapper,
         RestResourceBuilderInterface $restResourceBuilder,
-        CartsRestApiConfig $config,
-        array $allowedFieldsToUpdate
+        CompanyUserCartsRestApiConfig $config
     ) {
-        parent::__construct(
-            $cartItemsResourceMapper,
-            $restResourceBuilder,
-            $config
-        );
-
-        $this->allowedFieldsToPatch = $allowedFieldsToUpdate;
+        $this->config = $config;
+        $this->cartItemsResourceMapper = $cartItemsResourceMapper;
+        $this->restResourceBuilder = $restResourceBuilder;
     }
 
     /**
@@ -70,7 +74,8 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
             $restCartsAttributesTransfer
         );
 
-        $this->mapCartItems($quoteTransfer, $cartResource);
+        $cartResource->setPayload($quoteTransfer);
+        $this->mapCartItems($quoteTransfer, $cartResource, $restRequest->getMetadata()->getLocale());
 
         return $cartResource;
     }
@@ -78,18 +83,20 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface $cartResource
+     * @param string $localeName
      *
      * @return void
      */
     protected function mapCartItems(
         QuoteTransfer $quoteTransfer,
-        RestResourceInterface $cartResource
+        RestResourceInterface $cartResource,
+        string $localeName
     ): void {
         foreach ($quoteTransfer->getItems() as $itemTransfer) {
             $itemResource = $this->restResourceBuilder->createRestResource(
                 CartsRestApiConfig::RESOURCE_CART_ITEMS,
                 $itemTransfer->getGroupKey(),
-                $this->cartItemsResourceMapper->mapCartItemAttributes($itemTransfer)
+                $this->cartItemsResourceMapper->mapCartItemAttributes($itemTransfer, $localeName)
             );
 
             $itemResource->addLink(
@@ -117,12 +124,12 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
         RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer,
         QuoteTransfer $quoteTransfer
     ): QuoteTransfer {
-
         $quoteAttributes = $quoteTransfer->toArray();
         $restAttributes = $restCartsRequestAttributesTransfer->modifiedToArray();
+        $allowedFieldsToPatchInQuote = $this->config->getAllowedFieldsToPatchInQuote();
 
         foreach ($restAttributes as $restAttributeKey => $restAttributeValue) {
-            if (!in_array($restAttributeKey, $this->allowedFieldsToPatch, true)) {
+            if (!in_array($restAttributeKey, $allowedFieldsToPatchInQuote, true)) {
                 continue;
             }
 
@@ -151,5 +158,69 @@ class CartsResourceMapper extends SprykerCartsResourceMapper implements CartsRes
             ->setPriceMode($restCartsRequestAttributesTransfer->getPriceMode())
             ->setStore($storeTransfer)
             ->setItems(new ArrayObject());
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
+     *
+     * @return void
+     */
+    protected function setDiscounts(QuoteTransfer $quoteTransfer, RestCartsAttributesTransfer $restCartsAttributesTransfer): void
+    {
+        foreach ($quoteTransfer->getVoucherDiscounts() as $discountTransfer) {
+            $restCartsDiscounts = new RestCartsDiscountsTransfer();
+            $restCartsDiscounts->fromArray($discountTransfer->toArray(), true);
+            $restCartsAttributesTransfer->addDiscount($restCartsDiscounts);
+        }
+
+        foreach ($quoteTransfer->getCartRuleDiscounts() as $discountTransfer) {
+            $restCartsDiscounts = new RestCartsDiscountsTransfer();
+            $restCartsDiscounts->fromArray($discountTransfer->toArray(), true);
+            $restCartsAttributesTransfer->addDiscount($restCartsDiscounts);
+        }
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
+     *
+     * @return void
+     */
+    protected function setTotals(QuoteTransfer $quoteTransfer, RestCartsAttributesTransfer $restCartsAttributesTransfer): void
+    {
+        if ($quoteTransfer->getTotals() === null) {
+            $restCartsAttributesTransfer->setTotals(new RestCartsTotalsTransfer());
+
+            return;
+        }
+
+        $cartsTotalsTransfer = (new RestCartsTotalsTransfer())
+            ->fromArray($quoteTransfer->getTotals()->toArray(), true);
+
+        $taxTotalTransfer = $quoteTransfer->getTotals()->getTaxTotal();
+
+        if ($taxTotalTransfer !== null) {
+            $cartsTotalsTransfer->setTaxTotal($taxTotalTransfer->getAmount());
+        }
+
+        $restCartsAttributesTransfer->setTotals($cartsTotalsTransfer);
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param \Generated\Shared\Transfer\RestCartsAttributesTransfer $restCartsAttributesTransfer
+     *
+     * @return void
+     */
+    protected function setBaseCartData(
+        QuoteTransfer $quoteTransfer,
+        RestCartsAttributesTransfer $restCartsAttributesTransfer
+    ): void {
+        $restCartsAttributesTransfer->fromArray($quoteTransfer->toArray(), true);
+
+        $restCartsAttributesTransfer
+            ->setCurrency($quoteTransfer->getCurrency()->getCode())
+            ->setStore($quoteTransfer->getStore()->getName());
     }
 }
