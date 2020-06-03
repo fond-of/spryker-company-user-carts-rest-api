@@ -177,10 +177,6 @@ class CartUpdater implements CartUpdaterInterface
     {
         $cartsResource = $restRequest->getResource();
 
-        if ($cartsResource !== null) {
-            return $cartsResource->getId();
-        }
-
-        return null;
+        return $cartsResource->getId();
     }
 }
