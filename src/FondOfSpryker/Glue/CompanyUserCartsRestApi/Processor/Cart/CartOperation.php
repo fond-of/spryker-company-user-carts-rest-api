@@ -83,16 +83,19 @@ class CartOperation implements CartOperationInterface
 
             if ($this->canAddItem($itemTransfer, $existingItemTransfer)) {
                 $itemTransfersToAdd[] = $itemTransfer;
+
                 continue;
             }
 
             if ($this->canRemoveItem($itemTransfer, $existingItemTransfer)) {
                 $itemTransfersToRemove[] = $itemTransfer;
+
                 continue;
             }
 
             if ($this->canUpdateItem($itemTransfer, $existingItemTransfer)) {
                 $itemTransfersToUpdate[] = $itemTransfer;
+
                 continue;
             }
         }
