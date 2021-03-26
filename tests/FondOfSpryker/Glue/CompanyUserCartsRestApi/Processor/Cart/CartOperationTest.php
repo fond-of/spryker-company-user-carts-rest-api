@@ -114,9 +114,9 @@ class CartOperationTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->sku = "SKU";
+        $this->sku = 'SKU';
 
-        $this->groupKey = "Key";
+        $this->groupKey = 'Key';
 
         $this->itemTransfersToPersist = [
             $this->itemTransferMock,
@@ -145,8 +145,7 @@ class CartOperationTest extends Unit
     {
         $this->quoteClientMock->expects($this->atLeastOnce())
             ->method('setQuote')
-            ->with($this->quoteTransferMock)
-            ->willReturn(true);
+            ->with($this->quoteTransferMock);
 
         $this->assertInstanceOf(CartOperationInterface::class, $this->cartOperation->setQuoteTransfer($this->quoteTransferMock));
     }

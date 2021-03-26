@@ -10,14 +10,14 @@ interface CartOperationInterface
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      *
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
+     * @return $this
      */
     public function setQuoteTransfer(QuoteTransfer $quoteTransfer): self;
 
     /**
      * @param \Generated\Shared\Transfer\RestCartItemTransfer[]|\ArrayObject $restCartItemTransfers
      *
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
+     * @return $this
      */
     public function handleItems(ArrayObject $restCartItemTransfers): self;
 }

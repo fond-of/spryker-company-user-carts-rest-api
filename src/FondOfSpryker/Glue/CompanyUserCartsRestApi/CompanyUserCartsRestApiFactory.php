@@ -97,8 +97,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
         return new CartsResourceMapper(
             $this->createCartItemsResourceMapper(),
             $this->getResourceBuilder(),
-            $this->getCartsRestApiConfig(),
-            $this->getConfig()->getAllowedFieldsToPatchInQuote()
+            $this->getConfig()
         );
     }
 

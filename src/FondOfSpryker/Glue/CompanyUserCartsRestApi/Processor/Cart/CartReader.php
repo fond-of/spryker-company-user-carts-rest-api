@@ -33,7 +33,7 @@ class CartReader implements CartReaderInterface
     protected $companyUserQuoteClient;
 
     /**
-     * @var \Spryker\Glue\CartsRestApi\Processor\Mapper\CartsResourceMapperInterface
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface
      */
     protected $cartsResourceMapper;
 
