@@ -3,7 +3,6 @@
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
-use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 trait SelfLinkCreatorTrait
@@ -17,10 +16,10 @@ trait SelfLinkCreatorTrait
     {
         return sprintf(
             CompanyUserCartsRestApiConfig::FORMAT_SELF_LINK_CART_RESOURCE,
-            CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS,
+            CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS,
             $quoteTransfer->getCompanyUserReference(),
             CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USER_CARTS,
-            $quoteTransfer->getUuid()
+            $quoteTransfer->getUuid(),
         );
     }
 }

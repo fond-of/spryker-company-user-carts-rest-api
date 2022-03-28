@@ -4,11 +4,11 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
-use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\CompanyUserResponseTransfer;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
@@ -92,7 +92,7 @@ class CartCreator implements CartCreatorInterface
         RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
     ): RestResponseInterface {
         $companyUserResponseTransfer = $this->findCompanyUserByCompanyUserReference(
-            $this->findCompanyUserIdentifier($restRequest)
+            $this->findCompanyUserIdentifier($restRequest),
         );
 
         if (
@@ -100,7 +100,7 @@ class CartCreator implements CartCreatorInterface
             || !$this->isCompanyUserFromCurrentUser($restRequest, $companyUserResponseTransfer->getCompanyUser())
         ) {
             return $this->restApiError->addCompanyUserNotFoundErrorResponse(
-                $this->restResourceBuilder->createRestResponse()
+                $this->restResourceBuilder->createRestResponse(),
             );
         }
 
@@ -184,7 +184,7 @@ class CartCreator implements CartCreatorInterface
      */
     protected function findCompanyUserIdentifier(RestRequestInterface $restRequest): ?string
     {
-        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS);
+        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS);
 
         if ($companyUsersResource !== null) {
             return $companyUsersResource->getId();
@@ -223,12 +223,12 @@ class CartCreator implements CartCreatorInterface
 
         $cartsRestResource = $this->cartsResourceMapper->mapCartsResource(
             $quoteTransfer,
-            $restRequest
+            $restRequest,
         );
 
         $cartsRestResource->addLink(
             RestLinkInterface::LINK_SELF,
-            $this->createSelfLink($quoteTransfer)
+            $this->createSelfLink($quoteTransfer),
         );
 
         return $restResponse->addResource($cartsRestResource);
@@ -248,7 +248,7 @@ class CartCreator implements CartCreatorInterface
             return $restResponse->addError($this->createRestErrorMessageTransfer(
                 CartsRestApiConfig::RESPONSE_CODE_FAILED_CREATING_CART,
                 Response::HTTP_INTERNAL_SERVER_ERROR,
-                CartsRestApiConfig::EXCEPTION_MESSAGE_FAILED_TO_CREATE_CART
+                CartsRestApiConfig::EXCEPTION_MESSAGE_FAILED_TO_CREATE_CART,
             ));
         }
 
@@ -257,7 +257,7 @@ class CartCreator implements CartCreatorInterface
                 $restResponse->addError($this->createRestErrorMessageTransfer(
                     CartsRestApiConfig::RESPONSE_CODE_CUSTOMER_ALREADY_HAS_CART,
                     Response::HTTP_UNPROCESSABLE_ENTITY,
-                    CartsRestApiConfig::EXCEPTION_MESSAGE_CUSTOMER_ALREADY_HAS_CART
+                    CartsRestApiConfig::EXCEPTION_MESSAGE_CUSTOMER_ALREADY_HAS_CART,
                 ));
 
                 continue;
@@ -266,7 +266,7 @@ class CartCreator implements CartCreatorInterface
             $restResponse->addError($this->createRestErrorMessageTransfer(
                 CartsRestApiConfig::RESPONSE_CODE_FAILED_CREATING_CART,
                 Response::HTTP_INTERNAL_SERVER_ERROR,
-                $error->getMessage()
+                $error->getMessage(),
             ));
         }
 

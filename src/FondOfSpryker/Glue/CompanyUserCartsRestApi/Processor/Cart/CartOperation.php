@@ -28,7 +28,7 @@ class CartOperation implements CartOperationInterface
     protected $cartItemsResourceMapper;
 
     /**
-     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface[]
+     * @var array<\FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface>
      */
     protected $restCartItemExpanderPlugins;
 
@@ -36,7 +36,7 @@ class CartOperation implements CartOperationInterface
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface $cartClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface $quoteClient
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface $cartItemsResourceMapper
-     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface[] $restCartItemExpanderPlugins
+     * @param array<\FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface> $restCartItemExpanderPlugins
      */
     public function __construct(
         CompanyUserCartsRestApiToCartClientInterface $cartClient,
@@ -148,7 +148,7 @@ class CartOperation implements CartOperationInterface
     }
 
     /**
-     * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfersToPersist
+     * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfersToPersist
      *
      * @return $this
      */
@@ -164,7 +164,7 @@ class CartOperation implements CartOperationInterface
     }
 
     /**
-     * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfersToUpdate
+     * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfersToUpdate
      *
      * @return $this
      */
@@ -174,7 +174,7 @@ class CartOperation implements CartOperationInterface
             $this->cartClient->changeItemQuantity(
                 $itemTransfer->getSku(),
                 $itemTransfer->getGroupKey(),
-                $itemTransfer->getQuantity()
+                $itemTransfer->getQuantity(),
             );
         }
 

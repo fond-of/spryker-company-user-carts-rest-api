@@ -43,7 +43,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->getCompanyUserQuoteClient(),
             $this->createCartsResourceMapper(),
             $this->getResourceBuilder(),
-            $this->createRestApiError()
+            $this->createRestApiError(),
         );
     }
 
@@ -55,7 +55,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
         return new CartDeleter(
             $this->createCartReader(),
             $this->getPersistentCartClient(),
-            $this->getResourceBuilder()
+            $this->getResourceBuilder(),
         );
     }
 
@@ -70,7 +70,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->createCartsResourceMapper(),
             $this->getResourceBuilder(),
             $this->getCompanyUserReferenceClient(),
-            $this->createRestApiError()
+            $this->createRestApiError(),
         );
     }
 
@@ -85,7 +85,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->getPersistentCartClient(),
             $this->createCartsResourceMapper(),
             $this->createRestApiError(),
-            $this->getResourceBuilder()
+            $this->getResourceBuilder(),
         );
     }
 
@@ -97,7 +97,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
         return new CartsResourceMapper(
             $this->createCartItemsResourceMapper(),
             $this->getResourceBuilder(),
-            $this->getConfig()
+            $this->getConfig(),
         );
     }
 
@@ -174,12 +174,12 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->getCartClient(),
             $this->getQuoteClient(),
             $this->createCartItemsResourceMapper(),
-            $this->getRestCartItemExpanderPlugins()
+            $this->getRestCartItemExpanderPlugins(),
         );
     }
 
     /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface[]
+     * @return array<\FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Plugin\RestCartItemExpanderPluginInterface>
      */
     protected function getRestCartItemExpanderPlugins(): array
     {

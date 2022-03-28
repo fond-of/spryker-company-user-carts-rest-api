@@ -5,11 +5,11 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 use ArrayObject;
 use Codeception\Test\Unit;
 use Exception;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
-use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\CompanyUserResponseTransfer;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
@@ -229,7 +229,7 @@ class CartCreatorTest extends Unit
             $this->cartsResourceMapperMock,
             $this->restResourceBuilderMock,
             $this->companyUserReferenceClientMock,
-            $this->restApiErrorMock
+            $this->restApiErrorMock,
         );
     }
 
@@ -269,7 +269,7 @@ class CartCreatorTest extends Unit
 
         $this->restRequestMock->expects($this->atLeastOnce())
             ->method('findParentResourceByType')
-            ->with(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS)
+            ->with(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS)
             ->willReturn($this->restResourceInterfaceMock);
 
         $this->restResourceInterfaceMock->expects($this->atLeastOnce())
@@ -380,7 +380,7 @@ class CartCreatorTest extends Unit
 
         $this->restRequestMock->expects($this->atLeastOnce())
             ->method('findParentResourceByType')
-            ->with(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS)
+            ->with(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS)
             ->willReturn($this->restResourceInterfaceMock);
 
         $this->restResourceInterfaceMock->expects($this->atLeastOnce())
@@ -471,7 +471,7 @@ class CartCreatorTest extends Unit
 
         $this->restRequestMock->expects($this->atLeastOnce())
             ->method('findParentResourceByType')
-            ->with(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS)
+            ->with(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS)
             ->willReturn($this->restResourceInterfaceMock);
 
         $this->restResourceInterfaceMock->expects($this->atLeastOnce())
@@ -566,7 +566,7 @@ class CartCreatorTest extends Unit
 
         $this->restRequestMock->expects($this->atLeastOnce())
             ->method('findParentResourceByType')
-            ->with(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS)
+            ->with(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS)
             ->willReturn($this->restResourceInterfaceMock);
 
         $this->restResourceInterfaceMock->expects($this->atLeastOnce())
@@ -661,7 +661,7 @@ class CartCreatorTest extends Unit
 
         $this->restRequestMock->expects($this->atLeastOnce())
             ->method('findParentResourceByType')
-            ->with(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS)
+            ->with(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS)
             ->willReturn($this->restResourceInterfaceMock);
 
         $this->restResourceInterfaceMock->expects($this->atLeastOnce())
@@ -743,7 +743,7 @@ class CartCreatorTest extends Unit
     {
         $this->restRequestMock->expects($this->atLeastOnce())
             ->method('findParentResourceByType')
-            ->with(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS)
+            ->with(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS)
             ->willReturn(null);
 
         $this->restUserTransferMock->expects($this->never())

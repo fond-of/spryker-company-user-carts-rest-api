@@ -117,7 +117,7 @@ class CartDeleterTest extends Unit
         $this->cartDeleter = new CartDeleter(
             $this->cartReaderMock,
             $this->persistentCartClientMock,
-            $this->restResourceBuilderMock
+            $this->restResourceBuilderMock,
         );
     }
 

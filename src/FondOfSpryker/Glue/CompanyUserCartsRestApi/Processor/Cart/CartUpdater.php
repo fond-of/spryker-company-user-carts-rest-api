@@ -129,7 +129,7 @@ class CartUpdater implements CartUpdaterInterface
     ): QuoteResponseTransfer {
         $quoteTransfer = $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer(
             $restCartsRequestAttributesTransfer,
-            $quoteTransfer
+            $quoteTransfer,
         );
 
         $quoteUpdateRequestAttributesTransfer = new QuoteUpdateRequestAttributesTransfer();
@@ -157,12 +157,12 @@ class CartUpdater implements CartUpdaterInterface
 
         $cartsRestResource = $this->cartsResourceMapper->mapCartsResource(
             $quoteTransfer,
-            $restRequest
+            $restRequest,
         );
 
         $cartsRestResource->addLink(
             RestLinkInterface::LINK_SELF,
-            $this->createSelfLink($quoteTransfer)
+            $this->createSelfLink($quoteTransfer),
         );
 
         return $restResponse->addResource($cartsRestResource);
