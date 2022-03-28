@@ -71,7 +71,7 @@ class CartsResourceMapper implements CartsResourceMapperInterface
         $cartResource = $this->restResourceBuilder->createRestResource(
             CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USER_CARTS,
             $quoteTransfer->getUuid(),
-            $restCartsAttributesTransfer
+            $restCartsAttributesTransfer,
         );
 
         $cartResource->setPayload($quoteTransfer);
@@ -96,7 +96,7 @@ class CartsResourceMapper implements CartsResourceMapperInterface
             $itemResource = $this->restResourceBuilder->createRestResource(
                 CartsRestApiConfig::RESOURCE_CART_ITEMS,
                 $itemTransfer->getGroupKey(),
-                $this->cartItemsResourceMapper->mapCartItemAttributes($itemTransfer, $localeName)
+                $this->cartItemsResourceMapper->mapCartItemAttributes($itemTransfer, $localeName),
             );
 
             $itemResource->addLink(
@@ -106,8 +106,8 @@ class CartsResourceMapper implements CartsResourceMapperInterface
                     CompanyUserCartsRestApiConfig::RESOURCE_CARTS,
                     $cartResource->getId(),
                     CompanyUserCartsRestApiConfig::RESOURCE_CART_ITEMS,
-                    $itemTransfer->getGroupKey()
-                )
+                    $itemTransfer->getGroupKey(),
+                ),
             );
 
             $cartResource->addRelationship($itemResource);

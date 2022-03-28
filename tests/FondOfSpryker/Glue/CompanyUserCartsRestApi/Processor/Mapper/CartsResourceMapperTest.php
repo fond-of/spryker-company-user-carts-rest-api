@@ -216,7 +216,7 @@ class CartsResourceMapperTest extends Unit
         $this->cartsResourceMapper = new CartsResourceMapper(
             $this->cartItemsResourceMapperMock,
             $this->restResourceBuilderMock,
-            $this->configMock
+            $this->configMock,
         );
     }
 
@@ -317,7 +317,7 @@ class CartsResourceMapperTest extends Unit
 
         $this->assertInstanceOf(
             RestResourceInterface::class,
-            $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock)
+            $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock),
         );
     }
 
@@ -406,7 +406,7 @@ class CartsResourceMapperTest extends Unit
 
         $this->assertInstanceOf(
             RestResourceInterface::class,
-            $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock)
+            $this->cartsResourceMapper->mapCartsResource($this->quoteTransferMock, $this->restRequestMock),
         );
     }
 
@@ -429,7 +429,7 @@ class CartsResourceMapperTest extends Unit
 
         $this->assertInstanceOf(
             QuoteTransfer::class,
-            $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock)
+            $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock),
         );
     }
 
@@ -456,7 +456,7 @@ class CartsResourceMapperTest extends Unit
 
         $this->assertInstanceOf(
             QuoteTransfer::class,
-            $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock)
+            $this->cartsResourceMapper->mapMinimalRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock, $this->quoteTransferMock),
         );
     }
 
@@ -479,7 +479,7 @@ class CartsResourceMapperTest extends Unit
 
         $this->assertInstanceOf(
             QuoteTransfer::class,
-            $this->cartsResourceMapper->mapRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock)
+            $this->cartsResourceMapper->mapRestCartsRequestAttributesTransferToQuoteTransfer($this->restCartsRequestAttributesTransferMock),
         );
     }
 }

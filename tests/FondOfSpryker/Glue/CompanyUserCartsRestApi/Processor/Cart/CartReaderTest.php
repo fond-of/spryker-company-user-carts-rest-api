@@ -158,7 +158,7 @@ class CartReaderTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->string = "string";
+        $this->string = 'string';
 
         $this->quoteTransfers = new ArrayObject([
             $this->quoteTransferMock,
@@ -169,7 +169,7 @@ class CartReaderTest extends Unit
             $this->companyUserQuoteClientMock,
             $this->cartsResourceMapperMock,
             $this->restResourceBuilderMock,
-            $this->restApiErrorMock
+            $this->restApiErrorMock,
         );
     }
 

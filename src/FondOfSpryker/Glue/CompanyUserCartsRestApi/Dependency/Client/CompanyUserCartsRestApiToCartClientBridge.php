@@ -25,7 +25,7 @@ class CompanyUserCartsRestApiToCartClientBridge implements CompanyUserCartsRestA
     }
 
     /**
-     * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfers
+     * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      * @param array $params
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
@@ -36,7 +36,7 @@ class CompanyUserCartsRestApiToCartClientBridge implements CompanyUserCartsRestA
     }
 
     /**
-     * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfers
+     * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
      */

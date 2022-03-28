@@ -12,21 +12,23 @@
       "email": "markus.noerenberg@fondof.de"
     }
   ],
+  "scripts": {
+    "ci": "make ci",
+    "codeception": "make codeception",
+    "phpcs": "make phpcs",
+    "phpstan": "make phpstan"
+  },
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.3",
     "spryker/carts-rest-api": "^5.0.0",
     "fond-of-spryker/company-user-quote": "dev-master",
     "fond-of-spryker/company-user-reference": "dev-master",
     "spryker/discount": "^9.0.0"
   },
   "require-dev": {
-    "spryker/code-sniffer": "^0.12",
-    "codeception/codeception": "^2.4",
     "fond-of-codeception/spryker": "^1.0",
-    "mikey179/vfsstream": "^1.6",
-    "phpro/grumphp": "^0.14",
-    "sebastian/phpcpd": "^4.0",
-    "php-coveralls/php-coveralls": "^2.1"
+    "spryker/code-sniffer": "*",
+    "spryker-sdk/phpstan-spryker": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -38,7 +40,13 @@
   "autoload-dev": {
     "psr-4": {
       "FondOfSpryker\\": "tests/FondOfSpryker/",
-      "Generated\\": "src/Generated/"
+      "Generated\\": "src/Generated/",
+      "Orm\\Zed\\": "src/Orm/Zed/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   }
 }

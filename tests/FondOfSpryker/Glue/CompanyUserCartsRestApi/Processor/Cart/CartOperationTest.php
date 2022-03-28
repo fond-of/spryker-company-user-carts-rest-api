@@ -134,7 +134,7 @@ class CartOperationTest extends Unit
             $this->cartClientMock,
             $this->quoteClientMock,
             $this->cartItemsResourceMapperMock,
-            $this->restCartItemExpanderPlugins
+            $this->restCartItemExpanderPlugins,
         );
     }
 

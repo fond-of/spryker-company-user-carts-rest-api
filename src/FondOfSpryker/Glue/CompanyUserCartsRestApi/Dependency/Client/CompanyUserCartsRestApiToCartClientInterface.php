@@ -10,7 +10,7 @@ use Generated\Shared\Transfer\QuoteTransfer;
 interface CompanyUserCartsRestApiToCartClientInterface
 {
     /**
-     * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfers
+     * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      * @param array $params
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
@@ -18,7 +18,7 @@ interface CompanyUserCartsRestApiToCartClientInterface
     public function addItems(array $itemTransfers, array $params = []): QuoteTransfer;
 
     /**
-     * @param \Generated\Shared\Transfer\ItemTransfer[] $itemTransfers
+     * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
      */

@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart;
 
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
-use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\QuoteCollectionTransfer;
@@ -91,7 +91,7 @@ class CartReader implements CartReaderInterface
 
             $cartResource->addLink(
                 RestLinkInterface::LINK_SELF,
-                $this->createSelfLink($quoteTransfer)
+                $this->createSelfLink($quoteTransfer),
             );
 
             $restResponse->addResource($cartResource);
@@ -111,7 +111,7 @@ class CartReader implements CartReaderInterface
 
         $quoteTransfer = $this->getQuoteTransferByUuid(
             $restRequest->getResource()->getId(),
-            $restRequest
+            $restRequest,
         );
 
         if ($quoteTransfer === null) {
@@ -126,7 +126,7 @@ class CartReader implements CartReaderInterface
 
         $cartResource->addLink(
             RestLinkInterface::LINK_SELF,
-            $this->createSelfLink($quoteTransfer)
+            $this->createSelfLink($quoteTransfer),
         );
 
         return $restResponse->addResource($cartResource);
@@ -193,7 +193,7 @@ class CartReader implements CartReaderInterface
      */
     protected function findCompanyUserIdentifier(RestRequestInterface $restRequest): ?string
     {
-        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS);
+        $companyUsersResource = $restRequest->findParentResourceByType(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS);
         if ($companyUsersResource !== null) {
             return $companyUsersResource->getId();
         }

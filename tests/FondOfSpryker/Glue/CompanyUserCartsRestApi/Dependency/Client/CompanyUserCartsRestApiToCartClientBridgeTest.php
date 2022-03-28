@@ -63,7 +63,7 @@ class CompanyUserCartsRestApiToCartClientBridgeTest extends Unit
             $this->itemTransferMock,
         ];
 
-        $this->sku = "SKU";
+        $this->sku = 'SKU';
 
         $this->companyUserCartsRestApiToCartClientBridge = new CompanyUserCartsRestApiToCartClientBridge($this->cartClientInterfaceMock);
     }

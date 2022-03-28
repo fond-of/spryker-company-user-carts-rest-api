@@ -171,7 +171,7 @@ class CartUpdaterTest extends Unit
            $this->restCartItemTransferMock,
         ]);
 
-        $this->string = "string";
+        $this->string = 'string';
 
         $this->cartUpdater = new CartUpdater(
             $this->cartReaderMock,
@@ -179,7 +179,7 @@ class CartUpdaterTest extends Unit
             $this->persistentCartClientMock,
             $this->cartsResourceMapperMock,
             $this->restApiErrorMock,
-            $this->restResourceBuilderMock
+            $this->restResourceBuilderMock,
         );
     }
 
