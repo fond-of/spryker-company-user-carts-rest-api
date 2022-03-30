@@ -64,7 +64,7 @@ class QuoteHandler implements QuoteHandlerInterface
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
      *
-     * @return void
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
     public function handle(
         QuoteTransfer $quoteTransfer,
