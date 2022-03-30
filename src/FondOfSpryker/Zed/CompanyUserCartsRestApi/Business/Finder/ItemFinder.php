@@ -9,7 +9,7 @@ use Generated\Shared\Transfer\RestCartItemTransfer;
 class ItemFinder implements ItemFinderInterface
 {
     /**
-     * @var array<string, \Generated\Shared\Transfer\ItemTransfer>|null
+     * @var array<string, array<string, \Generated\Shared\Transfer\ItemTransfer>>|null
      */
     protected $groupedItemTransfers;
 
@@ -39,7 +39,7 @@ class ItemFinder implements ItemFinderInterface
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      *
-     * @return array<\Generated\Shared\Transfer\ItemTransfer>
+     * @return array<string, \Generated\Shared\Transfer\ItemTransfer>
      */
     protected function getGroupedItemsByQuote(QuoteTransfer $quoteTransfer): array
     {
