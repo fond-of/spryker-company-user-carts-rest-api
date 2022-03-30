@@ -26,7 +26,7 @@ interface ItemsCategorizerInterface
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
      *
-     * @return array<string, array<string, \Generated\Shared\Transfer\ItemTransfer>>
+     * @return array<string, array<\Generated\Shared\Transfer\ItemTransfer>>
      */
     public function categorize(
         QuoteTransfer $quoteTransfer,
