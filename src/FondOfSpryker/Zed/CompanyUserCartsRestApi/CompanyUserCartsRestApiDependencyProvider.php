@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi;
 
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge;
 use Spryker\Zed\Kernel\AbstractBundleDependencyProvider;
 use Spryker\Zed\Kernel\Container;
@@ -43,7 +44,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     protected function addPersistentCartFacade(Container $container): Container
     {
         $container[static::FACADE_PERSISTENT_CART] = static function (Container $container) {
-            return new CompanyUserCartsRestApiToQuoteFacadeBridge(
+            return new CompanyUserCartsRestApiToPersistentCartFacadeBridge(
                 $container->getLocator()->persistentCart()->facade(),
             );
         };
