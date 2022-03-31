@@ -18,8 +18,6 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequest
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloader;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemover;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdater;
@@ -88,7 +86,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createItemAdder(),
             $this->createItemUpdater(),
             $this->createItemRemover(),
-            $this->createQuoteReloader(),
         );
     }
 
@@ -141,14 +138,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function createItemRemover(): ItemRemoverInterface
     {
         return new ItemRemover($this->getPersistentCartFacade());
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
-     */
-    protected function createQuoteReloader(): QuoteReloaderInterface
-    {
-        return new QuoteReloader($this->getPersistentCartFacade());
     }
 
     /**

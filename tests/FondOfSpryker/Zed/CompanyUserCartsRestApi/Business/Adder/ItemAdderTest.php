@@ -2,13 +2,11 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder;
 
-use ArrayObject;
 use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\PersistentCartChangeTransfer;
-use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
@@ -40,11 +38,6 @@ class ItemAdderTest extends Unit
     protected $quoteResponseTransferMock;
 
     /**
-     * @var \Generated\Shared\Transfer\QuoteErrorTransfer|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $quoteErrorTransferMock;
-
-    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdder
      */
     protected $itemAdder;
@@ -73,10 +66,6 @@ class ItemAdderTest extends Unit
             ->getMock();
 
         $this->quoteResponseTransferMock = $this->getMockBuilder(QuoteResponseTransfer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->quoteErrorTransferMock = $this->getMockBuilder(QuoteErrorTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -112,14 +101,10 @@ class ItemAdderTest extends Unit
                 ),
             )->willReturn($this->quoteResponseTransferMock);
 
-        $this->quoteResponseTransferMock->expects(static::atLeastOnce())
-            ->method('getErrors')
-            ->willReturn(new ArrayObject([$this->quoteErrorTransferMock]));
-
-        $quoteErrors = $this->itemAdder->addMultiple($this->quoteTransferMock, [$this->itemTransferMock]);
-
-        static::assertCount(1, $quoteErrors);
-        static::assertEquals($this->quoteErrorTransferMock, $quoteErrors[0]);
+        static::assertEquals(
+            $this->quoteResponseTransferMock,
+            $this->itemAdder->addMultiple($this->quoteTransferMock, [$this->itemTransferMock]),
+        );
     }
 
     /**
@@ -136,8 +121,13 @@ class ItemAdderTest extends Unit
         $this->persistentCartFacadeMock->expects(static::never())
             ->method('add');
 
-        $quoteErrors = $this->itemAdder->addMultiple($this->quoteTransferMock, []);
+        $quoteResponseTransfer = $this->itemAdder->addMultiple($this->quoteTransferMock, []);
 
-        static::assertCount(0, $quoteErrors);
+        static::assertTrue($quoteResponseTransfer->getIsSuccessful());
+
+        static::assertEquals(
+            $this->quoteTransferMock,
+            $quoteResponseTransfer->getQuoteTransfer(),
+        );
     }
 }
