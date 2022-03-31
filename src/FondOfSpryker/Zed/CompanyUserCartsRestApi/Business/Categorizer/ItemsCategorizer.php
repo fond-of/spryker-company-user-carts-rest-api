@@ -51,19 +51,19 @@ class ItemsCategorizer implements ItemsCategorizerInterface
             $oldItemTransfer = $this->itemFinder->findInQuoteByRestCartItem($quoteTransfer, $restCartItemTransfer);
             $itemTransfer = $this->itemMapper->fromRestCartItem($restCartItemTransfer);
 
-            if ($oldItemTransfer === null) {
+            if ($oldItemTransfer === null && $itemTransfer->getQuantity() > 0) {
                 $categorisedItemTransfers[static::CATEGORY_ADDABLE][] = $itemTransfer;
 
                 continue;
             }
 
-            if ($restCartItemTransfer->getQuantity() === 0) {
+            if ($oldItemTransfer !== null && $itemTransfer->getQuantity() === 0) {
                 $categorisedItemTransfers[static::CATEGORY_REMOVABLE][] = $itemTransfer;
 
                 continue;
             }
 
-            if ($restCartItemTransfer->getQuantity() !== $itemTransfer->getQuantity()) {
+            if ($oldItemTransfer !== null && $oldItemTransfer->getQuantity() !== $itemTransfer->getQuantity()) {
                 $categorisedItemTransfers[static::CATEGORY_UPDATABLE][] = $itemTransfer;
             }
         }
