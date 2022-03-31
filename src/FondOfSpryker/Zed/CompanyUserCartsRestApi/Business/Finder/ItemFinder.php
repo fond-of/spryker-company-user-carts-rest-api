@@ -49,6 +49,8 @@ class ItemFinder implements ItemFinderInterface
             return $this->groupedItemTransfers[$key];
         }
 
+        $this->groupedItemTransfers[$key] = [];
+
         foreach ($quoteTransfer->getItems() as $itemTransfer) {
             $searchKey = $itemTransfer->getGroupKey() ?? $itemTransfer->getSku();
             $this->groupedItemTransfers[$key][$searchKey] = $itemTransfer;

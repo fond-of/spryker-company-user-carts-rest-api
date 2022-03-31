@@ -120,7 +120,7 @@ class ItemsCategorizerTest extends Unit
      */
     public function testCategorize(): void
     {
-        $newQuantities = [0, 2];
+        $newQuantities = [2, 0, 2];
         $currentQuantity = 1;
 
         $this->restCartRequestAttributesTransferMock->expects(static::atLeastOnce())
@@ -151,15 +151,19 @@ class ItemsCategorizerTest extends Unit
                 $this->newItemTransferMocks[2],
             );
 
-        $this->restCartItemTransferMocks[1]->expects(static::atLeastOnce())
+        $this->newItemTransferMocks[0]->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($newQuantities[0]);
 
-        $this->restCartItemTransferMocks[2]->expects(static::atLeastOnce())
+        $this->newItemTransferMocks[1]->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($newQuantities[1]);
 
         $this->newItemTransferMocks[2]->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($newQuantities[2]);
+
+        $this->itemTransferMocks[1]->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($currentQuantity);
 

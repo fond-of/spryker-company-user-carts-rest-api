@@ -17,7 +17,7 @@ class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
     /**
      * @var string
      */
-    public const RESOURCE_COMPANY_USERS = 'company-user';
+    public const RESOURCE_COMPANY_USERS = 'company-users';
 
     /**
      * @var string
