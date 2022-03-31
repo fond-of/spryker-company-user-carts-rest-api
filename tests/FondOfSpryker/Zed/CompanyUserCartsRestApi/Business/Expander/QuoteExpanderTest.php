@@ -108,10 +108,10 @@ class QuoteExpanderTest extends Unit
             ->method('setCustomer')
             ->with(
                 static::callback(
-                    static function(CustomerTransfer $customerTransfer) use ($customerReference) {
+                    static function (CustomerTransfer $customerTransfer) use ($customerReference) {
                         return $customerTransfer->getCustomerReference() === $customerReference;
-                    }
-                )
+                    },
+                ),
             )->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
@@ -126,10 +126,10 @@ class QuoteExpanderTest extends Unit
             ->method('setCompanyUser')
             ->with(
                 static::callback(
-                    static function(CompanyUserTransfer $companyUserTransfer) use ($companyUserReference) {
+                    static function (CompanyUserTransfer $companyUserTransfer) use ($companyUserReference) {
                         return $companyUserTransfer->getCompanyUserReference() === $companyUserReference;
-                    }
-                )
+                    },
+                ),
             )->willReturn($this->quoteTransferMock);
 
         $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
@@ -181,10 +181,10 @@ class QuoteExpanderTest extends Unit
             ->method('setCustomer')
             ->with(
                 static::callback(
-                    static function(CustomerTransfer $customerTransfer) use ($customerReference) {
+                    static function (CustomerTransfer $customerTransfer) use ($customerReference) {
                         return $customerTransfer->getCustomerReference() === $customerReference;
-                    }
-                )
+                    },
+                ),
             )->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
@@ -257,10 +257,10 @@ class QuoteExpanderTest extends Unit
             ->method('setCompanyUser')
             ->with(
                 static::callback(
-                    static function(CompanyUserTransfer $companyUserTransfer) use ($companyUserReference) {
+                    static function (CompanyUserTransfer $companyUserTransfer) use ($companyUserReference) {
                         return $companyUserTransfer->getCompanyUserReference() === $companyUserReference;
-                    }
-                )
+                    },
+                ),
             )->willReturn($this->quoteTransferMock);
 
         $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
