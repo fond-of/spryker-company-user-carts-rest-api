@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\PersistentCartChangeQuantityTransfer;
+use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 class ItemUpdater implements ItemUpdaterInterface
@@ -27,39 +28,38 @@ class ItemUpdater implements ItemUpdaterInterface
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param \Generated\Shared\Transfer\ItemTransfer $itemTransfer
      *
-     * @return array<\Generated\Shared\Transfer\QuoteErrorTransfer>
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
      */
-    public function update(QuoteTransfer $quoteTransfer, ItemTransfer $itemTransfer): array
+    public function update(QuoteTransfer $quoteTransfer, ItemTransfer $itemTransfer): QuoteResponseTransfer
     {
         $persistentCartChangeQuantityTransfer = (new PersistentCartChangeQuantityTransfer())
             ->setCustomer($quoteTransfer->getCustomer())
             ->setIdQuote($quoteTransfer->getIdQuote())
             ->setItem($itemTransfer);
 
-        $quoteResponseTransfer = $this->persistentCartFacade->changeItemQuantity($persistentCartChangeQuantityTransfer);
-
-        return $quoteResponseTransfer->getErrors()
-            ->getArrayCopy();
+        return $this->persistentCartFacade->changeItemQuantity($persistentCartChangeQuantityTransfer);
     }
 
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      *
-     * @return array<\Generated\Shared\Transfer\QuoteErrorTransfer>
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
      */
-    public function updateMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): array
+    public function updateMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): QuoteResponseTransfer
     {
-        $mergedQuoteErrorTransfers = [];
+        $quoteResponseTransfer = (new QuoteResponseTransfer())
+            ->setQuoteTransfer($quoteTransfer)
+            ->setIsSuccessful(true);
 
         foreach ($itemTransfers as $itemTransfer) {
-            $quoteErrorTransfers = $this->update($quoteTransfer, $itemTransfer);
+            $quoteResponseTransfer = $this->update($quoteTransfer, $itemTransfer);
 
-            if (count($quoteErrorTransfers) > 0) {
-                $mergedQuoteErrorTransfers = array_merge($quoteErrorTransfers, $mergedQuoteErrorTransfers);
+            if (!$quoteResponseTransfer->getIsSuccessful()) {
+                return $quoteResponseTransfer;
             }
         }
 
-        return $mergedQuoteErrorTransfers;
+        return $quoteResponseTransfer;
     }
 }

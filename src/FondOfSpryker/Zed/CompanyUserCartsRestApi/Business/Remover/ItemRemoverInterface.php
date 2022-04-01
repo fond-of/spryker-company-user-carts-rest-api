@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover;
 
+use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 interface ItemRemoverInterface
@@ -10,7 +11,7 @@ interface ItemRemoverInterface
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      *
-     * @return array<\Generated\Shared\Transfer\QuoteErrorTransfer>
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
      */
-    public function removeMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): array;
+    public function removeMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): QuoteResponseTransfer;
 }

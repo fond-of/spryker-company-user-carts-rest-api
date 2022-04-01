@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder;
 
+use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 interface ItemAdderInterface
@@ -10,7 +11,7 @@ interface ItemAdderInterface
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      *
-     * @return array<\Generated\Shared\Transfer\QuoteErrorTransfer>
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
      */
-    public function addMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): array;
+    public function addMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): QuoteResponseTransfer;
 }

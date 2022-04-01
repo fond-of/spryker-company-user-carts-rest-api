@@ -2,10 +2,8 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler;
 
-use ArrayObject;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizerInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface;
 use Generated\Shared\Transfer\QuoteTransfer;
@@ -35,29 +33,21 @@ class QuoteHandler implements QuoteHandlerInterface
     protected $itemRemover;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
-     */
-    protected $quoteReloader;
-
-    /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizerInterface $itemsCategorizer
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdderInterface $itemAdder
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface $itemUpdater
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface $itemRemover
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
      */
     public function __construct(
         ItemsCategorizerInterface $itemsCategorizer,
         ItemAdderInterface $itemAdder,
         ItemUpdaterInterface $itemUpdater,
-        ItemRemoverInterface $itemRemover,
-        QuoteReloaderInterface $quoteReloader
+        ItemRemoverInterface $itemRemover
     ) {
         $this->itemsCategorizer = $itemsCategorizer;
         $this->itemAdder = $itemAdder;
         $this->itemUpdater = $itemUpdater;
         $this->itemRemover = $itemRemover;
-        $this->quoteReloader = $quoteReloader;
     }
 
     /**
@@ -83,23 +73,36 @@ class QuoteHandler implements QuoteHandlerInterface
             $restCartsRequestAttributesTransfer,
         );
 
-        $quoteErrorTransfers = array_merge(
-            $this->itemAdder->addMultiple($quoteTransfer, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE]),
-            $this->itemUpdater->updateMultiple($quoteTransfer, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_UPDATABLE]),
-            $this->itemRemover->removeMultiple($quoteTransfer, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE]),
+        $quoteResponseTransfer = $this->itemAdder->addMultiple(
+            $quoteTransfer,
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE],
         );
 
-        $quoteResponseTransfer = $this->quoteReloader->reload($quoteTransfer);
+        if (!$quoteResponseTransfer->getIsSuccessful() || $quoteResponseTransfer->getQuoteTransfer() === null) {
+            return (new RestCompanyUserCartsResponseTransfer())
+                ->setErrors($quoteResponseTransfer->getErrors())
+                ->setIsSuccessful(false);
+        }
 
-        $quoteErrorTransfers = array_merge(
-            $quoteResponseTransfer->getErrors()
-                ->getArrayCopy(),
-            $quoteErrorTransfers,
+        $quoteResponseTransfer = $this->itemUpdater->updateMultiple(
+            $quoteResponseTransfer->getQuoteTransfer(),
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_UPDATABLE],
+        );
+
+        if (!$quoteResponseTransfer->getIsSuccessful() || $quoteResponseTransfer->getQuoteTransfer() === null) {
+            return (new RestCompanyUserCartsResponseTransfer())
+                ->setErrors($quoteResponseTransfer->getErrors())
+                ->setIsSuccessful(false);
+        }
+
+        $quoteResponseTransfer = $this->itemRemover->removeMultiple(
+            $quoteResponseTransfer->getQuoteTransfer(),
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE],
         );
 
         return (new RestCompanyUserCartsResponseTransfer())
-            ->setQuote(count($quoteErrorTransfers) > 0 ? null : $quoteResponseTransfer->getQuoteTransfer())
-            ->setErrors(new ArrayObject($quoteErrorTransfers))
-            ->setIsSuccessful(count($quoteErrorTransfers) === 0);
+            ->setQuote($quoteResponseTransfer->getQuoteTransfer())
+            ->setErrors($quoteResponseTransfer->getErrors())
+            ->setIsSuccessful($quoteResponseTransfer->getIsSuccessful());
     }
 }

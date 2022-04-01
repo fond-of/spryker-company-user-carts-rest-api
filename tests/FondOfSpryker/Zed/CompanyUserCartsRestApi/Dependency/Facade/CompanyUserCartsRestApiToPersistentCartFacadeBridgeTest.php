@@ -144,20 +144,4 @@ class CompanyUserCartsRestApiToPersistentCartFacadeBridgeTest extends Unit
             $this->facadeBridge->updateQuote($this->quoteUpdateRequestTransferMock),
         );
     }
-
-    /**
-     * @return void
-     */
-    public function testReloadItems(): void
-    {
-        $this->facadeMock->expects(static::atLeastOnce())
-            ->method('reloadItems')
-            ->with($this->quoteTransferMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        static::assertEquals(
-            $this->quoteResponseTransferMock,
-            $this->facadeBridge->reloadItems($this->quoteTransferMock),
-        );
-    }
 }

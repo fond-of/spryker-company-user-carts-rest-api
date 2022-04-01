@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover;
 use ArrayObject;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\PersistentCartChangeTransfer;
+use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 class ItemRemover implements ItemRemoverInterface
@@ -27,12 +28,14 @@ class ItemRemover implements ItemRemoverInterface
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
      * @param array<\Generated\Shared\Transfer\ItemTransfer> $itemTransfers
      *
-     * @return array<\Generated\Shared\Transfer\QuoteErrorTransfer>
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
      */
-    public function removeMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): array
+    public function removeMultiple(QuoteTransfer $quoteTransfer, array $itemTransfers): QuoteResponseTransfer
     {
         if (count($itemTransfers) === 0) {
-            return [];
+            return (new QuoteResponseTransfer())
+                ->setQuoteTransfer($quoteTransfer)
+                ->setIsSuccessful(true);
         }
 
         $persistentCartChangeTransfer = (new PersistentCartChangeTransfer())
@@ -40,9 +43,6 @@ class ItemRemover implements ItemRemoverInterface
             ->setIdQuote($quoteTransfer->getIdQuote())
             ->setItems(new ArrayObject($itemTransfers));
 
-        $quoteResponseTransfer = $this->persistentCartFacade->remove($persistentCartChangeTransfer);
-
-        return $quoteResponseTransfer->getErrors()
-            ->getArrayCopy();
+        return $this->persistentCartFacade->remove($persistentCartChangeTransfer);
     }
 }
