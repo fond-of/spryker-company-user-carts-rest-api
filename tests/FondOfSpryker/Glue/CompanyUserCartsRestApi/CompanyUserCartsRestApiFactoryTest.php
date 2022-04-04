@@ -103,7 +103,7 @@ class CompanyUserCartsRestApiFactoryTest extends Unit
 
         static::assertInstanceOf(
             CartUpdater::class,
-            $this->factory->createCartUpdater()
+            $this->factory->createCartUpdater(),
         );
     }
 }
