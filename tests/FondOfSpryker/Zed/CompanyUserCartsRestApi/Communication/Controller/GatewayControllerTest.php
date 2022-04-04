@@ -51,11 +51,24 @@ class GatewayControllerTest extends Unit
 
         $this->gatewayController = new class ($this->facadeMock) extends GatewayController {
             /**
+             * @var \Spryker\Zed\Kernel\Business\AbstractFacade
+             */
+            protected $companyUserCartsRestApiFacade;
+
+            /**
              * @param \Spryker\Zed\Kernel\Business\AbstractFacade $facade
              */
             public function __construct(AbstractFacade $facade)
             {
-                $this->facade = $facade;
+                $this->companyUserCartsRestApiFacade = $facade;
+            }
+
+            /**
+             * @return \Spryker\Zed\Kernel\Business\AbstractFacade
+             */
+            protected function getFacade(): AbstractFacade
+            {
+                return $this->companyUserCartsRestApiFacade;
             }
         };
     }
