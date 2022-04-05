@@ -24,4 +24,22 @@ interface CompanyUserCartsRestApiFacadeInterface
     public function updateQuoteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer;
+
+    /**
+     * Specifications:
+     * - Creates quote
+     * - Adds quote items
+     * - Remove quote items
+     * - Update quote items
+     * - ...
+     *
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function createQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer;
 }

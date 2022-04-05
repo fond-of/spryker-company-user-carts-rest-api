@@ -76,6 +76,24 @@ class GatewayControllerTest extends Unit
     /**
      * @return void
      */
+    public function testCreateQuoteByRestCompanyUserCartsRequestAction(): void
+    {
+        $this->facadeMock->expects(static::atLeastOnce())
+            ->method('createQuoteByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->gatewayController->createQuoteByRestCompanyUserCartsRequestAction(
+                $this->restCompanyUserCartsRequestTransferMock,
+            ),
+        );
+    }
+
+    /**
+     * @return void
+     */
     public function testUpdateQuoteByRestCompanyUserCartsRequestAction(): void
     {
         $this->facadeMock->expects(static::atLeastOnce())

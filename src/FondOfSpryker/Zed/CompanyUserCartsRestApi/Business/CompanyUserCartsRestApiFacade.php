@@ -27,4 +27,21 @@ class CompanyUserCartsRestApiFacade extends AbstractFacade implements CompanyUse
             ->createQuoteUpdater()
             ->updateByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function createQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFactory()
+            ->createQuoteCreator()
+            ->createByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
 }
