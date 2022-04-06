@@ -11,14 +11,25 @@ use Spryker\Zed\Kernel\Communication\Controller\AbstractGatewayController;
  */
 class GatewayController extends AbstractGatewayController
 {
-/**
- * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
- *
- * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
- */
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
     public function updateQuoteByRestCompanyUserCartsRequestAction(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
         return $this->getFacade()->updateQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function createQuoteByRestCompanyUserCartsRequestAction(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFacade()->createQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
 }

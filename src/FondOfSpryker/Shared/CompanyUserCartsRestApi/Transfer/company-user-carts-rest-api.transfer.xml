@@ -25,6 +25,7 @@
         <property name="idCart" type="string"/>
         <property name="customerReference" type="string"/>
         <property name="companyUserReference" type="string"/>
+        <property name="idCustomer" type="int"/>
         <property name="cart" type="RestCartsRequestAttributes"/>
     </transfer>
 

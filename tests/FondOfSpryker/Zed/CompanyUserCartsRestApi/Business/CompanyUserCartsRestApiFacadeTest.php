@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business;
 
 use Codeception\Test\Unit;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
@@ -13,6 +14,11 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\CompanyUserCartsRestApiBusinessFactory|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $factoryMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $quoteCreatorMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -42,6 +48,10 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
         parent::_before();
 
         $this->factoryMock = $this->getMockBuilder(CompanyUserCartsRestApiBusinessFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->quoteCreatorMock = $this->getMockBuilder(QuoteCreatorInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -78,6 +88,26 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
         static::assertEquals(
             $this->restCompanyUserCartsResponseTransferMock,
             $this->facade->updateQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateQuoteByRestCompanyUserCartsRequest(): void
+    {
+        $this->factoryMock->expects(static::atLeastOnce())
+            ->method('createQuoteCreator')
+            ->willReturn($this->quoteCreatorMock);
+
+        $this->quoteCreatorMock->expects(static::atLeastOnce())
+            ->method('createByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->facade->createQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
         );
     }
 }

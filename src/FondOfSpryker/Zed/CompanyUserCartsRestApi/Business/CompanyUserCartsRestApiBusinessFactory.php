@@ -6,6 +6,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizer;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizerInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreator;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpander;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinder;
@@ -16,6 +18,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReader;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemover;
@@ -25,6 +29,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterf
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
@@ -34,6 +39,19 @@ use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
  */
 class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
 {
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface
+     */
+    public function createQuoteCreator(): QuoteCreatorInterface
+    {
+        return new QuoteCreator(
+            $this->createCompanyUserReader(),
+            $this->createQuoteExpander(),
+            $this->createQuoteHandler(),
+            $this->getPersistentCartFacade(),
+        );
+    }
+
     /**
      * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface
      */
@@ -154,5 +172,21 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function getQuoteFacade(): CompanyUserCartsRestApiToQuoteFacadeInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE);
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface
+     */
+    protected function createCompanyUserReader(): CompanyUserReaderInterface
+    {
+        return new CompanyUserReader($this->getCompanyUserReferenceFacade());
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface
+     */
+    protected function getCompanyUserReferenceFacade(): CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE);
     }
 }
