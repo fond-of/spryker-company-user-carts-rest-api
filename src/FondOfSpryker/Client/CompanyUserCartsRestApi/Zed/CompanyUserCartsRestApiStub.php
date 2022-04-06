@@ -26,6 +26,23 @@ class CompanyUserCartsRestApiStub implements CompanyUserCartsRestApiStubInterfac
      *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
+    public function createQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        /** @var \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer $restCompanyUserCartsResponseTransfer */
+        $restCompanyUserCartsResponseTransfer = $this->zedRequestClient->call(
+            '/company-user-carts-rest-api/gateway/create-quote-by-rest-company-user-carts-request',
+            $restCompanyUserCartsRequestTransfer,
+        );
+
+        return $restCompanyUserCartsResponseTransfer;
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
     public function updateQuoteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
