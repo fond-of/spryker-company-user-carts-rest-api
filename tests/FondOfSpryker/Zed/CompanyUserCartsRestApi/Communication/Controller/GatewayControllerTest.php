@@ -108,4 +108,22 @@ class GatewayControllerTest extends Unit
             ),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testDeleteQuoteByRestCompanyUserCartsRequestAction(): void
+    {
+        $this->facadeMock->expects(static::atLeastOnce())
+            ->method('deleteQuoteByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->gatewayController->deleteQuoteByRestCompanyUserCartsRequestAction(
+                $this->restCompanyUserCartsRequestTransferMock,
+            ),
+        );
+    }
 }

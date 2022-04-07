@@ -44,4 +44,23 @@ class CompanyUserCartsRestApiFacade extends AbstractFacade implements CompanyUse
             ->createQuoteCreator()
             ->createByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
+
+    /**
+     * Specifications:
+     * - Delete quote
+     * - ...
+     *
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function deleteQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFactory()
+            ->createQuoteDeleter()
+            ->deleteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
 }

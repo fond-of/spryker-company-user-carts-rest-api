@@ -8,6 +8,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategori
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreator;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleter;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpander;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinder;
@@ -62,6 +64,17 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteExpander(),
             $this->createQuoteUpdateRequestMapper(),
             $this->createQuoteHandler(),
+            $this->getPersistentCartFacade(),
+        );
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleterInterface
+     */
+    public function createQuoteDeleter(): QuoteDeleterInterface
+    {
+        return new QuoteDeleter(
+            $this->createQuoteReader(),
             $this->getPersistentCartFacade(),
         );
     }
