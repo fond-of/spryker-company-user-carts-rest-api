@@ -34,43 +34,61 @@ class QuoteExpander implements QuoteExpanderInterface
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): QuoteTransfer {
         $quoteTransfer = $this->expandWithConfigurableFields($quoteTransfer, $restCompanyUserCartsRequestTransfer);
-        $quoteTransfer = $this->expandWithCustomer($quoteTransfer);
+        $quoteTransfer = $this->expandWithCustomer($quoteTransfer, $restCompanyUserCartsRequestTransfer);
 
-        return $this->expandWithCompanyUser($quoteTransfer);
+        return $this->expandWithCompanyUser($quoteTransfer, $restCompanyUserCartsRequestTransfer);
     }
 
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
      */
-    protected function expandWithCustomer(QuoteTransfer $quoteTransfer): QuoteTransfer
-    {
+    protected function expandWithCustomer(
+        QuoteTransfer $quoteTransfer,
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): QuoteTransfer {
         if ($quoteTransfer->getCustomer() !== null) {
             return $quoteTransfer;
         }
 
-        $customerTransfer = (new CustomerTransfer())
-            ->setCustomerReference($quoteTransfer->getCustomerReference());
+        $customerReference = $quoteTransfer->getCustomerReference();
 
-        return $quoteTransfer->setCustomer($customerTransfer);
+        if ($customerReference === null) {
+            $customerReference = $restCompanyUserCartsRequestTransfer->getCustomerReference();
+        }
+
+        return $quoteTransfer->setCustomer(
+            (new CustomerTransfer())
+                ->setCustomerReference($customerReference),
+        );
     }
 
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
      *
      * @return \Generated\Shared\Transfer\QuoteTransfer
      */
-    protected function expandWithCompanyUser(QuoteTransfer $quoteTransfer): QuoteTransfer
-    {
+    protected function expandWithCompanyUser(
+        QuoteTransfer $quoteTransfer,
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): QuoteTransfer {
         if ($quoteTransfer->getCompanyUser() !== null) {
             return $quoteTransfer;
         }
 
-        $companyUserTransfer = (new CompanyUserTransfer())
-            ->setCompanyUserReference($quoteTransfer->getCompanyUserReference());
+        $companyUserReference = $quoteTransfer->getCompanyUserReference();
 
-        return $quoteTransfer->setCompanyUser($companyUserTransfer);
+        if ($companyUserReference === null) {
+            $companyUserReference = $restCompanyUserCartsRequestTransfer->getCompanyUserReference();
+        }
+
+        return $quoteTransfer->setCompanyUser(
+            (new CompanyUserTransfer())
+                ->setCompanyUserReference($companyUserReference),
+        );
     }
 
     /**

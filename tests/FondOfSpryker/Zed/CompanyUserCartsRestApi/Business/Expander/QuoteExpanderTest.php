@@ -102,6 +102,10 @@ class QuoteExpanderTest extends Unit
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCustomerReference')
+            ->willReturn(null);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getCustomerReference')
             ->willReturn($customerReference);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
@@ -119,6 +123,10 @@ class QuoteExpanderTest extends Unit
             ->willReturn(null);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('getCompanyUserReference')
+            ->willReturn(null);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
             ->method('getCompanyUserReference')
             ->willReturn($companyUserReference);
 
