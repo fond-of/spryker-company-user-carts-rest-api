@@ -92,4 +92,24 @@ class CompanyUserCartsRestApiStubTest extends Unit
             ),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testDeleteQuoteByRestCompanyUserCartsRequest(): void
+    {
+        $this->zedRequestClientMock->expects(static::atLeastOnce())
+            ->method('call')
+            ->with(
+                '/company-user-carts-rest-api/gateway/delete-quote-by-rest-company-user-carts-request',
+                $this->restCompanyUserCartsRequestTransferMock,
+            )->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->companyUserCartsRestApiStub->deleteQuoteByRestCompanyUserCartsRequest(
+                $this->restCompanyUserCartsRequestTransferMock,
+            ),
+        );
+    }
 }

@@ -50,7 +50,7 @@ class RestResponseBuilder implements RestResponseBuilderInterface
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function buildNotPersistedRestResponse(array $quoteErrorTransfers): RestResponseInterface
+    public function buildErrorRestResponse(array $quoteErrorTransfers): RestResponseInterface
     {
         $detail = 'Undefined';
 
@@ -113,5 +113,13 @@ class RestResponseBuilder implements RestResponseBuilderInterface
 
         return $this->restResourceBuilder->createRestResponse()
             ->addResource($restResource);
+    }
+
+    /**
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function buildEmptyRestResponse(): RestResponseInterface
+    {
+        return $this->restResourceBuilder->createRestResponse();
     }
 }

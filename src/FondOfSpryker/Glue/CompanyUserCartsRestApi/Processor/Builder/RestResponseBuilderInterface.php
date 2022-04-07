@@ -12,7 +12,7 @@ interface RestResponseBuilderInterface
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function buildNotPersistedRestResponse(array $quoteErrorTransfers): RestResponseInterface;
+    public function buildErrorRestResponse(array $quoteErrorTransfers): RestResponseInterface;
 
     /**
      * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
@@ -20,4 +20,9 @@ interface RestResponseBuilderInterface
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
     public function buildPersistedRestResponse(QuoteTransfer $quoteTransfer): RestResponseInterface;
+
+    /**
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function buildEmptyRestResponse(): RestResponseInterface;
 }

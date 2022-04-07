@@ -54,4 +54,21 @@ class CompanyUserCartsRestApiStub implements CompanyUserCartsRestApiStubInterfac
 
         return $restCompanyUserCartsResponseTransfer;
     }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function deleteQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        /** @var \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer $restCompanyUserCartsResponseTransfer */
+        $restCompanyUserCartsResponseTransfer = $this->zedRequestClient->call(
+            '/company-user-carts-rest-api/gateway/delete-quote-by-rest-company-user-carts-request',
+            $restCompanyUserCartsRequestTransfer,
+        );
+
+        return $restCompanyUserCartsResponseTransfer;
+    }
 }
