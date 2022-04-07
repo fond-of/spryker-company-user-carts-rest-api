@@ -53,15 +53,13 @@ class QuoteExpander implements QuoteExpanderInterface
             return $quoteTransfer;
         }
 
-        $customerReference = $quoteTransfer->getCustomerReference();
-
-        if ($customerReference === null) {
-            $customerReference = $restCompanyUserCartsRequestTransfer->getCustomerReference();
+        if ($quoteTransfer->getCustomerReference() === null) {
+            $quoteTransfer->setCustomerReference($restCompanyUserCartsRequestTransfer->getCustomerReference());
         }
 
         return $quoteTransfer->setCustomer(
             (new CustomerTransfer())
-                ->setCustomerReference($customerReference),
+                ->setCustomerReference($quoteTransfer->getCustomerReference()),
         );
     }
 
@@ -79,15 +77,13 @@ class QuoteExpander implements QuoteExpanderInterface
             return $quoteTransfer;
         }
 
-        $companyUserReference = $quoteTransfer->getCompanyUserReference();
-
-        if ($companyUserReference === null) {
-            $companyUserReference = $restCompanyUserCartsRequestTransfer->getCompanyUserReference();
+        if ($quoteTransfer->getCompanyUserReference() === null) {
+            $quoteTransfer->setCompanyUserReference($restCompanyUserCartsRequestTransfer->getCompanyUserReference());
         }
 
         return $quoteTransfer->setCompanyUser(
             (new CompanyUserTransfer())
-                ->setCompanyUserReference($companyUserReference),
+                ->setCompanyUserReference($quoteTransfer->getCompanyUserReference()),
         );
     }
 
