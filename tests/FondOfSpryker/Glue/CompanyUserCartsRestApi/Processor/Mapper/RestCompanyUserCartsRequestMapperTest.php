@@ -6,6 +6,7 @@ use Codeception\Test\Unit;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\CompanyUserReferenceFilterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\CustomerReferenceFilterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCartFilterInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilterInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
 class RestCompanyUserCartsRequestMapperTest extends Unit
@@ -24,6 +25,11 @@ class RestCompanyUserCartsRequestMapperTest extends Unit
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\CustomerReferenceFilterInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $customerReferenceFilterMock;
+
+    /**
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilterInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $idCustomerFilterMock;
 
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface
@@ -59,6 +65,10 @@ class RestCompanyUserCartsRequestMapperTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->idCustomerFilterMock = $this->getMockBuilder(IdCustomerFilterInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->restRequestMock = $this->getMockBuilder(RestRequestInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -67,6 +77,7 @@ class RestCompanyUserCartsRequestMapperTest extends Unit
             $this->cartIdFilterMock,
             $this->companyUserReferenceFilterMock,
             $this->customerReferenceFilterMock,
+            $this->idCustomerFilterMock,
         );
     }
 
@@ -78,6 +89,7 @@ class RestCompanyUserCartsRequestMapperTest extends Unit
         $idCard = '71066382-5532-4b1a-99cb-cac70b2ce200';
         $companyUserReference = 'FOO--CU-1';
         $customerReference = 'FOO--C-1';
+        $idCustomer = 1;
 
         $this->cartIdFilterMock->expects(static::atLeastOnce())
             ->method('filterFromRestRequest')
@@ -93,6 +105,11 @@ class RestCompanyUserCartsRequestMapperTest extends Unit
             ->method('filterFromRestRequest')
             ->with($this->restRequestMock)
             ->willReturn($customerReference);
+
+        $this->idCustomerFilterMock->expects(static::atLeastOnce())
+            ->method('filterFromRestRequest')
+            ->with($this->restRequestMock)
+            ->willReturn($idCustomer);
 
         $this->restCompanyUserCartsRequestTransfer = $this->restCompanyUserCartsRequestMapper->fromRestRequest(
             $this->restRequestMock,
@@ -111,6 +128,11 @@ class RestCompanyUserCartsRequestMapperTest extends Unit
         static::assertEquals(
             $customerReference,
             $this->restCompanyUserCartsRequestTransfer->getCustomerReference(),
+        );
+
+        static::assertEquals(
+            $idCustomer,
+            $this->restCompanyUserCartsRequestTransfer->getIdCustomer(),
         );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater;
+namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator;
 
 use FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface;
@@ -10,7 +10,7 @@ use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
-class CartUpdater implements CartUpdaterInterface
+class CartCreator implements CartCreatorInterface
 {
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface
@@ -56,7 +56,7 @@ class CartUpdater implements CartUpdaterInterface
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function update(
+    public function create(
         RestRequestInterface $restRequest,
         RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
     ): RestResponseInterface {
@@ -69,7 +69,7 @@ class CartUpdater implements CartUpdaterInterface
         $restCompanyUserCartsRequestTransfer = $this->restCompanyUserCartsRequestMapper->fromRestRequest($restRequest)
             ->setCart($restCartsRequestAttributesTransfer);
 
-        $restCompanyUserCartsResponseTransfer = $this->client->updateQuoteByRestCompanyUserCartsRequest(
+        $restCompanyUserCartsResponseTransfer = $this->client->createQuoteByRestCompanyUserCartsRequest(
             $restCompanyUserCartsRequestTransfer,
         );
 

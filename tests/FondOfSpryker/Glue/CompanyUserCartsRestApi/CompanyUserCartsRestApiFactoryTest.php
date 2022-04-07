@@ -4,6 +4,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
 use Codeception\Test\Unit;
 use FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClient;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater\CartUpdater;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\Kernel\Container;
@@ -84,6 +85,27 @@ class CompanyUserCartsRestApiFactoryTest extends Unit
         $this->factory->setClient($this->clientMock);
         $this->factory->setConfig($this->configMock);
         $this->factory->setContainer($this->containerMock);
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateCartCreator(): void
+    {
+        $this->containerMock->expects(static::atLeastOnce())
+            ->method('has')
+            ->with(CompanyUserCartsRestApiDependencyProvider::PLUGINS_REST_CART_ITEM_EXPANDER)
+            ->willReturn(true);
+
+        $this->containerMock->expects(static::atLeastOnce())
+            ->method('get')
+            ->with(CompanyUserCartsRestApiDependencyProvider::PLUGINS_REST_CART_ITEM_EXPANDER)
+            ->willReturn([]);
+
+        static::assertInstanceOf(
+            CartCreator::class,
+            $this->factory->createCartCreator(),
+        );
     }
 
     /**
