@@ -102,7 +102,16 @@ class QuoteExpanderTest extends Unit
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCustomerReference')
+            ->willReturnOnConsecutiveCalls(null, $customerReference);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getCustomerReference')
             ->willReturn($customerReference);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('setCustomerReference')
+            ->with($customerReference)
+            ->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('setCustomer')
@@ -120,7 +129,16 @@ class QuoteExpanderTest extends Unit
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCompanyUserReference')
+            ->willReturnOnConsecutiveCalls(null, $companyUserReference);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getCompanyUserReference')
             ->willReturn($companyUserReference);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('setCompanyUserReference')
+            ->with($companyUserReference)
+            ->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('setCompanyUser')
@@ -177,6 +195,12 @@ class QuoteExpanderTest extends Unit
             ->method('getCustomerReference')
             ->willReturn($customerReference);
 
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('getCustomerReference');
+
+        $this->quoteTransferMock->expects(static::never())
+            ->method('setCustomerReference');
+
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('setCustomer')
             ->with(
@@ -193,6 +217,12 @@ class QuoteExpanderTest extends Unit
 
         $this->quoteTransferMock->expects(static::never())
             ->method('getCompanyUserReference');
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('getCompanyUserReference');
+
+        $this->quoteTransferMock->expects(static::never())
+            ->method('setCompanyUserReference');
 
         $this->quoteTransferMock->expects(static::never())
             ->method('setCompanyUser');
@@ -233,7 +263,6 @@ class QuoteExpanderTest extends Unit
 
         $allowedFieldsToPatchInQuote = ['name'];
         $companyUserReference = 'FOO--CU-1';
-        $customerReference = 'FOO--C-1';
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCustomer')
@@ -241,6 +270,12 @@ class QuoteExpanderTest extends Unit
 
         $this->quoteTransferMock->expects(static::never())
             ->method('getCustomerReference');
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('getCustomerReference');
+
+        $this->quoteTransferMock->expects(static::never())
+            ->method('setCustomerReference');
 
         $this->quoteTransferMock->expects(static::never())
             ->method('setCustomer');
@@ -252,6 +287,12 @@ class QuoteExpanderTest extends Unit
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCompanyUserReference')
             ->willReturn($companyUserReference);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('getCompanyUserReference');
+
+        $this->quoteTransferMock->expects(static::never())
+            ->method('setCompanyUserReference');
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('setCompanyUser')

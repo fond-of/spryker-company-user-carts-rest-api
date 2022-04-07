@@ -143,7 +143,7 @@ class RestResponseBuilderTest extends Unit
     /**
      * @return void
      */
-    public function testBuildNotUpdatedRestResponse(): void
+    public function testBuildNotPersistedRestResponse(): void
     {
         $message = 'foo';
 
@@ -173,14 +173,14 @@ class RestResponseBuilderTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->restResponseBuilder->buildNotUpdatedRestResponse($quoteErrorTransferMocks),
+            $this->restResponseBuilder->buildNotPersistedRestResponse($quoteErrorTransferMocks),
         );
     }
 
     /**
      * @return void
      */
-    public function testBuildNotUpdatedRestResponseWithoutMessage(): void
+    public function testBuildNotPersistedRestResponseWithoutMessage(): void
     {
         $quoteErrorTransferMocks = [];
 
@@ -202,14 +202,14 @@ class RestResponseBuilderTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->restResponseBuilder->buildNotUpdatedRestResponse($quoteErrorTransferMocks),
+            $this->restResponseBuilder->buildNotPersistedRestResponse($quoteErrorTransferMocks),
         );
     }
 
     /**
      * @return void
      */
-    public function testBuildUpdatedRestResponse(): void
+    public function testBuildPersistedRestResponse(): void
     {
         $uuid = 'e6b02939-18fc-4857-837e-f0e8063c306e';
         $groupKey = 'foo.bar-1';
@@ -310,7 +310,7 @@ class RestResponseBuilderTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->restResponseBuilder->buildUpdatedRestResponse($this->quoteTransferMock),
+            $this->restResponseBuilder->buildPersistedRestResponse($this->quoteTransferMock),
         );
     }
 }

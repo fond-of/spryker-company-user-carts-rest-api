@@ -9,14 +9,14 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCart
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilder;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreator;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreatorInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleter;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartDeleterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperation;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReader;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreatorInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpander;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpanderInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\CompanyUserReferenceFilter;
@@ -25,6 +25,8 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\CustomerReferenc
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\CustomerReferenceFilterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCartFilter;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCartFilterInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilter;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapper;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapper;
@@ -74,21 +76,6 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->createCartReader(),
             $this->getPersistentCartClient(),
             $this->getResourceBuilder(),
-        );
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartCreatorInterface
-     */
-    public function createCartCreator(): CartCreatorInterface
-    {
-        return new CartCreator(
-            $this->createCartOperation(),
-            $this->getPersistentCartClient(),
-            $this->createCartsResourceMapper(),
-            $this->getResourceBuilder(),
-            $this->getCompanyUserReferenceClient(),
-            $this->createRestApiError(),
         );
     }
 
@@ -195,6 +182,19 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreatorInterface
+     */
+    public function createCartCreator(): CartCreatorInterface
+    {
+        return new CartCreator(
+            $this->createRestCompanyUserCartsRequestMapper(),
+            $this->createRestCartItemExpander(),
+            $this->createRestResponseBuilder(),
+            $this->getClient(),
+        );
+    }
+
+    /**
      * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface
      */
     protected function createRestCompanyUserCartsRequestMapper(): RestCompanyUserCartsRequestMapperInterface
@@ -203,6 +203,7 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
             $this->createIdCartFilter(),
             $this->createCompanyUserReferenceFilter(),
             $this->createCustomerReferenceFilter(),
+            $this->createIdCustomerFilter(),
         );
     }
 
@@ -228,6 +229,14 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     protected function createCustomerReferenceFilter(): CustomerReferenceFilterInterface
     {
         return new CustomerReferenceFilter();
+    }
+
+    /**
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilterInterface
+     */
+    protected function createIdCustomerFilter(): IdCustomerFilterInterface
+    {
+        return new IdCustomerFilter();
     }
 
     /**

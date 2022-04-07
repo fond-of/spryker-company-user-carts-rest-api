@@ -1,6 +1,6 @@
 <?php
 
-namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater;
+namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator;
 
 use ArrayObject;
 use Codeception\Test\Unit;
@@ -17,7 +17,7 @@ use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
-class CartUpdaterTest extends Unit
+class CartCreatorTest extends Unit
 {
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -80,9 +80,9 @@ class CartUpdaterTest extends Unit
     protected $quoteTransferMock;
 
     /**
-     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater\CartUpdater
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator
      */
-    protected $cartUpdater;
+    protected $cartCreator;
 
     /**
      * @return void
@@ -139,7 +139,7 @@ class CartUpdaterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->cartUpdater = new CartUpdater(
+        $this->cartCreator = new CartCreator(
             $this->restCompanyUserCartsRequestMapperMock,
             $this->restCartItemExpanderMock,
             $this->restResponseBuilderMock,
@@ -172,7 +172,7 @@ class CartUpdaterTest extends Unit
             ->willReturn($this->restCompanyUserCartsRequestTransferMock);
 
         $this->companyUserCartsRestApiClientMock->expects(static::atLeastOnce())
-            ->method('updateQuoteByRestCompanyUserCartsRequest')
+            ->method('createQuoteByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
 
@@ -197,7 +197,7 @@ class CartUpdaterTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->cartUpdater->update(
+            $this->cartCreator->create(
                 $this->restRequestMock,
                 $this->restCartsRequestAttributesTransferMock,
             ),
@@ -229,7 +229,7 @@ class CartUpdaterTest extends Unit
             ->willReturn($this->restCompanyUserCartsRequestTransferMock);
 
         $this->companyUserCartsRestApiClientMock->expects(static::atLeastOnce())
-            ->method('updateQuoteByRestCompanyUserCartsRequest')
+            ->method('createQuoteByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
 
@@ -254,7 +254,7 @@ class CartUpdaterTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->cartUpdater->update(
+            $this->cartCreator->create(
                 $this->restRequestMock,
                 $this->restCartsRequestAttributesTransferMock,
             ),
