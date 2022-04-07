@@ -4,6 +4,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business;
 
 use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
@@ -24,6 +25,11 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteUpdaterMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleterInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $quoteDeleterMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -59,6 +65,10 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->quoteDeleterMock = $this->getMockBuilder(QuoteDeleterInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->restCompanyUserCartsRequestTransferMock = $this->getMockBuilder(RestCompanyUserCartsRequestTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -69,6 +79,26 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
 
         $this->facade = new CompanyUserCartsRestApiFacade();
         $this->facade->setFactory($this->factoryMock);
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateQuoteByRestCompanyUserCartsRequest(): void
+    {
+        $this->factoryMock->expects(static::atLeastOnce())
+            ->method('createQuoteCreator')
+            ->willReturn($this->quoteCreatorMock);
+
+        $this->quoteCreatorMock->expects(static::atLeastOnce())
+            ->method('createByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->facade->createQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+        );
     }
 
     /**
@@ -94,20 +124,20 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
     /**
      * @return void
      */
-    public function testCreateQuoteByRestCompanyUserCartsRequest(): void
+    public function testDeleteQuoteByRestCompanyUserCartsRequest(): void
     {
         $this->factoryMock->expects(static::atLeastOnce())
-            ->method('createQuoteCreator')
-            ->willReturn($this->quoteCreatorMock);
+            ->method('createQuoteDeleter')
+            ->willReturn($this->quoteDeleterMock);
 
-        $this->quoteCreatorMock->expects(static::atLeastOnce())
-            ->method('createByRestCompanyUserCartsRequest')
+        $this->quoteDeleterMock->expects(static::atLeastOnce())
+            ->method('deleteByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
 
         static::assertEquals(
             $this->restCompanyUserCartsResponseTransferMock,
-            $this->facade->createQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+            $this->facade->deleteQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
         );
     }
 }

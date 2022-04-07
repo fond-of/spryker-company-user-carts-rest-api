@@ -16,6 +16,17 @@ class GatewayController extends AbstractGatewayController
      *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
+    public function createQuoteByRestCompanyUserCartsRequestAction(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFacade()->createQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
     public function updateQuoteByRestCompanyUserCartsRequestAction(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
@@ -27,9 +38,9 @@ class GatewayController extends AbstractGatewayController
      *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
-    public function createQuoteByRestCompanyUserCartsRequestAction(
+    public function deleteQuoteByRestCompanyUserCartsRequestAction(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
-        return $this->getFacade()->createQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+        return $this->getFacade()->deleteQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
 }

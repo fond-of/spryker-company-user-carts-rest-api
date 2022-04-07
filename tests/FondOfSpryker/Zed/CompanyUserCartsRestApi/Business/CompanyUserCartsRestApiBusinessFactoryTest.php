@@ -4,6 +4,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business;
 
 use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreator;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleter;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
@@ -79,6 +80,39 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
     /**
      * @return void
      */
+    public function testCreateQuoteCreator(): void
+    {
+        $this->containerMock->expects(static::atLeastOnce())
+            ->method('has')
+            ->willReturn(true);
+
+        $this->containerMock->expects(static::atLeastOnce())
+            ->method('get')
+            ->withConsecutive(
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+            )->willReturnOnConsecutiveCalls(
+                $this->companyUserReferenceFacadeMock,
+                $this->persistentCartFacadeMock,
+                $this->persistentCartFacadeMock,
+                $this->persistentCartFacadeMock,
+                $this->persistentCartFacadeMock,
+                $this->persistentCartFacadeMock,
+            );
+
+        static::assertInstanceOf(
+            QuoteCreator::class,
+            $this->factory->createQuoteCreator(),
+        );
+    }
+
+    /**
+     * @return void
+     */
     public function testCreateQuoteUpdater(): void
     {
         $this->containerMock->expects(static::atLeastOnce())
@@ -112,7 +146,7 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
     /**
      * @return void
      */
-    public function testCreateQuoteCreator(): void
+    public function testCreateQuoteDeleter(): void
     {
         $this->containerMock->expects(static::atLeastOnce())
             ->method('has')
@@ -121,24 +155,16 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
         $this->containerMock->expects(static::atLeastOnce())
             ->method('get')
             ->withConsecutive(
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
             )->willReturnOnConsecutiveCalls(
-                $this->companyUserReferenceFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
+                $this->quoteFacadeMock,
                 $this->persistentCartFacadeMock,
             );
 
         static::assertInstanceOf(
-            QuoteCreator::class,
-            $this->factory->createQuoteCreator(),
+            QuoteDeleter::class,
+            $this->factory->createQuoteDeleter(),
         );
     }
 }

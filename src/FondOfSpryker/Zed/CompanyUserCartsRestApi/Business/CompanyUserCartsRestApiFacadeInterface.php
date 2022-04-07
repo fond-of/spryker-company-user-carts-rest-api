@@ -9,6 +9,24 @@ interface CompanyUserCartsRestApiFacadeInterface
 {
     /**
      * Specifications:
+     * - Creates quote
+     * - Adds quote items
+     * - Remove quote items
+     * - Update quote items
+     * - ...
+     *
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function createQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer;
+
+    /**
+     * Specifications:
      * - Updates quote data like name, ...
      * - Adds quote items
      * - Remove quote items
@@ -27,10 +45,7 @@ interface CompanyUserCartsRestApiFacadeInterface
 
     /**
      * Specifications:
-     * - Creates quote
-     * - Adds quote items
-     * - Remove quote items
-     * - Update quote items
+     * - Delete quote
      * - ...
      *
      * @api
@@ -39,7 +54,7 @@ interface CompanyUserCartsRestApiFacadeInterface
      *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
-    public function createQuoteByRestCompanyUserCartsRequest(
+    public function deleteQuoteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer;
 }

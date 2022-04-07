@@ -74,4 +74,14 @@ class CompanyUserCartsRestApiToPersistentCartFacadeBridge implements
     {
         return $this->persistentCartFacade->createQuote($quoteTransfer);
     }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
+     */
+    public function deleteQuote(QuoteTransfer $quoteTransfer): QuoteResponseTransfer
+    {
+        return $this->persistentCartFacade->deleteQuote($quoteTransfer);
+    }
 }
