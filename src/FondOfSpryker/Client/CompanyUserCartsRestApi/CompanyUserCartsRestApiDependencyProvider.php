@@ -6,6 +6,9 @@ use FondOfSpryker\Client\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCa
 use Spryker\Client\Kernel\AbstractDependencyProvider;
 use Spryker\Client\Kernel\Container;
 
+/**
+ * @codeCoverageIgnore
+ */
 class CompanyUserCartsRestApiDependencyProvider extends AbstractDependencyProvider
 {
     /**

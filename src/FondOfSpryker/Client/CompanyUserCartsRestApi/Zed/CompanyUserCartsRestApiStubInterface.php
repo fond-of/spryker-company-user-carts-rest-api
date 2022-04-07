@@ -12,6 +12,15 @@ interface CompanyUserCartsRestApiStubInterface
      *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
+    public function createQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer;
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
     public function updateQuoteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer;
