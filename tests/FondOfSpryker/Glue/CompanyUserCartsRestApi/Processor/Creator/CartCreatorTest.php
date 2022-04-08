@@ -188,7 +188,7 @@ class CartCreatorTest extends Unit
             ->method('getErrors');
 
         $this->restResponseBuilderMock->expects(static::never())
-            ->method('buildNotPersistedRestResponse');
+            ->method('buildErrorRestResponse');
 
         $this->restResponseBuilderMock->expects(static::atLeastOnce())
             ->method('buildPersistedRestResponse')
@@ -245,7 +245,7 @@ class CartCreatorTest extends Unit
             ->willReturn(new ArrayObject([$this->quoteErrorTransferMock]));
 
         $this->restResponseBuilderMock->expects(static::atLeastOnce())
-            ->method('buildNotPersistedRestResponse')
+            ->method('buildErrorRestResponse')
             ->with([$this->quoteErrorTransferMock])
             ->willReturn($this->restResponseMock);
 

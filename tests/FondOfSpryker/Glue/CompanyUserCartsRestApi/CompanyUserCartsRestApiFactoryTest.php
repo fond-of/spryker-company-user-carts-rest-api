@@ -5,6 +5,7 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 use Codeception\Test\Unit;
 use FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClient;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Deleter\CartDeleter;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater\CartUpdater;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\Kernel\Container;
@@ -126,6 +127,17 @@ class CompanyUserCartsRestApiFactoryTest extends Unit
         static::assertInstanceOf(
             CartUpdater::class,
             $this->factory->createCartUpdater(),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateCartDeleter(): void
+    {
+        static::assertInstanceOf(
+            CartDeleter::class,
+            $this->factory->createCartDeleter(),
         );
     }
 }

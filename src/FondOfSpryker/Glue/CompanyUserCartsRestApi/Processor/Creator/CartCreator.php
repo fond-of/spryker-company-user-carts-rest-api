@@ -76,7 +76,7 @@ class CartCreator implements CartCreatorInterface
         $quoteTransfer = $restCompanyUserCartsResponseTransfer->getQuote();
 
         if ($quoteTransfer === null || $restCompanyUserCartsResponseTransfer->getIsSuccessful() === false) {
-            return $this->restResponseBuilder->buildNotPersistedRestResponse(
+            return $this->restResponseBuilder->buildErrorRestResponse(
                 $restCompanyUserCartsResponseTransfer->getErrors()->getArrayCopy(),
             );
         }

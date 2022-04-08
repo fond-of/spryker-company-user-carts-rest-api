@@ -143,7 +143,7 @@ class RestResponseBuilderTest extends Unit
     /**
      * @return void
      */
-    public function testBuildNotPersistedRestResponse(): void
+    public function testBuildErrorRestResponse(): void
     {
         $message = 'foo';
 
@@ -173,14 +173,14 @@ class RestResponseBuilderTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->restResponseBuilder->buildNotPersistedRestResponse($quoteErrorTransferMocks),
+            $this->restResponseBuilder->buildErrorRestResponse($quoteErrorTransferMocks),
         );
     }
 
     /**
      * @return void
      */
-    public function testBuildNotPersistedRestResponseWithoutMessage(): void
+    public function testBuildErrorRestResponseWithoutMessage(): void
     {
         $quoteErrorTransferMocks = [];
 
@@ -202,7 +202,7 @@ class RestResponseBuilderTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->restResponseBuilder->buildNotPersistedRestResponse($quoteErrorTransferMocks),
+            $this->restResponseBuilder->buildErrorRestResponse($quoteErrorTransferMocks),
         );
     }
 
@@ -311,6 +311,21 @@ class RestResponseBuilderTest extends Unit
         static::assertEquals(
             $this->restResponseMock,
             $this->restResponseBuilder->buildPersistedRestResponse($this->quoteTransferMock),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testBuildEmptyRestResponse(): void
+    {
+        $this->restResourceBuilderMock->expects(static::atLeastOnce())
+            ->method('createRestResponse')
+            ->willReturn($this->restResponseMock);
+
+        static::assertEquals(
+            $this->restResponseMock,
+            $this->restResponseBuilder->buildEmptyRestResponse(),
         );
     }
 }

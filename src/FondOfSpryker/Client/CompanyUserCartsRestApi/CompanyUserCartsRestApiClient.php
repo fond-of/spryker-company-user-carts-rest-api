@@ -36,4 +36,17 @@ class CompanyUserCartsRestApiClient extends AbstractClient implements CompanyUse
             ->createCompanyUserCartsRestApiStub()
             ->createQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function deleteQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFactory()
+            ->createCompanyUserCartsRestApiStub()
+            ->deleteQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
 }

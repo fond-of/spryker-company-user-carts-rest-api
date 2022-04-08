@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter;
 
 use Codeception\Test\Unit;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
@@ -15,6 +16,11 @@ class QuoteDeleterTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteReaderMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $quoteExpanderMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -52,6 +58,10 @@ class QuoteDeleterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->quoteExpanderMock = $this->getMockBuilder(QuoteExpanderInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->persistentCartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPersistentCartFacadeInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -70,6 +80,7 @@ class QuoteDeleterTest extends Unit
 
         $this->quoteDeleter = new QuoteDeleter(
             $this->quoteReaderMock,
+            $this->quoteExpanderMock,
             $this->persistentCartFacadeMock,
         );
     }
@@ -82,6 +93,11 @@ class QuoteDeleterTest extends Unit
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->quoteTransferMock);
+
+        $this->quoteExpanderMock->expects(static::atLeastOnce())
+            ->method('expand')
+            ->with($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())
@@ -112,6 +128,9 @@ class QuoteDeleterTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn(null);
 
+        $this->quoteExpanderMock->expects(static::never())
+            ->method('expand');
+
         $this->persistentCartFacadeMock->expects(static::never())
             ->method('deleteQuote');
 
@@ -136,6 +155,11 @@ class QuoteDeleterTest extends Unit
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->quoteTransferMock);
+
+        $this->quoteExpanderMock->expects(static::atLeastOnce())
+            ->method('expand')
+            ->with($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())

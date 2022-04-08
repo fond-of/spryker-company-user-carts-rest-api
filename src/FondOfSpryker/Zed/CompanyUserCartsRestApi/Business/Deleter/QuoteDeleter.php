@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter;
 
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
@@ -26,24 +27,34 @@ class QuoteDeleter implements QuoteDeleterInterface
     protected $quoteReader;
 
     /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface
+     */
+    protected $quoteExpander;
+
+    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
      */
     protected $persistentCartFacade;
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface $quoteReader
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
      */
     public function __construct(
         QuoteReaderInterface $quoteReader,
+        QuoteExpanderInterface $quoteExpander,
         CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
     ) {
         $this->quoteReader = $quoteReader;
         $this->persistentCartFacade = $persistentCartFacade;
+        $this->quoteExpander = $quoteExpander;
     }
 
     /**
-     * @inheritDoc
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
     public function deleteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
@@ -58,6 +69,7 @@ class QuoteDeleter implements QuoteDeleterInterface
                 ->setIsSuccessful(false);
         }
 
+        $quoteTransfer = $this->quoteExpander->expand($quoteTransfer, $restCompanyUserCartsRequestTransfer);
         $quoteResponseTransfer = $this->persistentCartFacade->deleteQuote($quoteTransfer);
 
         if ($quoteResponseTransfer->getIsSuccessful() === false) {
