@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater;
 
 use Codeception\Test\Unit;
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
@@ -201,7 +202,7 @@ class QuoteUpdaterTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
 
         static::assertEquals(
-            'quote.validation.error.quote_not_found',
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND,
             $restCompanyUserCartsResponseTransfer->getErrors()
                 ->offsetGet(0)
                 ->getMessage(),
@@ -251,7 +252,7 @@ class QuoteUpdaterTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
 
         static::assertEquals(
-            'quote.validation.error.quote_not_updated',
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_UPDATED,
             $restCompanyUserCartsResponseTransfer->getErrors()
                 ->offsetGet(0)
                 ->getMessage(),

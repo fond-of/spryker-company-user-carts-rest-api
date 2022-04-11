@@ -126,4 +126,22 @@ class GatewayControllerTest extends Unit
             ),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testFindQuoteByRestCompanyUserCartsRequestAction(): void
+    {
+        $this->facadeMock->expects(static::atLeastOnce())
+            ->method('findQuoteByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->gatewayController->findQuoteByRestCompanyUserCartsRequestAction(
+                $this->restCompanyUserCartsRequestTransferMock,
+            ),
+        );
+    }
 }

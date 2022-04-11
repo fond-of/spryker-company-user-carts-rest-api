@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator;
 
 use Codeception\Test\Unit;
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
@@ -188,7 +189,7 @@ class QuoteCreatorTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
 
         static::assertEquals(
-            'quote.validation.error.company_user_not_found',
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_COMPANY_USER_NOT_FOUND,
             $restCompanyUserCartsResponseTransfer->getErrors()
                 ->offsetGet(0)
                 ->getMessage(),
@@ -240,7 +241,7 @@ class QuoteCreatorTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
 
         static::assertEquals(
-            'quote.validation.error.quote_not_created',
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_CREATED,
             $restCompanyUserCartsResponseTransfer->getErrors()
                 ->offsetGet(0)
                 ->getMessage(),

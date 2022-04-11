@@ -45,7 +45,7 @@ interface CompanyUserCartsRestApiFacadeInterface
 
     /**
      * Specifications:
-     * - Delete quote
+     * - Deletes quote
      * - ...
      *
      * @api
@@ -55,6 +55,22 @@ interface CompanyUserCartsRestApiFacadeInterface
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
     public function deleteQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer;
+
+    /**
+     * Specifications:
+     * - Finds quote by uuid
+     * - Validates owner with references
+     * - ...
+     *
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function findQuoteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer;
 }

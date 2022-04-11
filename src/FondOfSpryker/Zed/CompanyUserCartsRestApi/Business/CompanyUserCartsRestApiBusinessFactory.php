@@ -14,6 +14,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpander;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinder;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandler;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapper;
@@ -77,6 +79,16 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteReader(),
             $this->createQuoteExpander(),
             $this->getPersistentCartFacade(),
+        );
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface
+     */
+    public function createQuoteFinder(): QuoteFinderInterface
+    {
+        return new QuoteFinder(
+            $this->createQuoteReader(),
         );
     }
 

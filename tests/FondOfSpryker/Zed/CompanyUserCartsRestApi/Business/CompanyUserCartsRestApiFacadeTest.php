@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business;
 use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleterInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
@@ -30,6 +31,11 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleterInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteDeleterMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $quoteFinderMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -66,6 +72,10 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
             ->getMock();
 
         $this->quoteDeleterMock = $this->getMockBuilder(QuoteDeleterInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->quoteFinderMock = $this->getMockBuilder(QuoteFinderInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -138,6 +148,26 @@ class CompanyUserCartsRestApiFacadeTest extends Unit
         static::assertEquals(
             $this->restCompanyUserCartsResponseTransferMock,
             $this->facade->deleteQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testFindQuoteByRestCompanyUserCartsRequest(): void
+    {
+        $this->factoryMock->expects(static::atLeastOnce())
+            ->method('createQuoteFinder')
+            ->willReturn($this->quoteFinderMock);
+
+        $this->quoteFinderMock->expects(static::atLeastOnce())
+            ->method('findOneByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->facade->findQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
         );
     }
 }

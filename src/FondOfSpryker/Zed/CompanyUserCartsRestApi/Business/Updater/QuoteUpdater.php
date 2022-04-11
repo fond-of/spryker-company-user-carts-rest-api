@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater;
 
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
@@ -13,16 +14,6 @@ use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 
 class QuoteUpdater implements QuoteUpdaterInterface
 {
-    /**
-     * @var string
-     */
-    protected const ERROR_MESSAGE_QUOTE_NOT_FOUND = 'quote.validation.error.quote_not_found';
-
-    /**
-     * @var string
-     */
-    protected const ERROR_MESSAGE_QUOTE_NOT_UPDATED = 'quote.validation.error.quote_not_updated';
-
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface
      */
@@ -81,7 +72,7 @@ class QuoteUpdater implements QuoteUpdaterInterface
 
         if ($quoteTransfer === null) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(static::ERROR_MESSAGE_QUOTE_NOT_FOUND);
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND);
 
             return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
                 ->setIsSuccessful(false);
@@ -94,7 +85,7 @@ class QuoteUpdater implements QuoteUpdaterInterface
 
         if ($quoteTransfer === null || !$quoteResponseTransfer->getIsSuccessful()) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(static::ERROR_MESSAGE_QUOTE_NOT_UPDATED);
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_UPDATED);
 
             return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
                 ->setIsSuccessful(false);

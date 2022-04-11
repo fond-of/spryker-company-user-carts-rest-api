@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator;
 
 use ArrayObject;
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
@@ -14,16 +15,6 @@ use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 
 class QuoteCreator implements QuoteCreatorInterface
 {
-    /**
-     * @var string
-     */
-    protected const ERROR_MESSAGE_COMPANY_USER_NOT_FOUND = 'quote.validation.error.company_user_not_found';
-
-    /**
-     * @var string
-     */
-    protected const ERROR_MESSAGE_QUOTE_NOT_CREATED = 'quote.validation.error.quote_not_created';
-
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface
      */
@@ -76,7 +67,7 @@ class QuoteCreator implements QuoteCreatorInterface
 
         if ($companyUserTransfer === null) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(static::ERROR_MESSAGE_COMPANY_USER_NOT_FOUND);
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_COMPANY_USER_NOT_FOUND);
 
             return (new RestCompanyUserCartsResponseTransfer())->setIsSuccessful(false)
                 ->setErrors(new ArrayObject([$quoteErrorTransfer]));
@@ -88,7 +79,7 @@ class QuoteCreator implements QuoteCreatorInterface
 
         if ($quoteTransfer === null || !$quoteResponseTransfer->getIsSuccessful()) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(static::ERROR_MESSAGE_QUOTE_NOT_CREATED);
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_CREATED);
 
             return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
                 ->setIsSuccessful(false);

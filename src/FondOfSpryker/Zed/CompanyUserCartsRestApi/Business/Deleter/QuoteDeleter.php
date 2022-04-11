@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter;
 
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
@@ -63,7 +64,7 @@ class QuoteDeleter implements QuoteDeleterInterface
 
         if ($quoteTransfer === null) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(static::ERROR_MESSAGE_QUOTE_NOT_FOUND);
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND);
 
             return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
                 ->setIsSuccessful(false);
@@ -74,7 +75,7 @@ class QuoteDeleter implements QuoteDeleterInterface
 
         if ($quoteResponseTransfer->getIsSuccessful() === false) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(static::ERROR_MESSAGE_QUOTE_NOT_DELETED);
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_DELETED);
 
             return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
                 ->setIsSuccessful(false);

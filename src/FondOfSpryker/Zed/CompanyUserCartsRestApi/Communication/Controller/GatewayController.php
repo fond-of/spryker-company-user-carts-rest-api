@@ -43,4 +43,15 @@ class GatewayController extends AbstractGatewayController
     ): RestCompanyUserCartsResponseTransfer {
         return $this->getFacade()->deleteQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function findQuoteByRestCompanyUserCartsRequestAction(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFacade()->findQuoteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
 }
