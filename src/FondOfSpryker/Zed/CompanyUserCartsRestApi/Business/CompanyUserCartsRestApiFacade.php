@@ -46,9 +46,7 @@ class CompanyUserCartsRestApiFacade extends AbstractFacade implements CompanyUse
     }
 
     /**
-     * Specifications:
-     * - Delete quote
-     * - ...
+     * {@inheritDoc}
      *
      * @api
      *
@@ -62,5 +60,22 @@ class CompanyUserCartsRestApiFacade extends AbstractFacade implements CompanyUse
         return $this->getFactory()
             ->createQuoteDeleter()
             ->deleteByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @api
+     *
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function findQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer {
+        return $this->getFactory()
+            ->createQuoteFinder()
+            ->findOneByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
     }
 }

@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business;
 use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreator;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleter;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
@@ -165,6 +166,26 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
         static::assertInstanceOf(
             QuoteDeleter::class,
             $this->factory->createQuoteDeleter(),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateQuoteFinder(): void
+    {
+        $this->containerMock->expects(static::atLeastOnce())
+            ->method('has')
+            ->willReturn(true);
+
+        $this->containerMock->expects(static::atLeastOnce())
+            ->method('get')
+            ->with(CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE)
+            ->willReturn($this->quoteFacadeMock);
+
+        static::assertInstanceOf(
+            QuoteFinder::class,
+            $this->factory->createQuoteFinder(),
         );
     }
 }

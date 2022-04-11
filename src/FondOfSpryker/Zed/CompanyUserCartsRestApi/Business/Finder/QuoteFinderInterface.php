@@ -1,0 +1,18 @@
+<?php
+
+namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder;
+
+use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
+use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
+
+interface QuoteFinderInterface
+{
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function findOneByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer;
+}

@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter;
 
 use Codeception\Test\Unit;
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
@@ -141,7 +142,7 @@ class QuoteDeleterTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
         static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
         static::assertEquals(
-            'quote.validation.error.quote_not_found',
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND,
             $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
         );
         static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());
@@ -178,7 +179,7 @@ class QuoteDeleterTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
         static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
         static::assertEquals(
-            'quote.validation.error.quote_not_deleted',
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_DELETED,
             $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
         );
         static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());
