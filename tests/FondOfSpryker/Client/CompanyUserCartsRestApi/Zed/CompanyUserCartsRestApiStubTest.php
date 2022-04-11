@@ -112,4 +112,24 @@ class CompanyUserCartsRestApiStubTest extends Unit
             ),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testFindQuoteByRestCompanyUserCartsRequest(): void
+    {
+        $this->zedRequestClientMock->expects(static::atLeastOnce())
+            ->method('call')
+            ->with(
+                '/company-user-carts-rest-api/gateway/find-quote-by-rest-company-user-carts-request',
+                $this->restCompanyUserCartsRequestTransferMock,
+            )->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->companyUserCartsRestApiStub->findQuoteByRestCompanyUserCartsRequest(
+                $this->restCompanyUserCartsRequestTransferMock,
+            ),
+        );
+    }
 }

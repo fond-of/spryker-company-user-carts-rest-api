@@ -33,4 +33,13 @@ interface CompanyUserCartsRestApiClientInterface
     public function deleteQuoteByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer;
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function findQuoteByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
+    ): RestCompanyUserCartsResponseTransfer;
 }

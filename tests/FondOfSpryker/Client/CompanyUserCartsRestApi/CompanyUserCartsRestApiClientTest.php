@@ -120,4 +120,24 @@ class CompanyUserCartsRestApiClientTest extends Unit
             $this->client->deleteQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testFindQuoteByRestCompanyUserCartsRequest(): void
+    {
+        $this->factoryMock->expects(static::atLeastOnce())
+            ->method('createCompanyUserCartsRestApiStub')
+            ->willReturn($this->zedStubMock);
+
+        $this->zedStubMock->expects(static::atLeastOnce())
+            ->method('findQuoteByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->restCompanyUserCartsResponseTransferMock);
+
+        static::assertEquals(
+            $this->restCompanyUserCartsResponseTransferMock,
+            $this->client->findQuoteByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+        );
+    }
 }

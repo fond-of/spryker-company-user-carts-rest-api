@@ -191,7 +191,7 @@ class CartUpdaterTest extends Unit
             ->method('buildErrorRestResponse');
 
         $this->restResponseBuilderMock->expects(static::atLeastOnce())
-            ->method('buildPersistedRestResponse')
+            ->method('buildRestResponse')
             ->with($this->quoteTransferMock)
             ->willReturn($this->restResponseMock);
 
@@ -250,7 +250,7 @@ class CartUpdaterTest extends Unit
             ->willReturn($this->restResponseMock);
 
         $this->restResponseBuilderMock->expects(static::never())
-            ->method('buildPersistedRestResponse');
+            ->method('buildRestResponse');
 
         static::assertEquals(
             $this->restResponseMock,

@@ -19,10 +19,15 @@ interface RestResponseBuilderInterface
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function buildPersistedRestResponse(QuoteTransfer $quoteTransfer): RestResponseInterface;
+    public function buildRestResponse(QuoteTransfer $quoteTransfer): RestResponseInterface;
 
     /**
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
     public function buildEmptyRestResponse(): RestResponseInterface;
+
+    /**
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function buildCartIdIsMissingRestResponse(): RestResponseInterface;
 }
