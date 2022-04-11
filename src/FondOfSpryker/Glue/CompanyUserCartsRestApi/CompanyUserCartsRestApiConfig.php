@@ -67,6 +67,11 @@ class CompanyUserCartsRestApiConfig extends AbstractBundleConfig
     /**
      * @var string
      */
+    public const RESPONSE_DETAIL_CART_ID_IS_MISSING = 'Cart id is missing.';
+
+    /**
+     * @var string
+     */
     public const FORMAT_SELF_LINK_CART_RESOURCE = '%s/%s/%s/%s';
 
     /**

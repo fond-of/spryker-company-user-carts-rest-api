@@ -2,17 +2,8 @@
 
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi;
 
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilder;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperation;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReader;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreatorInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Deleter\CartDeleter;
@@ -27,10 +18,8 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCartFilter;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCartFilterInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilter;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Filter\IdCustomerFilterInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapper;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapper;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder\CartFinder;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder\CartFinderInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCartsAttributesMapper;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCartsAttributesMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCartsDiscountsMapper;
@@ -43,9 +32,6 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestItemsAttribu
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestItemsAttributesMapperInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater\CartUpdater;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater\CartUpdaterInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiError;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface;
-use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\Kernel\AbstractFactory;
 
 /**
@@ -55,105 +41,15 @@ use Spryker\Glue\Kernel\AbstractFactory;
 class CompanyUserCartsRestApiFactory extends AbstractFactory
 {
     /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartReaderInterface
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreatorInterface
      */
-    public function createCartReader(): CartReaderInterface
+    public function createCartCreator(): CartCreatorInterface
     {
-        return new CartReader(
-            $this->createCartOperation(),
-            $this->getCompanyUserQuoteClient(),
-            $this->createCartsResourceMapper(),
-            $this->getResourceBuilder(),
-            $this->createRestApiError(),
-        );
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartsResourceMapperInterface
-     */
-    protected function createCartsResourceMapper(): CartsResourceMapperInterface
-    {
-        return new CartsResourceMapper(
-            $this->createCartItemsResourceMapper(),
-            $this->getResourceBuilder(),
-            $this->getConfig(),
-        );
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\CartItemsResourceMapperInterface
-     */
-    protected function createCartItemsResourceMapper(): CartItemsResourceMapperInterface
-    {
-        return new CartItemsResourceMapper();
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserQuoteClientInterface
-     */
-    protected function getCompanyUserQuoteClient(): CompanyUserCartsRestApiToCompanyUserQuoteClientInterface
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_COMPANY_USER_QUOTE);
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToPersistentCartClientInterface
-     */
-    protected function getPersistentCartClient(): CompanyUserCartsRestApiToPersistentCartClientInterface
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_PERSISTENT_CART);
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCartClientInterface
-     */
-    protected function getCartClient(): CompanyUserCartsRestApiToCartClientInterface
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_CART);
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToQuoteClientInterface
-     */
-    protected function getQuoteClient(): CompanyUserCartsRestApiToQuoteClientInterface
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_QUOTE);
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Dependency\Client\CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
-     */
-    protected function getCompanyUserReferenceClient(): CompanyUserCartsRestApiToCompanyUserReferenceClientInterface
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CLIENT_COMPANY_USER_REFERENCE);
-    }
-
-    /**
-     * @return \Spryker\Glue\CartsRestApi\CartsRestApiConfig
-     */
-    protected function getCartsRestApiConfig(): CartsRestApiConfig
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::CART_REST_API_CONFIG);
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Validation\RestApiErrorInterface
-     */
-    protected function createRestApiError(): RestApiErrorInterface
-    {
-        return new RestApiError();
-    }
-
-    /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Cart\CartOperationInterface
-     */
-    protected function createCartOperation(): CartOperationInterface
-    {
-        return new CartOperation(
-            $this->getCartClient(),
-            $this->getQuoteClient(),
-            $this->createCartItemsResourceMapper(),
-            $this->getRestCartItemExpanderPlugins(),
+        return new CartCreator(
+            $this->createRestCompanyUserCartsRequestMapper(),
+            $this->createRestCartItemExpander(),
+            $this->createRestResponseBuilder(),
+            $this->getClient(),
         );
     }
 
@@ -171,24 +67,23 @@ class CompanyUserCartsRestApiFactory extends AbstractFactory
     }
 
     /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreatorInterface
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Deleter\CartDeleterInterface
      */
-    public function createCartCreator(): CartCreatorInterface
+    public function createCartDeleter(): CartDeleterInterface
     {
-        return new CartCreator(
+        return new CartDeleter(
             $this->createRestCompanyUserCartsRequestMapper(),
-            $this->createRestCartItemExpander(),
             $this->createRestResponseBuilder(),
             $this->getClient(),
         );
     }
 
     /**
-     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Deleter\CartDeleterInterface
+     * @return \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder\CartFinderInterface
      */
-    public function createCartDeleter(): CartDeleterInterface
+    public function createCartFinder(): CartFinderInterface
     {
-        return new CartDeleter(
+        return new CartFinder(
             $this->createRestCompanyUserCartsRequestMapper(),
             $this->createRestResponseBuilder(),
             $this->getClient(),

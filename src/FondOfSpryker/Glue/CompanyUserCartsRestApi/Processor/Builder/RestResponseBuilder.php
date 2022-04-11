@@ -73,7 +73,7 @@ class RestResponseBuilder implements RestResponseBuilderInterface
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function buildPersistedRestResponse(QuoteTransfer $quoteTransfer): RestResponseInterface
+    public function buildRestResponse(QuoteTransfer $quoteTransfer): RestResponseInterface
     {
         $restResource = $this->restResourceBuilder->createRestResource(
             CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USER_CARTS,
@@ -121,5 +121,20 @@ class RestResponseBuilder implements RestResponseBuilderInterface
     public function buildEmptyRestResponse(): RestResponseInterface
     {
         return $this->restResourceBuilder->createRestResponse();
+    }
+
+    /**
+     * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
+     */
+    public function buildCartIdIsMissingRestResponse(): RestResponseInterface
+    {
+        $restErrorMessageTransfer = (new RestErrorMessageTransfer())
+            ->setCode(1002)
+            ->setStatus(Response::HTTP_BAD_REQUEST)
+            ->setDetail(CompanyUserCartsRestApiConfig::RESPONSE_DETAIL_CART_ID_IS_MISSING);
+
+        return $this->restResourceBuilder
+            ->createRestResponse()
+            ->addError($restErrorMessageTransfer);
     }
 }

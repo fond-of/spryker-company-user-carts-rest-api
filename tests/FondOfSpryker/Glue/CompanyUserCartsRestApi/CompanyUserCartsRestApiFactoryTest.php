@@ -6,6 +6,7 @@ use Codeception\Test\Unit;
 use FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClient;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Deleter\CartDeleter;
+use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder\CartFinder;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater\CartUpdater;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\Kernel\Container;
@@ -138,6 +139,17 @@ class CompanyUserCartsRestApiFactoryTest extends Unit
         static::assertInstanceOf(
             CartDeleter::class,
             $this->factory->createCartDeleter(),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateCartFinder(): void
+    {
+        static::assertInstanceOf(
+            CartFinder::class,
+            $this->factory->createCartFinder(),
         );
     }
 }

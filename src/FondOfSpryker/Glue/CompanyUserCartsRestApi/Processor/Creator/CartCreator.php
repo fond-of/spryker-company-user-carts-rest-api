@@ -81,6 +81,6 @@ class CartCreator implements CartCreatorInterface
             );
         }
 
-        return $this->restResponseBuilder->buildPersistedRestResponse($restCompanyUserCartsResponseTransfer->getQuote());
+        return $this->restResponseBuilder->buildRestResponse($restCompanyUserCartsResponseTransfer->getQuote());
     }
 }

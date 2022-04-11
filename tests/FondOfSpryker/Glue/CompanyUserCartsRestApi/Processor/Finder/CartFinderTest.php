@@ -1,33 +1,26 @@
 <?php
 
-namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator;
+namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder;
 
 use ArrayObject;
 use Codeception\Test\Unit;
 use FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpanderInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
-use Generated\Shared\Transfer\RestCartItemTransfer;
-use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
+use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
-class CartCreatorTest extends Unit
+class CartFinderTest extends Unit
 {
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $restCompanyUserCartsRequestMapperMock;
-
-    /**
-     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpanderInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $restCartItemExpanderMock;
 
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -45,19 +38,14 @@ class CartCreatorTest extends Unit
     protected $restRequestMock;
 
     /**
-     * @var \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer|\PHPUnit\Framework\MockObject\MockObject
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface
      */
-    protected $restCartsRequestAttributesTransferMock;
+    protected $restResourceMock;
 
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
     protected $restResponseMock;
-
-    /**
-     * @var \Generated\Shared\Transfer\RestCartItemTransfer|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $restCartItemTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -80,9 +68,9 @@ class CartCreatorTest extends Unit
     protected $quoteTransferMock;
 
     /**
-     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Creator\CartCreator
+     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder\CartFinder
      */
-    protected $cartCreator;
+    protected $cartFinder;
 
     /**
      * @return void
@@ -92,10 +80,6 @@ class CartCreatorTest extends Unit
         parent::_before();
 
         $this->restCompanyUserCartsRequestMapperMock = $this->getMockBuilder(RestCompanyUserCartsRequestMapperInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->restCartItemExpanderMock = $this->getMockBuilder(RestCartItemExpanderInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -111,15 +95,11 @@ class CartCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->restCartsRequestAttributesTransferMock = $this->getMockBuilder(RestCartsRequestAttributesTransfer::class)
+        $this->restResourceMock = $this->getMockBuilder(RestResourceInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->restResponseMock = $this->getMockBuilder(RestResponseInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->restCartItemTransferMock = $this->getMockBuilder(RestCartItemTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -139,9 +119,8 @@ class CartCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->cartCreator = new CartCreator(
+        $this->cartFinder = new CartFinder(
             $this->restCompanyUserCartsRequestMapperMock,
-            $this->restCartItemExpanderMock,
             $this->restResponseBuilderMock,
             $this->companyUserCartsRestApiClientMock,
         );
@@ -150,39 +129,38 @@ class CartCreatorTest extends Unit
     /**
      * @return void
      */
-    public function testUpdate(): void
+    public function testFind(): void
     {
-        $this->restCartsRequestAttributesTransferMock->expects(static::atLeastOnce())
-            ->method('getItems')
-            ->willReturn(new ArrayObject([$this->restCartItemTransferMock]));
+        $uuid = '0f6b7d39-5d3a-468b-8808-626a6e98676b';
 
-        $this->restCartItemExpanderMock->expects(static::atLeastOnce())
-            ->method('expand')
-            ->with($this->restCartItemTransferMock)
-            ->willReturn($this->restCartItemTransferMock);
+        $this->restRequestMock->expects(static::atLeastOnce())
+            ->method('getResource')
+            ->willReturn($this->restResourceMock);
+
+        $this->restResourceMock->expects(static::atLeastOnce())
+            ->method('getId')
+            ->willReturn($uuid);
+
+        $this->restResponseBuilderMock->expects(static::never())
+            ->method('buildCartIdIsMissingRestResponse');
 
         $this->restCompanyUserCartsRequestMapperMock->expects(static::atLeastOnce())
             ->method('fromRestRequest')
             ->with($this->restRequestMock)
             ->willReturn($this->restCompanyUserCartsRequestTransferMock);
 
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
-            ->method('setCart')
-            ->with($this->restCartsRequestAttributesTransferMock)
-            ->willReturn($this->restCompanyUserCartsRequestTransferMock);
-
         $this->companyUserCartsRestApiClientMock->expects(static::atLeastOnce())
-            ->method('createQuoteByRestCompanyUserCartsRequest')
+            ->method('findQuoteByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
 
         $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(true);
-
-        $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
             ->method('getQuote')
             ->willReturn($this->quoteTransferMock);
+
+        $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
+            ->method('getIsSuccessful')
+            ->willReturn(true);
 
         $this->restCompanyUserCartsResponseTransferMock->expects(static::never())
             ->method('getErrors');
@@ -197,56 +175,90 @@ class CartCreatorTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->cartCreator->create(
-                $this->restRequestMock,
-                $this->restCartsRequestAttributesTransferMock,
-            ),
+            $this->cartFinder->find($this->restRequestMock),
         );
     }
 
     /**
      * @return void
      */
-    public function testUpdateWithError(): void
+    public function testFindWithoutCartId(): void
     {
-        $this->restCartsRequestAttributesTransferMock->expects(static::atLeastOnce())
-            ->method('getItems')
-            ->willReturn(new ArrayObject([$this->restCartItemTransferMock]));
+        $this->restRequestMock->expects(static::atLeastOnce())
+            ->method('getResource')
+            ->willReturn($this->restResourceMock);
 
-        $this->restCartItemExpanderMock->expects(static::atLeastOnce())
-            ->method('expand')
-            ->with($this->restCartItemTransferMock)
-            ->willReturn($this->restCartItemTransferMock);
+        $this->restResourceMock->expects(static::atLeastOnce())
+            ->method('getId')
+            ->willReturn(null);
+
+        $this->restResponseBuilderMock->expects(static::atLeastOnce())
+            ->method('buildCartIdIsMissingRestResponse')
+            ->willReturn($this->restResponseMock);
+
+        $this->restCompanyUserCartsRequestMapperMock->expects(static::never())
+            ->method('fromRestRequest');
+
+        $this->companyUserCartsRestApiClientMock->expects(static::never())
+            ->method('findQuoteByRestCompanyUserCartsRequest');
+
+        $this->restResponseBuilderMock->expects(static::never())
+            ->method('buildErrorRestResponse');
+
+        $this->restResponseBuilderMock->expects(static::never())
+            ->method('buildRestResponse');
+
+        static::assertEquals(
+            $this->restResponseMock,
+            $this->cartFinder->find($this->restRequestMock),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testFindWithoutResult(): void
+    {
+        $uuid = '0f6b7d39-5d3a-468b-8808-626a6e98676b';
+        $quoteErrorTransfers = [
+            $this->quoteErrorTransferMock,
+        ];
+
+        $this->restRequestMock->expects(static::atLeastOnce())
+            ->method('getResource')
+            ->willReturn($this->restResourceMock);
+
+        $this->restResourceMock->expects(static::atLeastOnce())
+            ->method('getId')
+            ->willReturn($uuid);
+
+        $this->restResponseBuilderMock->expects(static::never())
+            ->method('buildCartIdIsMissingRestResponse');
 
         $this->restCompanyUserCartsRequestMapperMock->expects(static::atLeastOnce())
             ->method('fromRestRequest')
             ->with($this->restRequestMock)
             ->willReturn($this->restCompanyUserCartsRequestTransferMock);
 
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
-            ->method('setCart')
-            ->with($this->restCartsRequestAttributesTransferMock)
-            ->willReturn($this->restCompanyUserCartsRequestTransferMock);
-
         $this->companyUserCartsRestApiClientMock->expects(static::atLeastOnce())
-            ->method('createQuoteByRestCompanyUserCartsRequest')
+            ->method('findQuoteByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
-
-        $this->restCompanyUserCartsResponseTransferMock->expects(static::never())
-            ->method('getIsSuccessful');
 
         $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
             ->method('getQuote')
             ->willReturn(null);
 
+        $this->restCompanyUserCartsResponseTransferMock->expects(static::never())
+            ->method('getIsSuccessful');
+
         $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
             ->method('getErrors')
-            ->willReturn(new ArrayObject([$this->quoteErrorTransferMock]));
+            ->willReturn(new ArrayObject($quoteErrorTransfers));
 
         $this->restResponseBuilderMock->expects(static::atLeastOnce())
             ->method('buildErrorRestResponse')
-            ->with([$this->quoteErrorTransferMock])
+            ->with($quoteErrorTransfers)
             ->willReturn($this->restResponseMock);
 
         $this->restResponseBuilderMock->expects(static::never())
@@ -254,10 +266,7 @@ class CartCreatorTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->cartCreator->create(
-                $this->restRequestMock,
-                $this->restCartsRequestAttributesTransferMock,
-            ),
+            $this->cartFinder->find($this->restRequestMock),
         );
     }
 }

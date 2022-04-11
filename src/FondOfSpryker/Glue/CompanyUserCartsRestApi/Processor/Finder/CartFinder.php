@@ -1,26 +1,19 @@
 <?php
 
-namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Updater;
+namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Finder;
 
 use FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClientInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface;
-use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpanderInterface;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface;
-use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
 use Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface;
 
-class CartUpdater implements CartUpdaterInterface
+class CartFinder implements CartFinderInterface
 {
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface
      */
     protected $restCompanyUserCartsRequestMapper;
-
-    /**
-     * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpanderInterface
-     */
-    protected $restCartItemExpander;
 
     /**
      * @var \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface
@@ -34,42 +27,34 @@ class CartUpdater implements CartUpdaterInterface
 
     /**
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCompanyUserCartsRequestMapperInterface $restCompanyUserCartsRequestMapper
-     * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Expander\RestCartItemExpanderInterface $restCartItemExpander
      * @param \FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Builder\RestResponseBuilderInterface $restResponseBuilder
      * @param \FondOfSpryker\Client\CompanyUserCartsRestApi\CompanyUserCartsRestApiClientInterface $client
      */
     public function __construct(
         RestCompanyUserCartsRequestMapperInterface $restCompanyUserCartsRequestMapper,
-        RestCartItemExpanderInterface $restCartItemExpander,
         RestResponseBuilderInterface $restResponseBuilder,
         CompanyUserCartsRestApiClientInterface $client
     ) {
         $this->restCompanyUserCartsRequestMapper = $restCompanyUserCartsRequestMapper;
-        $this->restCartItemExpander = $restCartItemExpander;
         $this->restResponseBuilder = $restResponseBuilder;
         $this->client = $client;
     }
 
     /**
      * @param \Spryker\Glue\GlueApplication\Rest\Request\Data\RestRequestInterface $restRequest
-     * @param \Generated\Shared\Transfer\RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
      *
      * @return \Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface
      */
-    public function update(
-        RestRequestInterface $restRequest,
-        RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
-    ): RestResponseInterface {
-        $restCartItemTransfers = $restCartsRequestAttributesTransfer->getItems();
-
-        foreach ($restCartItemTransfers as $index => $restCartItemTransfer) {
-            $restCartItemTransfers->offsetSet($index, $this->restCartItemExpander->expand($restCartItemTransfer));
+    public function find(RestRequestInterface $restRequest): RestResponseInterface
+    {
+        if ($restRequest->getResource()->getId() === null) {
+            return $this->restResponseBuilder
+                ->buildCartIdIsMissingRestResponse();
         }
 
-        $restCompanyUserCartsRequestTransfer = $this->restCompanyUserCartsRequestMapper->fromRestRequest($restRequest)
-            ->setCart($restCartsRequestAttributesTransfer);
+        $restCompanyUserCartsRequestTransfer = $this->restCompanyUserCartsRequestMapper->fromRestRequest($restRequest);
 
-        $restCompanyUserCartsResponseTransfer = $this->client->updateQuoteByRestCompanyUserCartsRequest(
+        $restCompanyUserCartsResponseTransfer = $this->client->findQuoteByRestCompanyUserCartsRequest(
             $restCompanyUserCartsRequestTransfer,
         );
 

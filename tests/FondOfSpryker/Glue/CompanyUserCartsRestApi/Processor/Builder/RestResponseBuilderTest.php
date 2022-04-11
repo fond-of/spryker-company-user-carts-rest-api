@@ -209,7 +209,7 @@ class RestResponseBuilderTest extends Unit
     /**
      * @return void
      */
-    public function testBuildPersistedRestResponse(): void
+    public function testBuildRestResponse(): void
     {
         $uuid = 'e6b02939-18fc-4857-837e-f0e8063c306e';
         $groupKey = 'foo.bar-1';
@@ -310,7 +310,7 @@ class RestResponseBuilderTest extends Unit
 
         static::assertEquals(
             $this->restResponseMock,
-            $this->restResponseBuilder->buildPersistedRestResponse($this->quoteTransferMock),
+            $this->restResponseBuilder->buildRestResponse($this->quoteTransferMock),
         );
     }
 
