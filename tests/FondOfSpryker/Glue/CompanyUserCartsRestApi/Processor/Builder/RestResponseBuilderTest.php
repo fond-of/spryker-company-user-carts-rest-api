@@ -13,7 +13,6 @@ use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCartsAttributesTransfer;
 use Generated\Shared\Transfer\RestErrorMessageTransfer;
 use Generated\Shared\Transfer\RestItemsAttributesTransfer;
-use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceInterface;
@@ -165,7 +164,7 @@ class RestResponseBuilderTest extends Unit
                 static::callback(
                     static function (RestErrorMessageTransfer $restErrorMessageTransfer) use ($message) {
                         return $restErrorMessageTransfer->getDetail() === $message
-                            && $restErrorMessageTransfer->getCode() === 1001
+                            && $restErrorMessageTransfer->getCode() === CompanyUserCartsRestApiConfig::RESPONSE_CODE_OTHER
                             && $restErrorMessageTransfer->getStatus() === Response::HTTP_BAD_REQUEST;
                     },
                 ),
@@ -194,7 +193,7 @@ class RestResponseBuilderTest extends Unit
                 static::callback(
                     static function (RestErrorMessageTransfer $restErrorMessageTransfer) {
                         return $restErrorMessageTransfer->getDetail() === 'Undefined'
-                            && $restErrorMessageTransfer->getCode() === 1001
+                            && $restErrorMessageTransfer->getCode() === CompanyUserCartsRestApiConfig::RESPONSE_CODE_OTHER
                             && $restErrorMessageTransfer->getStatus() === Response::HTTP_BAD_REQUEST;
                     },
                 ),
@@ -233,7 +232,7 @@ class RestResponseBuilderTest extends Unit
                     $this->restCartsAttributesTransferMock,
                 ],
                 [
-                    CartsRestApiConfig::RESOURCE_CART_ITEMS,
+                    CompanyUserCartsRestApiConfig::RESOURCE_CART_ITEMS,
                     $groupKey,
                     $this->restItemsAttributesTransferMock,
                 ],
@@ -326,6 +325,33 @@ class RestResponseBuilderTest extends Unit
         static::assertEquals(
             $this->restResponseMock,
             $this->restResponseBuilder->buildEmptyRestResponse(),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testBuildCartIdIsMissingRestResponse(): void
+    {
+        $this->restResourceBuilderMock->expects(static::atLeastOnce())
+            ->method('createRestResponse')
+            ->willReturn($this->restResponseMock);
+
+        $this->restResponseMock->expects(static::atLeastOnce())
+            ->method('addError')
+            ->with(
+                static::callback(
+                    static function (RestErrorMessageTransfer $restErrorMessageTransfer) {
+                        return $restErrorMessageTransfer->getDetail() === CompanyUserCartsRestApiConfig::RESPONSE_DETAIL_CART_ID_IS_MISSING
+                            && $restErrorMessageTransfer->getCode() === CompanyUserCartsRestApiConfig::RESPONSE_CODE_CART_ID_IS_MISSING
+                            && $restErrorMessageTransfer->getStatus() === Response::HTTP_BAD_REQUEST;
+                    },
+                ),
+            )->willReturn($this->restResponseMock);
+
+        static::assertEquals(
+            $this->restResponseMock,
+            $this->restResponseBuilder->buildCartIdIsMissingRestResponse(),
         );
     }
 }

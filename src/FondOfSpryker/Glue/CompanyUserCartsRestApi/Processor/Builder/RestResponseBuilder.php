@@ -7,7 +7,6 @@ use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestCartsAttribu
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\Processor\Mapper\RestItemsAttributesMapperInterface;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestErrorMessageTransfer;
-use Spryker\Glue\CartsRestApi\CartsRestApiConfig;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestLinkInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResourceBuilderInterface;
 use Spryker\Glue\GlueApplication\Rest\JsonApi\RestResponseInterface;
@@ -59,7 +58,7 @@ class RestResponseBuilder implements RestResponseBuilderInterface
         }
 
         $restErrorMessageTransfer = (new RestErrorMessageTransfer())
-            ->setCode(1001)
+            ->setCode(CompanyUserCartsRestApiConfig::RESPONSE_CODE_OTHER)
             ->setStatus(Response::HTTP_BAD_REQUEST)
             ->setDetail($detail);
 
@@ -83,7 +82,7 @@ class RestResponseBuilder implements RestResponseBuilderInterface
 
         foreach ($quoteTransfer->getItems() as $itemTransfer) {
             $relatedRestResource = $this->restResourceBuilder->createRestResource(
-                CartsRestApiConfig::RESOURCE_CART_ITEMS,
+                CompanyUserCartsRestApiConfig::RESOURCE_CART_ITEMS,
                 $itemTransfer->getGroupKey(),
                 $this->restItemsAttributesMapper->fromItem($itemTransfer),
             )->addLink(
@@ -129,7 +128,7 @@ class RestResponseBuilder implements RestResponseBuilderInterface
     public function buildCartIdIsMissingRestResponse(): RestResponseInterface
     {
         $restErrorMessageTransfer = (new RestErrorMessageTransfer())
-            ->setCode(1002)
+            ->setCode(CompanyUserCartsRestApiConfig::RESPONSE_CODE_CART_ID_IS_MISSING)
             ->setStatus(Response::HTTP_BAD_REQUEST)
             ->setDetail(CompanyUserCartsRestApiConfig::RESPONSE_DETAIL_CART_ID_IS_MISSING);
 
