@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Plugin\ResourceRoute;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
