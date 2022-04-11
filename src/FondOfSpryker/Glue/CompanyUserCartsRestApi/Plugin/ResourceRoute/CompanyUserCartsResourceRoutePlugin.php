@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types = 1);
-
 namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Plugin\ResourceRoute;
 
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
-use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRouteCollectionInterface;
 use Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRoutePluginInterface;
@@ -62,6 +59,6 @@ class CompanyUserCartsResourceRoutePlugin extends AbstractPlugin implements Reso
      */
     public function getParentResourceType(): string
     {
-        return CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS;
+        return CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS;
     }
 }

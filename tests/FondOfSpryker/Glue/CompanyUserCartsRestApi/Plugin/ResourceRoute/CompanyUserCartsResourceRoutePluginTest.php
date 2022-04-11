@@ -4,7 +4,6 @@ namespace FondOfSpryker\Glue\CompanyUserCartsRestApi\Plugin\ResourceRoute;
 
 use Codeception\Test\Unit;
 use FondOfSpryker\Glue\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
-use FondOfSpryker\Glue\CompanyUsersRestApi\CompanyUsersRestApiConfig;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 use Spryker\Glue\GlueApplicationExtension\Dependency\Plugin\ResourceRouteCollectionInterface;
 
@@ -91,6 +90,6 @@ class CompanyUserCartsResourceRoutePluginTest extends Unit
      */
     public function testGetParentResourceType(): void
     {
-        $this->assertSame(CompanyUsersRestApiConfig::RESOURCE_COMPANY_USERS, $this->companyUserCartsResourceRoutePlugin->getParentResourceType());
+        $this->assertSame(CompanyUserCartsRestApiConfig::RESOURCE_COMPANY_USERS, $this->companyUserCartsResourceRoutePlugin->getParentResourceType());
     }
 }
