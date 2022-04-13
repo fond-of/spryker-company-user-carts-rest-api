@@ -55,7 +55,7 @@ class QuoteFinderTest extends Unit
     /**
      * @return void
      */
-    public function findOneByRestCompanyUserCartsRequest(): void
+    public function testFindOneByRestCompanyUserCartsRequest(): void
     {
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
@@ -74,7 +74,7 @@ class QuoteFinderTest extends Unit
     /**
      * @return void
      */
-    public function findOneByRestCompanyUserCartsRequestWithError(): void
+    public function testFindOneByRestCompanyUserCartsRequestWithError(): void
     {
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
@@ -88,7 +88,7 @@ class QuoteFinderTest extends Unit
         static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
         static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());
         static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
-        static::assertCount(
+        static::assertEquals(
             CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND,
             $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
         );
