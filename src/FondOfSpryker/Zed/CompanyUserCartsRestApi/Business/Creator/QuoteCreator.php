@@ -7,6 +7,7 @@ use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstant
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
@@ -31,6 +32,11 @@ class QuoteCreator implements QuoteCreatorInterface
     protected $quoteHandler;
 
     /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
+     */
+    protected $quoteReloader;
+
+    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
      */
     protected $persistentCartFacade;
@@ -39,17 +45,20 @@ class QuoteCreator implements QuoteCreatorInterface
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface $companyUserReader
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
      */
     public function __construct(
         CompanyUserReaderInterface $companyUserReader,
         QuoteExpanderInterface $quoteExpander,
         QuoteHandlerInterface $quoteHandler,
+        QuoteReloaderInterface $quoteReloader,
         CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
     ) {
         $this->companyUserReader = $companyUserReader;
         $this->quoteExpander = $quoteExpander;
         $this->quoteHandler = $quoteHandler;
+        $this->quoteReloader = $quoteReloader;
         $this->persistentCartFacade = $persistentCartFacade;
     }
 
@@ -85,6 +94,17 @@ class QuoteCreator implements QuoteCreatorInterface
                 ->setIsSuccessful(false);
         }
 
-        return $this->quoteHandler->handle($quoteTransfer, $restCompanyUserCartsRequestTransfer);
+        $restCompanyUserCartsResponseTransfer = $this->quoteHandler->handle(
+            $quoteTransfer,
+            $restCompanyUserCartsRequestTransfer,
+        );
+
+        $quoteTransfer = $restCompanyUserCartsResponseTransfer->getQuote();
+
+        if ($quoteTransfer === null || !$restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
+            return $restCompanyUserCartsResponseTransfer;
+        }
+
+        return $this->quoteReloader->reload($quoteTransfer);
     }
 }

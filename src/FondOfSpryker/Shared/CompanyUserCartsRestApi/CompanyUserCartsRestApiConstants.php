@@ -28,4 +28,9 @@ interface CompanyUserCartsRestApiConstants
      * @var string
      */
     public const ERROR_MESSAGE_QUOTE_NOT_DELETED = 'quote.validation.error.quote_not_deleted';
+
+    /**
+     * @var string
+     */
+    public const ERROR_MESSAGE_ITEMS_NOT_RELOADED = 'quote.validation.error.items_not_reloaded';
 }

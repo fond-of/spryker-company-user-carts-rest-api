@@ -26,6 +26,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloader;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemover;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdater;
@@ -52,6 +54,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createCompanyUserReader(),
             $this->createQuoteExpander(),
             $this->createQuoteHandler(),
+            $this->createQuoteReloader(),
             $this->getPersistentCartFacade(),
         );
     }
@@ -66,6 +69,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteExpander(),
             $this->createQuoteUpdateRequestMapper(),
             $this->createQuoteHandler(),
+            $this->createQuoteReloader(),
             $this->getPersistentCartFacade(),
         );
     }
@@ -131,6 +135,14 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createItemUpdater(),
             $this->createItemRemover(),
         );
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
+     */
+    protected function createQuoteReloader(): QuoteReloaderInterface
+    {
+        return new QuoteReloader($this->getPersistentCartFacade());
     }
 
     /**

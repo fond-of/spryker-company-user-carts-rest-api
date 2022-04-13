@@ -7,6 +7,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInt
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
@@ -35,6 +36,11 @@ class QuoteUpdater implements QuoteUpdaterInterface
     protected $quoteHandler;
 
     /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
+     */
+    protected $quoteReloader;
+
+    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
      */
     protected $persistentCartFacade;
@@ -44,6 +50,7 @@ class QuoteUpdater implements QuoteUpdaterInterface
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface $quoteUpdateRequestMapper
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
      */
     public function __construct(
@@ -51,12 +58,14 @@ class QuoteUpdater implements QuoteUpdaterInterface
         QuoteExpanderInterface $quoteExpander,
         QuoteUpdateRequestMapperInterface $quoteUpdateRequestMapper,
         QuoteHandlerInterface $quoteHandler,
+        QuoteReloaderInterface $quoteReloader,
         CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
     ) {
         $this->quoteReader = $quoteReader;
         $this->quoteExpander = $quoteExpander;
         $this->quoteUpdateRequestMapper = $quoteUpdateRequestMapper;
         $this->quoteHandler = $quoteHandler;
+        $this->quoteReloader = $quoteReloader;
         $this->persistentCartFacade = $persistentCartFacade;
     }
 
@@ -91,6 +100,17 @@ class QuoteUpdater implements QuoteUpdaterInterface
                 ->setIsSuccessful(false);
         }
 
-        return $this->quoteHandler->handle($quoteTransfer, $restCompanyUserCartsRequestTransfer);
+        $restCompanyUserCartsResponseTransfer = $this->quoteHandler->handle(
+            $quoteTransfer,
+            $restCompanyUserCartsRequestTransfer,
+        );
+
+        $quoteTransfer = $restCompanyUserCartsResponseTransfer->getQuote();
+
+        if ($quoteTransfer === null || !$restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
+            return $restCompanyUserCartsResponseTransfer;
+        }
+
+        return $this->quoteReloader->reload($quoteTransfer);
     }
 }
