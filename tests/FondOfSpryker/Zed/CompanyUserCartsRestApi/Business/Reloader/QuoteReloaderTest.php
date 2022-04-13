@@ -14,14 +14,17 @@ class QuoteReloaderTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $persistentCartFacadeMock;
+
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteResponseTransferMock;
+
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteTransferMock;
+
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloader
      */
@@ -46,8 +49,8 @@ class QuoteReloaderTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->quoteReloader =new QuoteReloader(
-            $this->persistentCartFacadeMock
+        $this->quoteReloader = new QuoteReloader(
+            $this->persistentCartFacadeMock,
         );
     }
 
@@ -100,7 +103,7 @@ class QuoteReloaderTest extends Unit
         static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
         static::assertEquals(
             CompanyUserCartsRestApiConstants::ERROR_MESSAGE_ITEMS_NOT_RELOADED,
-            $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage()
+            $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
         );
     }
 }
