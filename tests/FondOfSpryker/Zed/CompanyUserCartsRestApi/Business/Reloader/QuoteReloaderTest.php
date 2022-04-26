@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader;
 use Codeception\Test\Unit;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
+use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
@@ -24,6 +25,11 @@ class QuoteReloaderTest extends Unit
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteTransferMock;
+
+    /**
+     * @var \Generated\Shared\Transfer\CustomerTransfer|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $customerTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloader
@@ -49,6 +55,10 @@ class QuoteReloaderTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->customerTransferMock = $this->getMockBuilder(CustomerTransfer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->quoteReloader = new QuoteReloader(
             $this->persistentCartFacadeMock,
         );
@@ -59,10 +69,27 @@ class QuoteReloaderTest extends Unit
      */
     public function testReload(): void
     {
+        $idQuote = 1;
+        $self = $this;
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('getIdQuote')
+            ->willReturn($idQuote);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('getCustomer')
+            ->willReturn($this->customerTransferMock);
+
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())
             ->method('reloadItems')
-            ->with($this->quoteTransferMock)
-            ->willReturn($this->quoteResponseTransferMock);
+            ->with(
+                static::callback(
+                    static function (QuoteTransfer $quoteTransfer) use ($idQuote, $self) {
+                        return $quoteTransfer->getIdQuote() === $idQuote
+                            && $quoteTransfer->getCustomer() === $self->customerTransferMock;
+                    },
+                ),
+            )->willReturn($this->quoteResponseTransferMock);
 
         $this->quoteResponseTransferMock->expects(static::atLeastOnce())
             ->method('getQuoteTransfer')
@@ -84,9 +111,27 @@ class QuoteReloaderTest extends Unit
      */
     public function testReloadWithError(): void
     {
+        $idQuote = 1;
+        $self = $this;
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('getIdQuote')
+            ->willReturn($idQuote);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('getCustomer')
+            ->willReturn($this->customerTransferMock);
+
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())
             ->method('reloadItems')
-            ->with($this->quoteTransferMock)
+            ->with(
+                static::callback(
+                    static function (QuoteTransfer $quoteTransfer) use ($idQuote, $self) {
+                        return $quoteTransfer->getIdQuote() === $idQuote
+                            && $quoteTransfer->getCustomer() === $self->customerTransferMock;
+                    },
+                ),
+            )
             ->willReturn($this->quoteResponseTransferMock);
 
         $this->quoteResponseTransferMock->expects(static::atLeastOnce())

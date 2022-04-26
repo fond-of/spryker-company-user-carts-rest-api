@@ -30,7 +30,11 @@ class QuoteReloader implements QuoteReloaderInterface
      */
     public function reload(QuoteTransfer $quoteTransfer): RestCompanyUserCartsResponseTransfer
     {
-        $quoteResponseTransfer = $this->persistentCartFacade->reloadItems($quoteTransfer);
+        $cleanQuoteTransfer = (new QuoteTransfer())
+            ->setIdQuote($quoteTransfer->getIdQuote())
+            ->setCustomer($quoteTransfer->getCustomer());
+
+        $quoteResponseTransfer = $this->persistentCartFacade->reloadItems($cleanQuoteTransfer);
 
         $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
 

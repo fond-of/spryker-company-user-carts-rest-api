@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator;
 
 use Codeception\Test\Unit;
+use Exception;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
@@ -14,6 +15,9 @@ use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
+use Psr\Log\LoggerInterface;
+use Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface;
+use Throwable;
 
 class QuoteCreatorTest extends Unit
 {
@@ -41,6 +45,16 @@ class QuoteCreatorTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $persistentCartFacadeMock;
+
+    /**
+     * @var \Psr\Log\LoggerInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $loggerMock;
+
+    /**
+     * @var \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $transactionHandlerMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -99,6 +113,14 @@ class QuoteCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->loggerMock = $this->getMockBuilder(LoggerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->transactionHandlerMock = $this->getMockBuilder(TransactionHandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->restCompanyUserCartsRequestTransferMock = $this->getMockBuilder(RestCompanyUserCartsRequestTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -119,13 +141,57 @@ class QuoteCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->quoteCreator = new QuoteCreator(
+        $this->quoteCreator = new class (
             $this->companyUserReaderMock,
             $this->quoteExpanderMock,
             $this->quoteHandlerMock,
             $this->quoteReloaderMock,
             $this->persistentCartFacadeMock,
-        );
+            $this->loggerMock,
+            $this->transactionHandlerMock
+        ) extends QuoteCreator {
+            /**
+             * @var \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface
+             */
+            protected $transactionHandler;
+
+            /**
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface $companyUserReader
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
+             * @param \Psr\Log\LoggerInterface $logger
+             * @param \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface $transactionHandler
+             */
+            public function __construct(
+                CompanyUserReaderInterface $companyUserReader,
+                QuoteExpanderInterface $quoteExpander,
+                QuoteHandlerInterface $quoteHandler,
+                QuoteReloaderInterface $quoteReloader,
+                CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade,
+                LoggerInterface $logger,
+                TransactionHandlerInterface $transactionHandler
+            ) {
+                parent::__construct(
+                    $companyUserReader,
+                    $quoteExpander,
+                    $quoteHandler,
+                    $quoteReloader,
+                    $persistentCartFacade,
+                    $logger,
+                );
+                $this->transactionHandler = $transactionHandler;
+            }
+
+            /**
+             * @return \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface
+             */
+            public function getTransactionHandler(): TransactionHandlerInterface
+            {
+                return $this->transactionHandler;
+            }
+        };
     }
 
     /**
@@ -133,6 +199,14 @@ class QuoteCreatorTest extends Unit
      */
     public function testCreate(): void
     {
+        $this->transactionHandlerMock->expects(static::atLeastOnce())
+            ->method('handleTransaction')
+            ->willReturnCallback(
+                static function ($callable) {
+                    $callable();
+                },
+            );
+
         $this->companyUserReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -180,6 +254,12 @@ class QuoteCreatorTest extends Unit
             ->with($this->quoteTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
 
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('serialize');
+
+        $this->loggerMock->expects(static::never())
+            ->method('error');
+
         static::assertEquals(
             $this->restCompanyUserCartsResponseTransferMock,
             $this->quoteCreator->createByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
@@ -191,6 +271,14 @@ class QuoteCreatorTest extends Unit
      */
     public function testCreateWithInvalidHandle(): void
     {
+        $this->transactionHandlerMock->expects(static::atLeastOnce())
+            ->method('handleTransaction')
+            ->willReturnCallback(
+                static function ($callable) {
+                    $callable();
+                },
+            );
+
         $this->companyUserReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -225,8 +313,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->restCompanyUserCartsResponseTransferMock);
 
-        $this->restCompanyUserCartsResponseTransferMock->expects(static::never())
-            ->method('getIsSuccessful');
+        $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
+            ->method('getIsSuccessful')
+            ->willReturn(false);
 
         $this->restCompanyUserCartsResponseTransferMock->expects(static::atLeastOnce())
             ->method('getQuote')
@@ -234,6 +323,12 @@ class QuoteCreatorTest extends Unit
 
         $this->quoteReloaderMock->expects(static::never())
             ->method('reload');
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('serialize');
+
+        $this->loggerMock->expects(static::never())
+            ->method('error');
 
         static::assertEquals(
             $this->restCompanyUserCartsResponseTransferMock,
@@ -246,6 +341,14 @@ class QuoteCreatorTest extends Unit
      */
     public function testCreateWithNonExistingQuote(): void
     {
+        $this->transactionHandlerMock->expects(static::atLeastOnce())
+            ->method('handleTransaction')
+            ->willReturnCallback(
+                static function ($callable) {
+                    $callable();
+                },
+            );
+
         $this->companyUserReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -262,6 +365,12 @@ class QuoteCreatorTest extends Unit
 
         $this->quoteReloaderMock->expects(static::never())
             ->method('reload');
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('serialize');
+
+        $this->loggerMock->expects(static::never())
+            ->method('error');
 
         $restCompanyUserCartsResponseTransfer = $this->quoteCreator->createByRestCompanyUserCartsRequest(
             $this->restCompanyUserCartsRequestTransferMock,
@@ -283,6 +392,14 @@ class QuoteCreatorTest extends Unit
      */
     public function testCreateWithError(): void
     {
+        $this->transactionHandlerMock->expects(static::atLeastOnce())
+            ->method('handleTransaction')
+            ->willReturnCallback(
+                static function ($callable) {
+                    $callable();
+                },
+            );
+
         $this->companyUserReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -318,6 +435,12 @@ class QuoteCreatorTest extends Unit
         $this->quoteReloaderMock->expects(static::never())
             ->method('reload');
 
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
+            ->method('serialize');
+
+        $this->loggerMock->expects(static::never())
+            ->method('error');
+
         $restCompanyUserCartsResponseTransfer = $this->quoteCreator->createByRestCompanyUserCartsRequest(
             $this->restCompanyUserCartsRequestTransferMock,
         );
@@ -331,5 +454,56 @@ class QuoteCreatorTest extends Unit
                 ->offsetGet(0)
                 ->getMessage(),
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCreateWithException(): void
+    {
+        $exception = new Exception('Foo bar');
+
+        $this->transactionHandlerMock->expects(static::atLeastOnce())
+            ->method('handleTransaction')
+            ->willThrowException($exception);
+
+        $this->companyUserReaderMock->expects(static::never())
+            ->method('getByRestCompanyUserCartsRequest');
+
+        $this->quoteExpanderMock->expects(static::never())
+            ->method('expand');
+
+        $this->persistentCartFacadeMock->expects(static::never())
+            ->method('createQuote');
+
+        $this->quoteHandlerMock->expects(static::never())
+            ->method('handle');
+
+        $this->quoteReloaderMock->expects(static::never())
+            ->method('reload');
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('serialize')
+            ->willReturn('{...}');
+
+        $this->loggerMock->expects(static::atLeastOnce())
+            ->method('error')
+            ->with(
+                'Quote could not be created.',
+                [
+                    'exception' => $exception->getMessage(),
+                    'trace' => $exception->getTraceAsString(),
+                    'data' => '{...}',
+                ],
+            );
+
+        try {
+            $this->quoteCreator->createByRestCompanyUserCartsRequest(
+                $this->restCompanyUserCartsRequestTransferMock,
+            );
+            static::fail();
+        } catch (Throwable $throwable) {
+            static::assertEquals($exception, $throwable);
+        }
     }
 }

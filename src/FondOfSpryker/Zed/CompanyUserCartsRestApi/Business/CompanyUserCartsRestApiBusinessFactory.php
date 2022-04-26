@@ -38,6 +38,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyP
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
+use Spryker\Shared\Log\LoggerTrait;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
 
 /**
@@ -45,6 +46,8 @@ use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
  */
 class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
 {
+    use LoggerTrait;
+
     /**
      * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface
      */
@@ -56,6 +59,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteHandler(),
             $this->createQuoteReloader(),
             $this->getPersistentCartFacade(),
+            $this->getLogger(),
         );
     }
 
@@ -71,6 +75,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteHandler(),
             $this->createQuoteReloader(),
             $this->getPersistentCartFacade(),
+            $this->getLogger(),
         );
     }
 
