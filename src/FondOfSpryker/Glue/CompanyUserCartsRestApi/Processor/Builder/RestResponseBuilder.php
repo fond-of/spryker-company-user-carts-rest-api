@@ -51,20 +51,28 @@ class RestResponseBuilder implements RestResponseBuilderInterface
      */
     public function buildErrorRestResponse(array $quoteErrorTransfers): RestResponseInterface
     {
-        $detail = 'Undefined';
+        $restResponse = $this->restResourceBuilder
+            ->createRestResponse();
 
-        if (count($quoteErrorTransfers) > 0) {
-            $detail = $quoteErrorTransfers[0]->getMessage();
+        if (count($quoteErrorTransfers) === 0) {
+            $restErrorMessageTransfer = (new RestErrorMessageTransfer())
+                ->setCode(CompanyUserCartsRestApiConfig::RESPONSE_CODE_OTHER)
+                ->setStatus(Response::HTTP_BAD_REQUEST)
+                ->setDetail('Undefined');
+
+            return $restResponse->addError($restErrorMessageTransfer);
         }
 
-        $restErrorMessageTransfer = (new RestErrorMessageTransfer())
-            ->setCode(CompanyUserCartsRestApiConfig::RESPONSE_CODE_OTHER)
-            ->setStatus(Response::HTTP_BAD_REQUEST)
-            ->setDetail($detail);
+        foreach ($quoteErrorTransfers as $quoteErrorTransfer) {
+            $restErrorMessageTransfer = (new RestErrorMessageTransfer())
+                ->setCode(CompanyUserCartsRestApiConfig::RESPONSE_CODE_OTHER)
+                ->setStatus(Response::HTTP_BAD_REQUEST)
+                ->setDetail($quoteErrorTransfer->getMessage());
 
-        return $this->restResourceBuilder
-            ->createRestResponse()
-            ->addError($restErrorMessageTransfer);
+            $restResponse->addError($restErrorMessageTransfer);
+        }
+
+        return $restResponse;
     }
 
     /**
