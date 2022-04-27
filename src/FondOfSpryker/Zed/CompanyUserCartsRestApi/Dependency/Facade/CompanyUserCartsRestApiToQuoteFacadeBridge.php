@@ -30,4 +30,14 @@ class CompanyUserCartsRestApiToQuoteFacadeBridge implements CompanyUserCartsRest
     {
         return $this->quoteFacade->findQuoteByUuid($quoteTransfer);
     }
+
+    /**
+     * @param int $idQuote
+     *
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
+     */
+    public function findQuoteById(int $idQuote): QuoteResponseTransfer
+    {
+        return $this->quoteFacade->findQuoteById($idQuote);
+    }
 }

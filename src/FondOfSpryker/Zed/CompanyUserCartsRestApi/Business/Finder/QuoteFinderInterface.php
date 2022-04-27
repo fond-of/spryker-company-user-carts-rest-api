@@ -15,4 +15,11 @@ interface QuoteFinderInterface
     public function findOneByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer;
+
+    /**
+     * @param int $idQuote
+     *
+     * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
+     */
+    public function findByIdQuote(int $idQuote): RestCompanyUserCartsResponseTransfer;
 }

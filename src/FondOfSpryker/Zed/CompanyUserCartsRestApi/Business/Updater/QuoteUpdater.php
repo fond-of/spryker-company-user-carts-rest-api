@@ -5,10 +5,9 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Exception\QuoteNotUpdatedException;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
@@ -22,9 +21,9 @@ class QuoteUpdater implements QuoteUpdaterInterface
     use TransactionTrait;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface
      */
-    protected $quoteReader;
+    protected $quoteFinder;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface
@@ -42,11 +41,6 @@ class QuoteUpdater implements QuoteUpdaterInterface
     protected $quoteHandler;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
-     */
-    protected $quoteReloader;
-
-    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
      */
     protected $persistentCartFacade;
@@ -57,28 +51,25 @@ class QuoteUpdater implements QuoteUpdaterInterface
     protected $logger;
 
     /**
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface $quoteReader
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface $quoteUpdateRequestMapper
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
-        QuoteReaderInterface $quoteReader,
+        QuoteFinderInterface $quoteFinder,
         QuoteExpanderInterface $quoteExpander,
         QuoteUpdateRequestMapperInterface $quoteUpdateRequestMapper,
         QuoteHandlerInterface $quoteHandler,
-        QuoteReloaderInterface $quoteReloader,
         CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade,
         LoggerInterface $logger
     ) {
-        $this->quoteReader = $quoteReader;
+        $this->quoteFinder = $quoteFinder;
         $this->quoteExpander = $quoteExpander;
         $this->quoteUpdateRequestMapper = $quoteUpdateRequestMapper;
         $this->quoteHandler = $quoteHandler;
-        $this->quoteReloader = $quoteReloader;
         $this->persistentCartFacade = $persistentCartFacade;
         $this->logger = $logger;
     }
@@ -129,14 +120,14 @@ class QuoteUpdater implements QuoteUpdaterInterface
     protected function executeUpdateByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
-        $quoteTransfer = $this->quoteReader->getByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+        $restCompanyUserCartsResponseTransfer = $this->quoteFinder->findOneByRestCompanyUserCartsRequest(
+            $restCompanyUserCartsRequestTransfer,
+        );
 
-        if ($quoteTransfer === null) {
-            $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND);
+        $quoteTransfer = $restCompanyUserCartsResponseTransfer->getQuote();
 
-            return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
-                ->setIsSuccessful(false);
+        if ($quoteTransfer === null || !$restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
+            return $restCompanyUserCartsResponseTransfer->setIsSuccessful(true);
         }
 
         $quoteTransfer = $this->quoteExpander->expand($quoteTransfer, $restCompanyUserCartsRequestTransfer);
@@ -159,10 +150,14 @@ class QuoteUpdater implements QuoteUpdaterInterface
 
         $quoteTransfer = $restCompanyUserCartsResponseTransfer->getQuote();
 
-        if ($quoteTransfer === null || !$restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
+        if (
+            $quoteTransfer === null
+            || $quoteTransfer->getIdQuote() === null
+            || !$restCompanyUserCartsResponseTransfer->getIsSuccessful()
+        ) {
             return $restCompanyUserCartsResponseTransfer;
         }
 
-        return $this->quoteReloader->reload($quoteTransfer);
+        return $this->quoteFinder->findByIdQuote($quoteTransfer->getIdQuote());
     }
 }
