@@ -70,4 +70,21 @@ class QuoteReader implements QuoteReaderInterface
             && $quoteTransfer->getCustomerReference() === $customerReference
             && $quoteTransfer->getCompanyUserReference() === $companyUserReference;
     }
+
+    /**
+     * @param int $idQuote
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer|null
+     */
+    public function getByIdQuote(int $idQuote): ?QuoteTransfer
+    {
+        $quoteResponseTransfer = $this->quoteFacade->findQuoteById($idQuote);
+        $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
+
+        if ($quoteTransfer === null || !$quoteResponseTransfer->getIsSuccessful()) {
+            return null;
+        }
+
+        return $quoteTransfer;
+    }
 }

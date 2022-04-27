@@ -15,4 +15,11 @@ interface QuoteReaderInterface
     public function getByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): ?QuoteTransfer;
+
+    /**
+     * @param int $idQuote
+     *
+     * @return \Generated\Shared\Transfer\QuoteTransfer|null
+     */
+    public function getByIdQuote(int $idQuote): ?QuoteTransfer;
 }

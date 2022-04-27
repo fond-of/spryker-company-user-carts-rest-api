@@ -20,14 +20,14 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandler;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapperInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapper;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloader;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemover;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdater;
@@ -38,6 +38,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyP
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
+use Spryker\Shared\Log\LoggerTrait;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
 
 /**
@@ -45,6 +46,8 @@ use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
  */
 class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
 {
+    use LoggerTrait;
+
     /**
      * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreatorInterface
      */
@@ -52,10 +55,11 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     {
         return new QuoteCreator(
             $this->createCompanyUserReader(),
-            $this->createQuoteExpander(),
+            $this->createQuoteMapper(),
             $this->createQuoteHandler(),
-            $this->createQuoteReloader(),
+            $this->createQuoteFinder(),
             $this->getPersistentCartFacade(),
+            $this->getLogger(),
         );
     }
 
@@ -65,12 +69,12 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     public function createQuoteUpdater(): QuoteUpdaterInterface
     {
         return new QuoteUpdater(
-            $this->createQuoteReader(),
+            $this->createQuoteFinder(),
             $this->createQuoteExpander(),
             $this->createQuoteUpdateRequestMapper(),
             $this->createQuoteHandler(),
-            $this->createQuoteReloader(),
             $this->getPersistentCartFacade(),
+            $this->getLogger(),
         );
     }
 
@@ -107,6 +111,14 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     }
 
     /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface
+     */
+    protected function createQuoteMapper(): QuoteMapperInterface
+    {
+        return new QuoteMapper();
+    }
+
+    /**
      * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface
      */
     protected function createQuoteExpander(): QuoteExpanderInterface
@@ -135,14 +147,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createItemUpdater(),
             $this->createItemRemover(),
         );
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface
-     */
-    protected function createQuoteReloader(): QuoteReloaderInterface
-    {
-        return new QuoteReloader($this->getPersistentCartFacade());
     }
 
     /**

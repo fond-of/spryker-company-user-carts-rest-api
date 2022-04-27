@@ -66,4 +66,22 @@ class CompanyUserCartsRestApiToQuoteFacadeBridgeTest extends Unit
             $this->facadeBridge->findQuoteByUuid($this->quoteTransferMock),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testFindQuoteById(): void
+    {
+        $idQuote = 1;
+
+        $this->facadeMock->expects(static::atLeastOnce())
+            ->method('findQuoteById')
+            ->with($idQuote)
+            ->willReturn($this->quoteResponseTransferMock);
+
+        static::assertEquals(
+            $this->quoteResponseTransferMock,
+            $this->facadeBridge->findQuoteById($idQuote),
+        );
+    }
 }

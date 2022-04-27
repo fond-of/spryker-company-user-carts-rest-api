@@ -12,6 +12,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyP
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge;
+use Psr\Log\LoggerInterface;
+use Spryker\Shared\Log\Config\LoggerConfigInterface;
 use Spryker\Zed\Kernel\Container;
 
 class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
@@ -40,6 +42,11 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
      * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Zed\Kernel\Container
      */
     protected $containerMock;
+
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Psr\Log\LoggerInterface
+     */
+    protected $loggerMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\CompanyUserCartsRestApiBusinessFactory
@@ -73,7 +80,34 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->factory = new CompanyUserCartsRestApiBusinessFactory();
+        $this->loggerMock = $this->getMockBuilder(LoggerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->factory = new class ($this->loggerMock) extends CompanyUserCartsRestApiBusinessFactory {
+            /**
+             * @var \Psr\Log\LoggerInterface
+             */
+            protected $logger;
+
+            /**
+             * @param \Psr\Log\LoggerInterface $logger
+             */
+            public function __construct(LoggerInterface $logger)
+            {
+                $this->logger = $logger;
+            }
+
+            /**
+             * @param \Spryker\Shared\Log\Config\LoggerConfigInterface|null $loggerConfig
+             *
+             * @return \Psr\Log\LoggerInterface
+             */
+            protected function getLogger(?LoggerConfigInterface $loggerConfig = null): LoggerInterface
+            {
+                return $this->logger;
+            }
+        };
         $this->factory->setConfig($this->configMock);
         $this->factory->setContainer($this->containerMock);
     }
@@ -94,14 +128,14 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
             )->willReturnOnConsecutiveCalls(
                 $this->companyUserReferenceFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
+                $this->quoteFacadeMock,
                 $this->persistentCartFacadeMock,
             );
 
@@ -128,10 +162,8 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
-                $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
