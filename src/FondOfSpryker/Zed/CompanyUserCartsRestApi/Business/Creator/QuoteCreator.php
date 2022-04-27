@@ -5,13 +5,12 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator;
 use ArrayObject;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Exception\QuoteNotCreatedException;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
-use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 use Psr\Log\LoggerInterface;
@@ -28,9 +27,9 @@ class QuoteCreator implements QuoteCreatorInterface
     protected $companyUserReader;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface
      */
-    protected $quoteExpander;
+    protected $quoteMapper;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface
@@ -54,7 +53,7 @@ class QuoteCreator implements QuoteCreatorInterface
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface $companyUserReader
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface $quoteMapper
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
@@ -62,14 +61,14 @@ class QuoteCreator implements QuoteCreatorInterface
      */
     public function __construct(
         CompanyUserReaderInterface $companyUserReader,
-        QuoteExpanderInterface $quoteExpander,
+        QuoteMapperInterface $quoteMapper,
         QuoteHandlerInterface $quoteHandler,
         QuoteReloaderInterface $quoteReloader,
         CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade,
         LoggerInterface $logger
     ) {
         $this->companyUserReader = $companyUserReader;
-        $this->quoteExpander = $quoteExpander;
+        $this->quoteMapper = $quoteMapper;
         $this->quoteHandler = $quoteHandler;
         $this->quoteReloader = $quoteReloader;
         $this->persistentCartFacade = $persistentCartFacade;
@@ -134,7 +133,7 @@ class QuoteCreator implements QuoteCreatorInterface
                 ->setErrors(new ArrayObject([$quoteErrorTransfer]));
         }
 
-        $quoteTransfer = $this->quoteExpander->expand(new QuoteTransfer(), $restCompanyUserCartsRequestTransfer);
+        $quoteTransfer = $this->quoteMapper->fromRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
         $quoteResponseTransfer = $this->persistentCartFacade->createQuote($quoteTransfer);
         $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
 

@@ -20,6 +20,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandler;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapperInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapper;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReader;
@@ -55,7 +57,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     {
         return new QuoteCreator(
             $this->createCompanyUserReader(),
-            $this->createQuoteExpander(),
+            $this->createQuoteMapper(),
             $this->createQuoteHandler(),
             $this->createQuoteReloader(),
             $this->getPersistentCartFacade(),
@@ -109,6 +111,14 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
         return new QuoteReader(
             $this->getQuoteFacade(),
         );
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface
+     */
+    protected function createQuoteMapper(): QuoteMapperInterface
+    {
+        return new QuoteMapper();
     }
 
     /**

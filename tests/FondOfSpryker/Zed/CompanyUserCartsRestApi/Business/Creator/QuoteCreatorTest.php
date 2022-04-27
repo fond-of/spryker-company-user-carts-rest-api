@@ -5,8 +5,8 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator;
 use Codeception\Test\Unit;
 use Exception;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
@@ -27,9 +27,9 @@ class QuoteCreatorTest extends Unit
     protected $companyUserReaderMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteExpanderMock;
+    protected $quoteMapperMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface|\PHPUnit\Framework\MockObject\MockObject
@@ -97,7 +97,7 @@ class QuoteCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->quoteExpanderMock = $this->getMockBuilder(QuoteExpanderInterface::class)
+        $this->quoteMapperMock = $this->getMockBuilder(QuoteMapperInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -143,7 +143,7 @@ class QuoteCreatorTest extends Unit
 
         $this->quoteCreator = new class (
             $this->companyUserReaderMock,
-            $this->quoteExpanderMock,
+            $this->quoteMapperMock,
             $this->quoteHandlerMock,
             $this->quoteReloaderMock,
             $this->persistentCartFacadeMock,
@@ -157,7 +157,7 @@ class QuoteCreatorTest extends Unit
 
             /**
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface $companyUserReader
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface $quoteMapper
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reloader\QuoteReloaderInterface $quoteReloader
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
@@ -166,7 +166,7 @@ class QuoteCreatorTest extends Unit
              */
             public function __construct(
                 CompanyUserReaderInterface $companyUserReader,
-                QuoteExpanderInterface $quoteExpander,
+                QuoteMapperInterface $quoteMapper,
                 QuoteHandlerInterface $quoteHandler,
                 QuoteReloaderInterface $quoteReloader,
                 CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade,
@@ -175,7 +175,7 @@ class QuoteCreatorTest extends Unit
             ) {
                 parent::__construct(
                     $companyUserReader,
-                    $quoteExpander,
+                    $quoteMapper,
                     $quoteHandler,
                     $quoteReloader,
                     $persistentCartFacade,
@@ -212,16 +212,10 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->quoteExpanderMock->expects(static::atLeastOnce())
-            ->method('expand')
-            ->with(
-                static::callback(
-                    static function (QuoteTransfer $quoteTransfer) {
-                        return $quoteTransfer->getIdQuote() === null;
-                    },
-                ),
-                $this->restCompanyUserCartsRequestTransferMock,
-            )->willReturn($this->quoteTransferMock);
+        $this->quoteMapperMock->expects(static::atLeastOnce())
+            ->method('fromRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->quoteTransferMock);
 
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())
             ->method('createQuote')
@@ -284,16 +278,10 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->quoteExpanderMock->expects(static::atLeastOnce())
-            ->method('expand')
-            ->with(
-                static::callback(
-                    static function (QuoteTransfer $quoteTransfer) {
-                        return $quoteTransfer->getIdQuote() === null;
-                    },
-                ),
-                $this->restCompanyUserCartsRequestTransferMock,
-            )->willReturn($this->quoteTransferMock);
+        $this->quoteMapperMock->expects(static::atLeastOnce())
+            ->method('fromRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->quoteTransferMock);
 
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())
             ->method('createQuote')
@@ -354,8 +342,8 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn(null);
 
-        $this->quoteExpanderMock->expects(static::never())
-            ->method('expand');
+        $this->quoteMapperMock->expects(static::never())
+            ->method('fromRestCompanyUserCartsRequest');
 
         $this->persistentCartFacadeMock->expects(static::never())
             ->method('updateQuote');
@@ -405,16 +393,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->quoteExpanderMock->expects(static::atLeastOnce())
-            ->method('expand')
-            ->with(
-                static::callback(
-                    static function (QuoteTransfer $quoteTransfer) {
-                        return $quoteTransfer->getIdQuote() === null;
-                    },
-                ),
-                $this->restCompanyUserCartsRequestTransferMock,
-            )
+        $this->quoteMapperMock->expects(static::atLeastOnce())
+            ->method('fromRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
         $this->persistentCartFacadeMock->expects(static::atLeastOnce())
@@ -470,8 +451,8 @@ class QuoteCreatorTest extends Unit
         $this->companyUserReaderMock->expects(static::never())
             ->method('getByRestCompanyUserCartsRequest');
 
-        $this->quoteExpanderMock->expects(static::never())
-            ->method('expand');
+        $this->quoteMapperMock->expects(static::never())
+            ->method('fromRestCompanyUserCartsRequest');
 
         $this->persistentCartFacadeMock->expects(static::never())
             ->method('createQuote');
