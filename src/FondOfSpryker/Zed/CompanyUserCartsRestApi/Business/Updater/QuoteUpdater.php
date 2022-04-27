@@ -77,6 +77,9 @@ class QuoteUpdater implements QuoteUpdaterInterface
     /**
      * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
      *
+     * @throws \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Exception\QuoteNotUpdatedException
+     * @throws \Throwable
+     *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
     public function updateByRestCompanyUserCartsRequest(

@@ -78,6 +78,9 @@ class QuoteCreator implements QuoteCreatorInterface
     /**
      * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
      *
+     * @throws \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Exception\QuoteNotCreatedException
+     * @throws \Throwable
+     *
      * @return \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer
      */
     public function createByRestCompanyUserCartsRequest(
