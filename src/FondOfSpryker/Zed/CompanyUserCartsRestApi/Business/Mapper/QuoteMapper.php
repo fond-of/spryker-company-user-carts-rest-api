@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper;
 
+use ArrayObject;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CurrencyTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
@@ -56,7 +57,8 @@ class QuoteMapper implements QuoteMapperInterface
         RestCartsRequestAttributesTransfer $restCartsRequestAttributesTransfer
     ): QuoteTransfer {
         $quoteTransfer = (new QuoteTransfer())
-            ->fromArray($restCartsRequestAttributesTransfer->toArray(), true);
+            ->fromArray($restCartsRequestAttributesTransfer->toArray(), true)
+            ->setItems(new ArrayObject());
 
         if ($restCartsRequestAttributesTransfer->getCurrency() !== null) {
             $currencyTransfer = (new CurrencyTransfer())
