@@ -49,22 +49,27 @@ class ItemsCategorizer implements ItemsCategorizerInterface
 
         foreach ($restCartsRequestAttributesTransfer->getItems() as $restCartItemTransfer) {
             $oldItemTransfer = $this->itemFinder->findInQuoteByRestCartItem($quoteTransfer, $restCartItemTransfer);
-            $itemTransfer = $this->itemMapper->fromRestCartItem($restCartItemTransfer);
 
-            if ($oldItemTransfer === null && $itemTransfer->getQuantity() > 0) {
-                $categorisedItemTransfers[static::CATEGORY_ADDABLE][] = $itemTransfer;
-
-                continue;
-            }
-
-            if ($oldItemTransfer !== null && $itemTransfer->getQuantity() === 0) {
-                $categorisedItemTransfers[static::CATEGORY_REMOVABLE][] = $itemTransfer;
+            if ($oldItemTransfer === null && $restCartItemTransfer->getQuantity() > 0) {
+                $categorisedItemTransfers[static::CATEGORY_ADDABLE][] = $this->itemMapper->fromRestCartItem(
+                    $restCartItemTransfer,
+                );
 
                 continue;
             }
 
-            if ($oldItemTransfer !== null && $oldItemTransfer->getQuantity() !== $itemTransfer->getQuantity()) {
-                $categorisedItemTransfers[static::CATEGORY_UPDATABLE][] = $itemTransfer;
+            if ($oldItemTransfer !== null && $restCartItemTransfer->getQuantity() === 0) {
+                $categorisedItemTransfers[static::CATEGORY_REMOVABLE][] = $this->itemMapper->fromRestCartItem(
+                    $restCartItemTransfer,
+                );
+
+                continue;
+            }
+
+            if ($oldItemTransfer !== null && $oldItemTransfer->getQuantity() !== $restCartItemTransfer->getQuantity()) {
+                $categorisedItemTransfers[static::CATEGORY_UPDATABLE][] = $this->itemMapper->fromRestCartItem(
+                    $restCartItemTransfer,
+                );
             }
         }
 

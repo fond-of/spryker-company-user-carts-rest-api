@@ -44,11 +44,4 @@ interface CompanyUserCartsRestApiToPersistentCartFacadeInterface
      * @return \Generated\Shared\Transfer\QuoteResponseTransfer
      */
     public function createQuote(QuoteTransfer $quoteTransfer): QuoteResponseTransfer;
-
-    /**
-     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
-     *
-     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
-     */
-    public function deleteQuote(QuoteTransfer $quoteTransfer): QuoteResponseTransfer;
 }

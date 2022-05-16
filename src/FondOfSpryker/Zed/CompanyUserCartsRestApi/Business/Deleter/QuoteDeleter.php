@@ -5,23 +5,13 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 
 class QuoteDeleter implements QuoteDeleterInterface
 {
-    /**
-     * @var string
-     */
-    protected const ERROR_MESSAGE_QUOTE_NOT_FOUND = 'quote.validation.error.quote_not_found';
-
-    /**
-     * @var string
-     */
-    protected const ERROR_MESSAGE_QUOTE_NOT_DELETED = 'quote.validation.error.quote_not_deleted';
-
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface
      */
@@ -33,22 +23,22 @@ class QuoteDeleter implements QuoteDeleterInterface
     protected $quoteExpander;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface
      */
-    protected $persistentCartFacade;
+    protected $quoteFacade;
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface $quoteReader
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
      */
     public function __construct(
         QuoteReaderInterface $quoteReader,
         QuoteExpanderInterface $quoteExpander,
-        CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
+        CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
     ) {
         $this->quoteReader = $quoteReader;
-        $this->persistentCartFacade = $persistentCartFacade;
+        $this->quoteFacade = $quoteFacade;
         $this->quoteExpander = $quoteExpander;
     }
 
@@ -71,7 +61,7 @@ class QuoteDeleter implements QuoteDeleterInterface
         }
 
         $quoteTransfer = $this->quoteExpander->expand($quoteTransfer, $restCompanyUserCartsRequestTransfer);
-        $quoteResponseTransfer = $this->persistentCartFacade->deleteQuote($quoteTransfer);
+        $quoteResponseTransfer = $this->quoteFacade->deleteQuote($quoteTransfer);
 
         if ($quoteResponseTransfer->getIsSuccessful() === false) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())

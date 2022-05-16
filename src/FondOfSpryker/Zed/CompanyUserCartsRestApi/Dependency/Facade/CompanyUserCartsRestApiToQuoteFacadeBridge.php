@@ -40,4 +40,14 @@ class CompanyUserCartsRestApiToQuoteFacadeBridge implements CompanyUserCartsRest
     {
         return $this->quoteFacade->findQuoteById($idQuote);
     }
+
+    /**
+     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     *
+     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
+     */
+    public function deleteQuote(QuoteTransfer $quoteTransfer): QuoteResponseTransfer
+    {
+        return $this->quoteFacade->deleteQuote($quoteTransfer);
+    }
 }

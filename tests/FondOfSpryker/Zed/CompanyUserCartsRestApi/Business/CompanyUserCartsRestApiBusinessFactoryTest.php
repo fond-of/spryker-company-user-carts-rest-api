@@ -189,10 +189,10 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->method('get')
             ->withConsecutive(
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
-                $this->persistentCartFacadeMock,
+                $this->quoteFacadeMock,
             );
 
         static::assertInstanceOf(
