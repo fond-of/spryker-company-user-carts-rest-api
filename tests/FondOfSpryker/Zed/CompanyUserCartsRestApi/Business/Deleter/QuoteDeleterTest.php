@@ -6,7 +6,7 @@ use Codeception\Test\Unit;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
@@ -24,9 +24,9 @@ class QuoteDeleterTest extends Unit
     protected $quoteExpanderMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $persistentCartFacadeMock;
+    protected $quoteFacadeMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -63,7 +63,7 @@ class QuoteDeleterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->persistentCartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPersistentCartFacadeInterface::class)
+        $this->quoteFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToQuoteFacadeInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -82,7 +82,7 @@ class QuoteDeleterTest extends Unit
         $this->quoteDeleter = new QuoteDeleter(
             $this->quoteReaderMock,
             $this->quoteExpanderMock,
-            $this->persistentCartFacadeMock,
+            $this->quoteFacadeMock,
         );
     }
 
@@ -101,7 +101,7 @@ class QuoteDeleterTest extends Unit
             ->with($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
-        $this->persistentCartFacadeMock->expects(static::atLeastOnce())
+        $this->quoteFacadeMock->expects(static::atLeastOnce())
             ->method('deleteQuote')
             ->with($this->quoteTransferMock)
             ->willReturn($this->quoteResponseTransferMock);
@@ -132,7 +132,7 @@ class QuoteDeleterTest extends Unit
         $this->quoteExpanderMock->expects(static::never())
             ->method('expand');
 
-        $this->persistentCartFacadeMock->expects(static::never())
+        $this->quoteFacadeMock->expects(static::never())
             ->method('deleteQuote');
 
         $restCompanyUserCartsResponseTransfer = $this->quoteDeleter->deleteByRestCompanyUserCartsRequest(
@@ -163,7 +163,7 @@ class QuoteDeleterTest extends Unit
             ->with($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
-        $this->persistentCartFacadeMock->expects(static::atLeastOnce())
+        $this->quoteFacadeMock->expects(static::atLeastOnce())
             ->method('deleteQuote')
             ->with($this->quoteTransferMock)
             ->willReturn($this->quoteResponseTransferMock);

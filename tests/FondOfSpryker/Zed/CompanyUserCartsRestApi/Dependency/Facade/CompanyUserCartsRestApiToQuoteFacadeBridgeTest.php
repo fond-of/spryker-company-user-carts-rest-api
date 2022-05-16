@@ -84,4 +84,20 @@ class CompanyUserCartsRestApiToQuoteFacadeBridgeTest extends Unit
             $this->facadeBridge->findQuoteById($idQuote),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testDeleteQuote(): void
+    {
+        $this->facadeMock->expects(static::atLeastOnce())
+            ->method('deleteQuote')
+            ->with($this->quoteTransferMock)
+            ->willReturn($this->quoteResponseTransferMock);
+
+        static::assertEquals(
+            $this->quoteResponseTransferMock,
+            $this->facadeBridge->deleteQuote($this->quoteTransferMock),
+        );
+    }
 }

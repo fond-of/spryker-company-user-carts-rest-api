@@ -151,15 +151,15 @@ class ItemsCategorizerTest extends Unit
                 $this->newItemTransferMocks[2],
             );
 
-        $this->newItemTransferMocks[0]->expects(static::atLeastOnce())
+        $this->restCartItemTransferMocks[0]->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($newQuantities[0]);
 
-        $this->newItemTransferMocks[1]->expects(static::atLeastOnce())
+        $this->restCartItemTransferMocks[1]->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($newQuantities[1]);
 
-        $this->newItemTransferMocks[2]->expects(static::atLeastOnce())
+        $this->restCartItemTransferMocks[2]->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($newQuantities[2]);
 
