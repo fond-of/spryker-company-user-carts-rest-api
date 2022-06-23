@@ -96,9 +96,22 @@ class QuoteExpanderTest extends Unit
         $companyUserReference = 'FOO--CU-1';
         $customerReference = 'FOO--C-1';
 
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getCart')
+            ->willReturn($this->restCartsRequestAttributesTransferMock);
+
+        $this->configMock->expects(static::atLeastOnce())
+            ->method('getAllowedFieldsToPatchInQuote')
+            ->willReturn($allowedFieldsToPatchInQuote);
+
+        $this->restCartsRequestAttributesTransferMock->expects(static::atLeastOnce())
+            ->method('modifiedToArray')
+            ->willReturn($newData);
+
         $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn(null);
+            ->method('setName')
+            ->with($newData['name'])
+            ->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCustomerReference')
@@ -114,6 +127,10 @@ class QuoteExpanderTest extends Unit
             ->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('getCustomer')
+            ->willReturn(null);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('setCustomer')
             ->with(
                 static::callback(
@@ -122,10 +139,6 @@ class QuoteExpanderTest extends Unit
                     },
                 ),
             )->willReturn($this->quoteTransferMock);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCompanyUser')
-            ->willReturn(null);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCompanyUserReference')
@@ -141,158 +154,8 @@ class QuoteExpanderTest extends Unit
             ->willReturn($this->quoteTransferMock);
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('setCompanyUser')
-            ->with(
-                static::callback(
-                    static function (CompanyUserTransfer $companyUserTransfer) use ($companyUserReference) {
-                        return $companyUserTransfer->getCompanyUserReference() === $companyUserReference;
-                    },
-                ),
-            )->willReturn($this->quoteTransferMock);
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
-            ->method('getCart')
-            ->willReturn($this->restCartsRequestAttributesTransferMock);
-
-        $this->configMock->expects(static::atLeastOnce())
-            ->method('getAllowedFieldsToPatchInQuote')
-            ->willReturn($allowedFieldsToPatchInQuote);
-
-        $this->restCartsRequestAttributesTransferMock->expects(static::atLeastOnce())
-            ->method('modifiedToArray')
-            ->willReturn($newData);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('setName')
-            ->with($newData['name'])
-            ->willReturn($this->quoteTransferMock);
-
-        static::assertEquals(
-            $this->quoteTransferMock,
-            $this->quoteExpander->expand($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock),
-        );
-    }
-
-    /**
-     * @return void
-     */
-    public function testExpandWithExistingCompanyUser(): void
-    {
-        $newData = [
-            'name' => 'foo bar2',
-            'price_mode' => 'NET_MODE',
-            'foo' => 'bar',
-        ];
-
-        $allowedFieldsToPatchInQuote = ['name'];
-        $customerReference = 'FOO--C-1';
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn(null);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCustomerReference')
-            ->willReturn($customerReference);
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
-            ->method('getCustomerReference');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('setCustomerReference');
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('setCustomer')
-            ->with(
-                static::callback(
-                    static function (CustomerTransfer $customerTransfer) use ($customerReference) {
-                        return $customerTransfer->getCustomerReference() === $customerReference;
-                    },
-                ),
-            )->willReturn($this->quoteTransferMock);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCompanyUser')
-            ->willReturn($this->companyUserTransferMock);
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('getCompanyUserReference');
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
-            ->method('getCompanyUserReference');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('setCompanyUserReference');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('setCompanyUser');
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
-            ->method('getCart')
-            ->willReturn($this->restCartsRequestAttributesTransferMock);
-
-        $this->configMock->expects(static::atLeastOnce())
-            ->method('getAllowedFieldsToPatchInQuote')
-            ->willReturn($allowedFieldsToPatchInQuote);
-
-        $this->restCartsRequestAttributesTransferMock->expects(static::atLeastOnce())
-            ->method('modifiedToArray')
-            ->willReturn($newData);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('setName')
-            ->with($newData['name'])
-            ->willReturn($this->quoteTransferMock);
-
-        static::assertEquals(
-            $this->quoteTransferMock,
-            $this->quoteExpander->expand($this->quoteTransferMock, $this->restCompanyUserCartsRequestTransferMock),
-        );
-    }
-
-    /**
-     * @return void
-     */
-    public function testExpandWithExistingCustomer(): void
-    {
-        $newData = [
-            'name' => 'foo bar2',
-            'price_mode' => 'NET_MODE',
-            'foo' => 'bar',
-        ];
-
-        $allowedFieldsToPatchInQuote = ['name'];
-        $companyUserReference = 'FOO--CU-1';
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn($this->customerTransferMock);
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('getCustomerReference');
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
-            ->method('getCustomerReference');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('setCustomerReference');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('setCustomer');
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('getCompanyUser')
             ->willReturn(null);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCompanyUserReference')
-            ->willReturn($companyUserReference);
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::never())
-            ->method('getCompanyUserReference');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('setCompanyUserReference');
 
         $this->quoteTransferMock->expects(static::atLeastOnce())
             ->method('setCompanyUser')
@@ -303,23 +166,6 @@ class QuoteExpanderTest extends Unit
                     },
                 ),
             )->willReturn($this->quoteTransferMock);
-
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
-            ->method('getCart')
-            ->willReturn($this->restCartsRequestAttributesTransferMock);
-
-        $this->configMock->expects(static::atLeastOnce())
-            ->method('getAllowedFieldsToPatchInQuote')
-            ->willReturn($allowedFieldsToPatchInQuote);
-
-        $this->restCartsRequestAttributesTransferMock->expects(static::atLeastOnce())
-            ->method('modifiedToArray')
-            ->willReturn($newData);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('setName')
-            ->with($newData['name'])
-            ->willReturn($this->quoteTransferMock);
 
         static::assertEquals(
             $this->quoteTransferMock,
