@@ -13,13 +13,10 @@ use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 use Psr\Log\LoggerInterface;
-use Spryker\Zed\Kernel\Persistence\EntityManager\TransactionTrait;
 use Throwable;
 
 class QuoteUpdater implements QuoteUpdaterInterface
 {
-    use TransactionTrait;
-
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface
      */
@@ -85,23 +82,14 @@ class QuoteUpdater implements QuoteUpdaterInterface
     public function updateByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
-        $self = $this;
-        $restCompanyUserCartsResponseTransfer = null;
-
         try {
-            $this->getTransactionHandler()->handleTransaction(
-                static function () use ($restCompanyUserCartsRequestTransfer, &$restCompanyUserCartsResponseTransfer, $self): void {
-                    $restCompanyUserCartsResponseTransfer = $self->executeUpdateByRestCompanyUserCartsRequest(
-                        $restCompanyUserCartsRequestTransfer,
-                    );
-
-                    if ($restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
-                        return;
-                    }
-
-                    throw new QuoteNotUpdatedException('Quote could not be updated.');
-                },
+            $restCompanyUserCartsResponseTransfer = $this->executeUpdateByRestCompanyUserCartsRequest(
+                $restCompanyUserCartsRequestTransfer,
             );
+
+            if (!$restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
+                throw new QuoteNotUpdatedException('Quote could not be updated.');
+            }
         } catch (QuoteNotUpdatedException $exception) {
         } catch (Throwable $exception) {
             $this->logger->error('Quote could not be updated.', [

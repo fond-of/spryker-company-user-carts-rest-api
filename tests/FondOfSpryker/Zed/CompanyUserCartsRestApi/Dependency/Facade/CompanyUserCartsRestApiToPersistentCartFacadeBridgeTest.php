@@ -18,11 +18,6 @@ class CompanyUserCartsRestApiToPersistentCartFacadeBridgeTest extends Unit
     protected $facadeMock;
 
     /**
-     * @var \Generated\Shared\Transfer\PersistentCartChangeQuantityTransfer|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $persistentCartChangeQuantityTransferMock;
-
-    /**
      * @var \Generated\Shared\Transfer\PersistentCartChangeTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $persistentCartChangeTransferMock;
@@ -58,10 +53,6 @@ class CompanyUserCartsRestApiToPersistentCartFacadeBridgeTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->persistentCartChangeQuantityTransferMock = $this->getMockBuilder(PersistentCartChangeQuantityTransfer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->persistentCartChangeTransferMock = $this->getMockBuilder(PersistentCartChangeTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -94,22 +85,6 @@ class CompanyUserCartsRestApiToPersistentCartFacadeBridgeTest extends Unit
         static::assertEquals(
             $this->quoteResponseTransferMock,
             $this->facadeBridge->add($this->persistentCartChangeTransferMock),
-        );
-    }
-
-    /**
-     * @return void
-     */
-    public function testChangeItemQuantity(): void
-    {
-        $this->facadeMock->expects(static::atLeastOnce())
-            ->method('changeItemQuantity')
-            ->with($this->persistentCartChangeQuantityTransferMock)
-            ->willReturn($this->quoteResponseTransferMock);
-
-        static::assertEquals(
-            $this->quoteResponseTransferMock,
-            $this->facadeBridge->changeItemQuantity($this->persistentCartChangeQuantityTransferMock),
         );
     }
 

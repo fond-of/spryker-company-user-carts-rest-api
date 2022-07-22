@@ -14,13 +14,10 @@ use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 use Psr\Log\LoggerInterface;
-use Spryker\Zed\Kernel\Persistence\EntityManager\TransactionTrait;
 use Throwable;
 
 class QuoteCreator implements QuoteCreatorInterface
 {
-    use TransactionTrait;
-
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface
      */
@@ -86,23 +83,14 @@ class QuoteCreator implements QuoteCreatorInterface
     public function createByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
-        $self = $this;
-        $restCompanyUserCartsResponseTransfer = null;
-
         try {
-            $this->getTransactionHandler()->handleTransaction(
-                static function () use ($restCompanyUserCartsRequestTransfer, &$restCompanyUserCartsResponseTransfer, $self): void {
-                    $restCompanyUserCartsResponseTransfer = $self->executeCreateByRestCompanyUserCartsRequest(
-                        $restCompanyUserCartsRequestTransfer,
-                    );
-
-                    if ($restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
-                        return;
-                    }
-
-                    throw new QuoteNotCreatedException('Quote could not be created.');
-                },
+            $restCompanyUserCartsResponseTransfer = $this->executeCreateByRestCompanyUserCartsRequest(
+                $restCompanyUserCartsRequestTransfer,
             );
+
+            if (!$restCompanyUserCartsResponseTransfer->getIsSuccessful()) {
+                throw new QuoteNotCreatedException('Quote could not be created.');
+            }
         } catch (QuoteNotCreatedException $exception) {
         } catch (Throwable $exception) {
             $this->logger->error('Quote could not be created.', [

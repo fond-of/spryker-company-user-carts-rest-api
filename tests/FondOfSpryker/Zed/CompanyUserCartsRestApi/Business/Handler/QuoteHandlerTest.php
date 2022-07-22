@@ -28,11 +28,6 @@ class QuoteHandlerTest extends Unit
     protected $itemAdderMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $itemUpdaterMock;
-
-    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $itemRemoverMock;
@@ -87,10 +82,6 @@ class QuoteHandlerTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->itemUpdaterMock = $this->getMockBuilder(ItemUpdaterInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->itemRemoverMock = $this->getMockBuilder(ItemRemoverInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -105,11 +96,6 @@ class QuoteHandlerTest extends Unit
 
         $this->categorizedItemTransferMocks = [
             ItemsCategorizerInterface::CATEGORY_ADDABLE => [
-                $this->getMockBuilder(ItemTransfer::class)
-                    ->disableOriginalConstructor()
-                    ->getMock(),
-            ],
-            ItemsCategorizerInterface::CATEGORY_UPDATABLE => [
                 $this->getMockBuilder(ItemTransfer::class)
                     ->disableOriginalConstructor()
                     ->getMock(),
@@ -132,9 +118,6 @@ class QuoteHandlerTest extends Unit
             $this->getMockBuilder(QuoteResponseTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
-            $this->getMockBuilder(QuoteResponseTransfer::class)
-                ->disableOriginalConstructor()
-                ->getMock(),
         ];
 
         $this->quoteErrorTransferMock = $this->getMockBuilder(QuoteErrorTransfer::class)
@@ -144,7 +127,6 @@ class QuoteHandlerTest extends Unit
         $this->quoteHandler = new QuoteHandler(
             $this->itemsCategorizerMock,
             $this->itemAdderMock,
-            $this->itemUpdaterMock,
             $this->itemRemoverMock,
         );
     }
@@ -181,11 +163,11 @@ class QuoteHandlerTest extends Unit
         $this->quoteResponseTransferMocks[0]->expects(static::never())
             ->method('getErrors');
 
-        $this->itemUpdaterMock->expects(static::atLeastOnce())
-            ->method('updateMultiple')
+        $this->itemRemoverMock->expects(static::atLeastOnce())
+            ->method('removeMultiple')
             ->with(
                 $this->quoteTransferMock,
-                $this->categorizedItemTransferMocks[ItemsCategorizerInterface::CATEGORY_UPDATABLE],
+                $this->categorizedItemTransferMocks[ItemsCategorizerInterface::CATEGORY_REMOVABLE],
             )->willReturn($this->quoteResponseTransferMocks[1]);
 
         $this->quoteResponseTransferMocks[1]->expects(static::atLeastOnce())
@@ -196,25 +178,7 @@ class QuoteHandlerTest extends Unit
             ->method('getQuoteTransfer')
             ->willReturn($this->quoteTransferMock);
 
-        $this->quoteResponseTransferMocks[1]->expects(static::never())
-            ->method('getErrors');
-
-        $this->itemRemoverMock->expects(static::atLeastOnce())
-            ->method('removeMultiple')
-            ->with(
-                $this->quoteTransferMock,
-                $this->categorizedItemTransferMocks[ItemsCategorizerInterface::CATEGORY_REMOVABLE],
-            )->willReturn($this->quoteResponseTransferMocks[2]);
-
-        $this->quoteResponseTransferMocks[2]->expects(static::atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(true);
-
-        $this->quoteResponseTransferMocks[2]->expects(static::atLeastOnce())
-            ->method('getQuoteTransfer')
-            ->willReturn($this->quoteTransferMock);
-
-        $this->quoteResponseTransferMocks[2]->expects(static::atLeastOnce())
+        $this->quoteResponseTransferMocks[1]->expects(static::atLeastOnce())
             ->method('getErrors')
             ->willReturn(new ArrayObject());
 
@@ -260,73 +224,6 @@ class QuoteHandlerTest extends Unit
             ->method('getErrors')
             ->willReturn(new ArrayObject([$this->quoteErrorTransferMock]));
 
-        $this->itemUpdaterMock->expects(static::never())
-            ->method('updateMultiple');
-
-        $this->itemRemoverMock->expects(static::never())
-            ->method('removeMultiple');
-
-        $restCompanyUserCartsResponseTransfer = $this->quoteHandler->handle(
-            $this->quoteTransferMock,
-            $this->restCompanyUserCartsRequestTransferMock,
-        );
-
-        static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
-        static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
-        static::assertContains($this->quoteErrorTransferMock, $restCompanyUserCartsResponseTransfer->getErrors());
-        static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());
-    }
-
-    /**
-     * @return void
-     */
-    public function testHandleWithUpdateErrors(): void
-    {
-        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
-            ->method('getCart')
-            ->willReturn($this->restCartsRequestAttributesTransferMock);
-
-        $this->itemsCategorizerMock->expects(static::atLeastOnce())
-            ->method('categorize')
-            ->with($this->quoteTransferMock, $this->restCartsRequestAttributesTransferMock)
-            ->willReturn($this->categorizedItemTransferMocks);
-
-        $this->itemAdderMock->expects(static::atLeastOnce())
-            ->method('addMultiple')
-            ->with(
-                $this->quoteTransferMock,
-                $this->categorizedItemTransferMocks[ItemsCategorizerInterface::CATEGORY_ADDABLE],
-            )->willReturn($this->quoteResponseTransferMocks[0]);
-
-        $this->quoteResponseTransferMocks[0]->expects(static::atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(true);
-
-        $this->quoteResponseTransferMocks[0]->expects(static::atLeastOnce())
-            ->method('getQuoteTransfer')
-            ->willReturn($this->quoteTransferMock);
-
-        $this->quoteResponseTransferMocks[0]->expects(static::never())
-            ->method('getErrors');
-
-        $this->itemUpdaterMock->expects(static::atLeastOnce())
-            ->method('updateMultiple')
-            ->with(
-                $this->quoteTransferMock,
-                $this->categorizedItemTransferMocks[ItemsCategorizerInterface::CATEGORY_UPDATABLE],
-            )->willReturn($this->quoteResponseTransferMocks[1]);
-
-        $this->quoteResponseTransferMocks[1]->expects(static::atLeastOnce())
-            ->method('getIsSuccessful')
-            ->willReturn(false);
-
-        $this->quoteResponseTransferMocks[1]->expects(static::never())
-            ->method('getQuoteTransfer');
-
-        $this->quoteResponseTransferMocks[1]->expects(static::atLeastOnce())
-            ->method('getErrors')
-            ->willReturn(new ArrayObject([$this->quoteErrorTransferMock]));
-
         $this->itemRemoverMock->expects(static::never())
             ->method('removeMultiple');
 
@@ -355,9 +252,6 @@ class QuoteHandlerTest extends Unit
 
         $this->itemAdderMock->expects(static::never())
             ->method('addMultiple');
-
-        $this->itemUpdaterMock->expects(static::never())
-            ->method('updateMultiple');
 
         $this->itemRemoverMock->expects(static::never())
             ->method('removeMultiple');

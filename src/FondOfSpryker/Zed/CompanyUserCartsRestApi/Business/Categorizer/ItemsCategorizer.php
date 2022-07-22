@@ -43,14 +43,14 @@ class ItemsCategorizer implements ItemsCategorizerInterface
     ): array {
         $categorisedItemTransfers = [
             static::CATEGORY_ADDABLE => [],
-            static::CATEGORY_UPDATABLE => [],
             static::CATEGORY_REMOVABLE => [],
         ];
 
         foreach ($restCartsRequestAttributesTransfer->getItems() as $restCartItemTransfer) {
             $oldItemTransfer = $this->itemFinder->findInQuoteByRestCartItem($quoteTransfer, $restCartItemTransfer);
+            $newQuantity = $restCartItemTransfer->getQuantity();
 
-            if ($oldItemTransfer === null && $restCartItemTransfer->getQuantity() > 0) {
+            if ($oldItemTransfer === null && $newQuantity > 0) {
                 $categorisedItemTransfers[static::CATEGORY_ADDABLE][] = $this->itemMapper->fromRestCartItem(
                     $restCartItemTransfer,
                 );
@@ -58,7 +58,7 @@ class ItemsCategorizer implements ItemsCategorizerInterface
                 continue;
             }
 
-            if ($oldItemTransfer !== null && $restCartItemTransfer->getQuantity() === 0) {
+            if ($oldItemTransfer !== null && $newQuantity === 0) {
                 $categorisedItemTransfers[static::CATEGORY_REMOVABLE][] = $this->itemMapper->fromRestCartItem(
                     $restCartItemTransfer,
                 );
@@ -66,10 +66,18 @@ class ItemsCategorizer implements ItemsCategorizerInterface
                 continue;
             }
 
-            if ($oldItemTransfer !== null && $oldItemTransfer->getQuantity() !== $restCartItemTransfer->getQuantity()) {
-                $categorisedItemTransfers[static::CATEGORY_UPDATABLE][] = $this->itemMapper->fromRestCartItem(
+            if ($oldItemTransfer !== null && $newQuantity - $oldItemTransfer->getQuantity() < 0) {
+                $categorisedItemTransfers[static::CATEGORY_REMOVABLE][] = $this->itemMapper->fromRestCartItem(
                     $restCartItemTransfer,
-                );
+                )->setQuantity(abs($newQuantity - $oldItemTransfer->getQuantity()));
+
+                continue;
+            }
+
+            if ($oldItemTransfer !== null && $newQuantity - $oldItemTransfer->getQuantity() > 0) {
+                $categorisedItemTransfers[static::CATEGORY_ADDABLE][] = $this->itemMapper->fromRestCartItem(
+                    $restCartItemTransfer,
+                )->setQuantity($newQuantity - $oldItemTransfer->getQuantity());
             }
         }
 

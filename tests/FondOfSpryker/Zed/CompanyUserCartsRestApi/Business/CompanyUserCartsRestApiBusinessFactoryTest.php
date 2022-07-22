@@ -127,12 +127,10 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
             )->willReturnOnConsecutiveCalls(
                 $this->companyUserReferenceFacadeMock,
-                $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->quoteFacadeMock,
@@ -161,10 +159,8 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
-                $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,
                 $this->persistentCartFacadeMock,

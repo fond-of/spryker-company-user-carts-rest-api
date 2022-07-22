@@ -30,8 +30,6 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemover;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdater;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
@@ -144,7 +142,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
         return new QuoteHandler(
             $this->createItemsCategorizer(),
             $this->createItemAdder(),
-            $this->createItemUpdater(),
             $this->createItemRemover(),
         );
     }
@@ -182,14 +179,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function createItemAdder(): ItemAdderInterface
     {
         return new ItemAdder($this->getPersistentCartFacade());
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface
-     */
-    protected function createItemUpdater(): ItemUpdaterInterface
-    {
-        return new ItemUpdater($this->getPersistentCartFacade());
     }
 
     /**

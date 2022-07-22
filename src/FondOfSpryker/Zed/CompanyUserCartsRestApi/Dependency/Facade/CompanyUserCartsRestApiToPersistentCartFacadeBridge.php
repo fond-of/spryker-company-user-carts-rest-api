@@ -36,16 +36,6 @@ class CompanyUserCartsRestApiToPersistentCartFacadeBridge implements
     }
 
     /**
-     * @param \Generated\Shared\Transfer\PersistentCartChangeQuantityTransfer $persistentCartChangeQuantityTransfer
-     *
-     * @return \Generated\Shared\Transfer\QuoteResponseTransfer
-     */
-    public function changeItemQuantity(PersistentCartChangeQuantityTransfer $persistentCartChangeQuantityTransfer): QuoteResponseTransfer
-    {
-        return $this->persistentCartFacade->changeItemQuantity($persistentCartChangeQuantityTransfer);
-    }
-
-    /**
      * @param \Generated\Shared\Transfer\PersistentCartChangeTransfer $persistentCartChangeTransfer
      *
      * @return \Generated\Shared\Transfer\QuoteResponseTransfer

@@ -23,11 +23,6 @@ class QuoteHandler implements QuoteHandlerInterface
     protected $itemAdder;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface
-     */
-    protected $itemUpdater;
-
-    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface
      */
     protected $itemRemover;
@@ -35,18 +30,15 @@ class QuoteHandler implements QuoteHandlerInterface
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizerInterface $itemsCategorizer
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdderInterface $itemAdder
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface $itemUpdater
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface $itemRemover
      */
     public function __construct(
         ItemsCategorizerInterface $itemsCategorizer,
         ItemAdderInterface $itemAdder,
-        ItemUpdaterInterface $itemUpdater,
         ItemRemoverInterface $itemRemover
     ) {
         $this->itemsCategorizer = $itemsCategorizer;
         $this->itemAdder = $itemAdder;
-        $this->itemUpdater = $itemUpdater;
         $this->itemRemover = $itemRemover;
     }
 
@@ -76,17 +68,6 @@ class QuoteHandler implements QuoteHandlerInterface
         $quoteResponseTransfer = $this->itemAdder->addMultiple(
             $quoteTransfer,
             $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE],
-        );
-
-        if (!$quoteResponseTransfer->getIsSuccessful() || $quoteResponseTransfer->getQuoteTransfer() === null) {
-            return (new RestCompanyUserCartsResponseTransfer())
-                ->setErrors($quoteResponseTransfer->getErrors())
-                ->setIsSuccessful(false);
-        }
-
-        $quoteResponseTransfer = $this->itemUpdater->updateMultiple(
-            $quoteResponseTransfer->getQuoteTransfer(),
-            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_UPDATABLE],
         );
 
         if (!$quoteResponseTransfer->getIsSuccessful() || $quoteResponseTransfer->getQuoteTransfer() === null) {

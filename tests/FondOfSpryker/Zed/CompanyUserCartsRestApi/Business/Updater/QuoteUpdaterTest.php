@@ -57,11 +57,6 @@ class QuoteUpdaterTest extends Unit
     protected $loggerMock;
 
     /**
-     * @var \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $transactionHandlerMock;
-
-    /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $restCompanyUserCartsRequestTransferMock;
@@ -122,10 +117,6 @@ class QuoteUpdaterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->transactionHandlerMock = $this->getMockBuilder(TransactionHandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->restCompanyUserCartsRequestTransferMock = $this->getMockBuilder(RestCompanyUserCartsRequestTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -146,58 +137,14 @@ class QuoteUpdaterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->quoteUpdater = new class (
+        $this->quoteUpdater = new QuoteUpdater(
             $this->quoteFinderMock,
             $this->quoteExpanderMock,
             $this->quoteUpdateRequestMapperMock,
             $this->quoteHandlerMock,
             $this->persistentCartFacadeMock,
-            $this->loggerMock,
-            $this->transactionHandlerMock
-        ) extends QuoteUpdater {
-            /**
-             * @var \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface
-             */
-            protected $transactionHandler;
-
-            /**
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface $quoteUpdateRequestMapper
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
-             * @param \Psr\Log\LoggerInterface $logger
-             * @param \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface $transactionHandler
-             */
-            public function __construct(
-                QuoteFinderInterface $quoteFinder,
-                QuoteExpanderInterface $quoteExpander,
-                QuoteUpdateRequestMapperInterface $quoteUpdateRequestMapper,
-                QuoteHandlerInterface $quoteHandler,
-                CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade,
-                LoggerInterface $logger,
-                TransactionHandlerInterface $transactionHandler
-            ) {
-                parent::__construct(
-                    $quoteFinder,
-                    $quoteExpander,
-                    $quoteUpdateRequestMapper,
-                    $quoteHandler,
-                    $persistentCartFacade,
-                    $logger,
-                );
-
-                $this->transactionHandler = $transactionHandler;
-            }
-
-            /**
-             * @return \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface
-             */
-            public function getTransactionHandler(): TransactionHandlerInterface
-            {
-                return $this->transactionHandler;
-            }
-        };
+            $this->loggerMock
+        );
     }
 
     /**
@@ -206,14 +153,6 @@ class QuoteUpdaterTest extends Unit
     public function testUpdate(): void
     {
         $idQuote = 1;
-
-        $this->transactionHandlerMock->expects(static::atLeastOnce())
-            ->method('handleTransaction')
-            ->willReturnCallback(
-                static function ($callable) {
-                    $callable();
-                },
-            );
 
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
@@ -289,14 +228,6 @@ class QuoteUpdaterTest extends Unit
      */
     public function testUpdateWithNonExistingQuote(): void
     {
-        $this->transactionHandlerMock->expects(static::atLeastOnce())
-            ->method('handleTransaction')
-            ->willReturnCallback(
-                static function ($callable) {
-                    $callable();
-                },
-            );
-
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -349,14 +280,6 @@ class QuoteUpdaterTest extends Unit
      */
     public function testUpdateWithError(): void
     {
-        $this->transactionHandlerMock->expects(static::atLeastOnce())
-            ->method('handleTransaction')
-            ->willReturnCallback(
-                static function ($callable) {
-                    $callable();
-                },
-            );
-
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -427,14 +350,6 @@ class QuoteUpdaterTest extends Unit
      */
     public function testUpdateWithInvalidHandle(): void
     {
-        $this->transactionHandlerMock->expects(static::atLeastOnce())
-            ->method('handleTransaction')
-            ->willReturnCallback(
-                static function ($callable) {
-                    $callable();
-                },
-            );
-
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -505,12 +420,9 @@ class QuoteUpdaterTest extends Unit
     {
         $exception = new Exception('Foo bar');
 
-        $this->transactionHandlerMock->expects(static::atLeastOnce())
-            ->method('handleTransaction')
+        $this->quoteFinderMock->expects(static::atLeastOnce())
+            ->method('findOneByRestCompanyUserCartsRequest')
             ->willThrowException($exception);
-
-        $this->quoteFinderMock->expects(static::never())
-            ->method('findOneByRestCompanyUserCartsRequest');
 
         $this->quoteExpanderMock->expects(static::never())
             ->method('expand');

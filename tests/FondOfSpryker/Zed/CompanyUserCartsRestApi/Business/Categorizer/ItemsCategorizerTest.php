@@ -83,6 +83,9 @@ class ItemsCategorizerTest extends Unit
             $this->getMockBuilder(ItemTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
+            $this->getMockBuilder(ItemTransfer::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
         ];
 
         $this->newItemTransferMocks = [
@@ -95,9 +98,15 @@ class ItemsCategorizerTest extends Unit
             $this->getMockBuilder(ItemTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
+            $this->getMockBuilder(ItemTransfer::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
         ];
 
         $this->restCartItemTransferMocks = [
+            $this->getMockBuilder(RestCartItemTransfer::class)
+                ->disableOriginalConstructor()
+                ->getMock(),
             $this->getMockBuilder(RestCartItemTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
@@ -120,8 +129,8 @@ class ItemsCategorizerTest extends Unit
      */
     public function testCategorize(): void
     {
-        $newQuantities = [2, 0, 2];
-        $currentQuantity = 1;
+        $newQuantities = [2, 0, 2, 1];
+        $currentQuantities = [1, 2];
 
         $this->restCartRequestAttributesTransferMock->expects(static::atLeastOnce())
             ->method('getItems')
@@ -133,10 +142,12 @@ class ItemsCategorizerTest extends Unit
                 [$this->quoteTransferMock, $this->restCartItemTransferMocks[0]],
                 [$this->quoteTransferMock, $this->restCartItemTransferMocks[1]],
                 [$this->quoteTransferMock, $this->restCartItemTransferMocks[2]],
+                [$this->quoteTransferMock, $this->restCartItemTransferMocks[3]],
             )->willReturnOnConsecutiveCalls(
                 null,
                 $this->itemTransferMocks[0],
                 $this->itemTransferMocks[1],
+                $this->itemTransferMocks[2],
             );
 
         $this->itemMapperMock->expects(static::atLeastOnce())
@@ -145,10 +156,12 @@ class ItemsCategorizerTest extends Unit
                 [$this->restCartItemTransferMocks[0]],
                 [$this->restCartItemTransferMocks[1]],
                 [$this->restCartItemTransferMocks[2]],
+                [$this->restCartItemTransferMocks[3]],
             )->willReturnOnConsecutiveCalls(
                 $this->newItemTransferMocks[0],
                 $this->newItemTransferMocks[1],
                 $this->newItemTransferMocks[2],
+                $this->newItemTransferMocks[3],
             );
 
         $this->restCartItemTransferMocks[0]->expects(static::atLeastOnce())
@@ -165,16 +178,33 @@ class ItemsCategorizerTest extends Unit
 
         $this->itemTransferMocks[1]->expects(static::atLeastOnce())
             ->method('getQuantity')
-            ->willReturn($currentQuantity);
+            ->willReturn($currentQuantities[0]);
+
+        $this->newItemTransferMocks[2]->expects(static::atLeastOnce())
+            ->method('setQuantity')
+            ->with($newQuantities[2] - $currentQuantities[0])
+            ->willReturn($this->newItemTransferMocks[2]);
+
+        $this->restCartItemTransferMocks[3]->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($newQuantities[3]);
+
+        $this->itemTransferMocks[2]->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($currentQuantities[1]);
+
+        $this->newItemTransferMocks[3]->expects(static::atLeastOnce())
+            ->method('setQuantity')
+            ->with(abs($newQuantities[3] - $currentQuantities[1]))
+            ->willReturn($this->newItemTransferMocks[3]);
 
         $categorisedItemTransfers = $this->itemsCategorizer->categorize(
             $this->quoteTransferMock,
             $this->restCartRequestAttributesTransferMock,
         );
 
-        static::assertCount(1, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE]);
-        static::assertCount(1, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE]);
-        static::assertCount(1, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_UPDATABLE]);
+        static::assertCount(2, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE]);
+        static::assertCount(2, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE]);
 
         static::assertEquals(
             $this->newItemTransferMocks[0],
@@ -188,7 +218,12 @@ class ItemsCategorizerTest extends Unit
 
         static::assertEquals(
             $this->newItemTransferMocks[2],
-            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_UPDATABLE][0],
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE][1],
+        );
+
+        static::assertEquals(
+            $this->newItemTransferMocks[3],
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE][1],
         );
     }
 }
