@@ -22,21 +22,17 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapper;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapper;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReader;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemover;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover\ItemRemoverInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdater;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Spryker\Shared\Log\LoggerTrait;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
@@ -58,7 +54,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteMapper(),
             $this->createQuoteHandler(),
             $this->createQuoteFinder(),
-            $this->getPersistentCartFacade(),
+            $this->getQuoteFacade(),
             $this->getLogger(),
         );
     }
@@ -71,9 +67,8 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
         return new QuoteUpdater(
             $this->createQuoteFinder(),
             $this->createQuoteExpander(),
-            $this->createQuoteUpdateRequestMapper(),
             $this->createQuoteHandler(),
-            $this->getPersistentCartFacade(),
+            $this->getQuoteFacade(),
             $this->getLogger(),
         );
     }
@@ -129,14 +124,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     }
 
     /**
-     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteUpdateRequestMapperInterface
-     */
-    protected function createQuoteUpdateRequestMapper(): QuoteUpdateRequestMapperInterface
-    {
-        return new QuoteUpdateRequestMapper();
-    }
-
-    /**
      * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface
      */
     protected function createQuoteHandler(): QuoteHandlerInterface
@@ -144,7 +131,6 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
         return new QuoteHandler(
             $this->createItemsCategorizer(),
             $this->createItemAdder(),
-            $this->createItemUpdater(),
             $this->createItemRemover(),
         );
     }
@@ -181,15 +167,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
      */
     protected function createItemAdder(): ItemAdderInterface
     {
-        return new ItemAdder($this->getPersistentCartFacade());
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\ItemUpdaterInterface
-     */
-    protected function createItemUpdater(): ItemUpdaterInterface
-    {
-        return new ItemUpdater($this->getPersistentCartFacade());
+        return new ItemAdder($this->getCartFacade());
     }
 
     /**
@@ -197,15 +175,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
      */
     protected function createItemRemover(): ItemRemoverInterface
     {
-        return new ItemRemover($this->getPersistentCartFacade());
-    }
-
-    /**
-     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
-     */
-    protected function getPersistentCartFacade(): CompanyUserCartsRestApiToPersistentCartFacadeInterface
-    {
-        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART);
+        return new ItemRemover($this->getCartFacade());
     }
 
     /**
@@ -230,5 +200,13 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function getCompanyUserReferenceFacade(): CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE);
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface
+     */
+    protected function getCartFacade(): CompanyUserCartsRestApiToCartFacadeInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_CART);
     }
 }

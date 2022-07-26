@@ -2,8 +2,8 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi;
 
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge;
 use Spryker\Zed\Kernel\AbstractBundleDependencyProvider;
 use Spryker\Zed\Kernel\Container;
@@ -16,7 +16,7 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     /**
      * @var string
      */
-    public const FACADE_PERSISTENT_CART = 'FACADE_PERSISTENT_CART';
+    public const FACADE_CART = 'FACADE_CART';
 
     /**
      * @var string
@@ -37,26 +37,10 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
     {
         $container = parent::provideBusinessLayerDependencies($container);
 
-        $container = $this->addPersistentCartFacade($container);
+        $container = $this->addCartFacade($container);
         $container = $this->addQuoteFacade($container);
 
         return $this->addCompanyUserReferenceFacade($container);
-    }
-
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
-    protected function addPersistentCartFacade(Container $container): Container
-    {
-        $container[static::FACADE_PERSISTENT_CART] = static function (Container $container) {
-            return new CompanyUserCartsRestApiToPersistentCartFacadeBridge(
-                $container->getLocator()->persistentCart()->facade(),
-            );
-        };
-
-        return $container;
     }
 
     /**
@@ -85,6 +69,22 @@ class CompanyUserCartsRestApiDependencyProvider extends AbstractBundleDependency
         $container[static::FACADE_COMPANY_USER_REFERENCE] = static function (Container $container) {
             return new CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge(
                 $container->getLocator()->companyUserReference()->facade(),
+            );
+        };
+
+        return $container;
+    }
+
+    /**
+     * @param \Spryker\Zed\Kernel\Container $container
+     *
+     * @return \Spryker\Zed\Kernel\Container
+     */
+    protected function addCartFacade(Container $container): Container
+    {
+        $container[static::FACADE_CART] = static function (Container $container) {
+            return new CompanyUserCartsRestApiToCartFacadeBridge(
+                $container->getLocator()->cart()->facade(),
             );
         };
 

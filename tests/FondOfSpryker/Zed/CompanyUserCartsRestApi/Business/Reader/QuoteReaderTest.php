@@ -179,4 +179,55 @@ class QuoteReaderTest extends Unit
             $this->quoteReader->getByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testGetByIdQuote(): void
+    {
+        $idQuote = 1;
+
+        $this->quoteFacadeMock->expects(static::atLeastOnce())
+            ->method('findQuoteById')
+            ->with($idQuote)
+            ->willReturn($this->quoteResponseTransferMock);
+
+        $this->quoteResponseTransferMock->expects(static::atLeastOnce())
+            ->method('getQuoteTransfer')
+            ->willReturn($this->quoteTransferMock);
+
+        $this->quoteResponseTransferMock->expects(static::atLeastOnce())
+            ->method('getIsSuccessful')
+            ->willReturn(true);
+
+        static::assertEquals(
+            $this->quoteTransferMock,
+            $this->quoteReader->getByIdQuote($idQuote),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetByIdQuoteWithError(): void
+    {
+        $idQuote = 1;
+
+        $this->quoteFacadeMock->expects(static::atLeastOnce())
+            ->method('findQuoteById')
+            ->with($idQuote)
+            ->willReturn($this->quoteResponseTransferMock);
+
+        $this->quoteResponseTransferMock->expects(static::atLeastOnce())
+            ->method('getQuoteTransfer')
+            ->willReturn(null);
+
+        $this->quoteResponseTransferMock->expects(static::never())
+            ->method('getIsSuccessful');
+
+        static::assertEquals(
+            null,
+            $this->quoteReader->getByIdQuote($idQuote),
+        );
+    }
 }

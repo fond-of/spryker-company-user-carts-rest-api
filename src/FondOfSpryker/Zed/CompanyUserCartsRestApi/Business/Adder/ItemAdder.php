@@ -3,25 +3,25 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder;
 
 use ArrayObject;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
-use Generated\Shared\Transfer\PersistentCartChangeTransfer;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface;
+use Generated\Shared\Transfer\CartChangeTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 class ItemAdder implements ItemAdderInterface
 {
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface
      */
-    protected $persistentCartFacade;
+    protected $cartFacade;
 
     /**
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface $cartFacade
      */
     public function __construct(
-        CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
+        CompanyUserCartsRestApiToCartFacadeInterface $cartFacade
     ) {
-        $this->persistentCartFacade = $persistentCartFacade;
+        $this->cartFacade = $cartFacade;
     }
 
     /**
@@ -38,11 +38,10 @@ class ItemAdder implements ItemAdderInterface
                 ->setIsSuccessful(true);
         }
 
-        $persistentCartChangeTransfer = (new PersistentCartChangeTransfer())
-            ->setCustomer($quoteTransfer->getCustomer())
-            ->setIdQuote($quoteTransfer->getIdQuote())
+        $cartChangeTransfer = (new CartChangeTransfer())
+            ->setQuote($quoteTransfer)
             ->setItems(new ArrayObject($itemTransfers));
 
-        return $this->persistentCartFacade->add($persistentCartChangeTransfer);
+        return $this->cartFacade->addToCart($cartChangeTransfer);
     }
 }
