@@ -9,8 +9,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge;
 use Psr\Log\LoggerInterface;
 use Spryker\Shared\Log\Config\LoggerConfigInterface;
@@ -24,9 +24,9 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
     protected $configMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeBridge|\PHPUnit\Framework\MockObject\MockObject
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeBridge|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $persistentCartFacadeMock;
+    protected $cartFacadeMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge|\PHPUnit\Framework\MockObject\MockObject
@@ -64,7 +64,7 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->persistentCartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPersistentCartFacadeBridge::class)
+        $this->cartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToCartFacadeBridge::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -125,18 +125,16 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->method('get')
             ->withConsecutive(
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->companyUserReferenceFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
+                $this->cartFacadeMock,
+                $this->cartFacadeMock,
                 $this->quoteFacadeMock,
-                $this->persistentCartFacadeMock,
+                $this->quoteFacadeMock,
             );
 
         static::assertInstanceOf(
@@ -158,16 +156,14 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->method('get')
             ->withConsecutive(
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERSISTENT_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
-                $this->persistentCartFacadeMock,
+                $this->cartFacadeMock,
+                $this->cartFacadeMock,
+                $this->quoteFacadeMock,
             );
 
         static::assertInstanceOf(

@@ -15,11 +15,6 @@ interface ItemsCategorizerInterface
     /**
      * @var string
      */
-    public const CATEGORY_UPDATABLE = 'updatable';
-
-    /**
-     * @var string
-     */
     public const CATEGORY_REMOVABLE = 'removable';
 
     /**

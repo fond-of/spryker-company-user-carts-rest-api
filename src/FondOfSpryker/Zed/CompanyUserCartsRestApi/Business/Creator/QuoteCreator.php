@@ -9,7 +9,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterfa
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
@@ -42,9 +42,9 @@ class QuoteCreator implements QuoteCreatorInterface
     protected $quoteFinder;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface
      */
-    protected $persistentCartFacade;
+    protected $quoteFacade;
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -56,7 +56,7 @@ class QuoteCreator implements QuoteCreatorInterface
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface $quoteMapper
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
@@ -64,14 +64,14 @@ class QuoteCreator implements QuoteCreatorInterface
         QuoteMapperInterface $quoteMapper,
         QuoteHandlerInterface $quoteHandler,
         QuoteFinderInterface $quoteFinder,
-        CompanyUserCartsRestApiToPersistentCartFacadeInterface $persistentCartFacade,
+        CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade,
         LoggerInterface $logger
     ) {
         $this->companyUserReader = $companyUserReader;
         $this->quoteMapper = $quoteMapper;
         $this->quoteHandler = $quoteHandler;
         $this->quoteFinder = $quoteFinder;
-        $this->persistentCartFacade = $persistentCartFacade;
+        $this->quoteFacade = $quoteFacade;
         $this->logger = $logger;
     }
 
@@ -137,15 +137,16 @@ class QuoteCreator implements QuoteCreatorInterface
         }
 
         $quoteTransfer = $this->quoteMapper->fromRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
-        $quoteResponseTransfer = $this->persistentCartFacade->createQuote($quoteTransfer);
+        $quoteResponseTransfer = $this->quoteFacade->createQuote($quoteTransfer);
         $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
 
-        if ($quoteTransfer === null || !$quoteResponseTransfer->getIsSuccessful()) {
-            $quoteErrorTransfer = (new QuoteErrorTransfer())
-                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_CREATED);
-
-            return (new RestCompanyUserCartsResponseTransfer())->addError($quoteErrorTransfer)
-                ->setIsSuccessful(false);
+        if (
+            $quoteTransfer === null
+            || $quoteTransfer->getIdQuote() === null
+            || !$quoteResponseTransfer->getIsSuccessful()
+        ) {
+            return (new RestCompanyUserCartsResponseTransfer())->setIsSuccessful(false)
+                ->setErrors($quoteResponseTransfer->getErrors());
         }
 
         $restCompanyUserCartsResponseTransfer = $this->quoteHandler->handle(
@@ -161,6 +162,18 @@ class QuoteCreator implements QuoteCreatorInterface
             || !$restCompanyUserCartsResponseTransfer->getIsSuccessful()
         ) {
             return $restCompanyUserCartsResponseTransfer;
+        }
+
+        $quoteResponseTransfer = $this->quoteFacade->updateQuote($quoteTransfer);
+        $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
+
+        if (
+            $quoteTransfer === null
+            || $quoteTransfer->getIdQuote() === null
+            || !$quoteResponseTransfer->getIsSuccessful()
+        ) {
+            return (new RestCompanyUserCartsResponseTransfer())->setIsSuccessful(false)
+                ->setErrors($quoteResponseTransfer->getErrors());
         }
 
         return $this->quoteFinder->findByIdQuote($quoteTransfer->getIdQuote());

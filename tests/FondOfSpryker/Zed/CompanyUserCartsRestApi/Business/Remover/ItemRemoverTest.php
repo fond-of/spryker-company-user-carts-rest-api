@@ -3,19 +3,18 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Remover;
 
 use Codeception\Test\Unit;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
-use Generated\Shared\Transfer\CustomerTransfer;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface;
+use Generated\Shared\Transfer\CartChangeTransfer;
 use Generated\Shared\Transfer\ItemTransfer;
-use Generated\Shared\Transfer\PersistentCartChangeTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 class ItemRemoverTest extends Unit
 {
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $persistentCartFacadeMock;
+    protected $cartFacadeMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -26,11 +25,6 @@ class ItemRemoverTest extends Unit
      * @var \Generated\Shared\Transfer\ItemTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $itemTransferMock;
-
-    /**
-     * @var \Generated\Shared\Transfer\CustomerTransfer|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $customerTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -49,7 +43,7 @@ class ItemRemoverTest extends Unit
     {
         parent::_before();
 
-        $this->persistentCartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPersistentCartFacadeInterface::class)
+        $this->cartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToCartFacadeInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -61,15 +55,11 @@ class ItemRemoverTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->customerTransferMock = $this->getMockBuilder(CustomerTransfer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->quoteResponseTransferMock = $this->getMockBuilder(QuoteResponseTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->itemRemover = new ItemRemover($this->persistentCartFacadeMock);
+        $this->itemRemover = new ItemRemover($this->cartFacadeMock);
     }
 
     /**
@@ -78,25 +68,15 @@ class ItemRemoverTest extends Unit
     public function testRemoveMultiple(): void
     {
         $self = $this;
-        $idQuote = 1;
 
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn($this->customerTransferMock);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getIdQuote')
-            ->willReturn($idQuote);
-
-        $this->persistentCartFacadeMock->expects(static::atLeastOnce())
-            ->method('remove')
+        $this->cartFacadeMock->expects(static::atLeastOnce())
+            ->method('removeFromCart')
             ->with(
                 static::callback(
-                    static function (PersistentCartChangeTransfer $persistentCartChangeTransfer) use ($self, $idQuote) {
-                        return $persistentCartChangeTransfer->getCustomer() === $self->customerTransferMock
-                            && $persistentCartChangeTransfer->getIdQuote() === $idQuote
-                            && $persistentCartChangeTransfer->getItems()->count() === 1
-                            && $persistentCartChangeTransfer->getItems()->offsetGet(0) === $self->itemTransferMock;
+                    static function (CartChangeTransfer $cartChangeTransfer) use ($self) {
+                        return $cartChangeTransfer->getQuote() === $self->quoteTransferMock
+                            && $cartChangeTransfer->getItems()->count() === 1
+                            && $cartChangeTransfer->getItems()->offsetGet(0) === $self->itemTransferMock;
                     },
                 ),
             )->willReturn($this->quoteResponseTransferMock);
@@ -112,14 +92,8 @@ class ItemRemoverTest extends Unit
      */
     public function testRemoveMultipleWithEmptyItems(): void
     {
-        $this->quoteTransferMock->expects(static::never())
-            ->method('getCustomer');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('getIdQuote');
-
-        $this->persistentCartFacadeMock->expects(static::never())
-            ->method('remove');
+        $this->cartFacadeMock->expects(static::never())
+            ->method('removeFromCart');
 
         $quoteResponseTransfer = $this->itemRemover->removeMultiple($this->quoteTransferMock, []);
 

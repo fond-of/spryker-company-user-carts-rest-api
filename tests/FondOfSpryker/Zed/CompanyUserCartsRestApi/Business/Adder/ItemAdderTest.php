@@ -3,19 +3,18 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder;
 
 use Codeception\Test\Unit;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface;
-use Generated\Shared\Transfer\CustomerTransfer;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface;
+use Generated\Shared\Transfer\CartChangeTransfer;
 use Generated\Shared\Transfer\ItemTransfer;
-use Generated\Shared\Transfer\PersistentCartChangeTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 
 class ItemAdderTest extends Unit
 {
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPersistentCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $persistentCartFacadeMock;
+    protected $cartFacadeMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -49,7 +48,7 @@ class ItemAdderTest extends Unit
     {
         parent::_before();
 
-        $this->persistentCartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPersistentCartFacadeInterface::class)
+        $this->cartFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToCartFacadeInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -61,15 +60,11 @@ class ItemAdderTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->customerTransferMock = $this->getMockBuilder(CustomerTransfer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->quoteResponseTransferMock = $this->getMockBuilder(QuoteResponseTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->itemAdder = new ItemAdder($this->persistentCartFacadeMock);
+        $this->itemAdder = new ItemAdder($this->cartFacadeMock);
     }
 
     /**
@@ -78,25 +73,15 @@ class ItemAdderTest extends Unit
     public function testAddMultiple(): void
     {
         $self = $this;
-        $idQuote = 1;
 
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getCustomer')
-            ->willReturn($this->customerTransferMock);
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getIdQuote')
-            ->willReturn($idQuote);
-
-        $this->persistentCartFacadeMock->expects(static::atLeastOnce())
-            ->method('add')
+        $this->cartFacadeMock->expects(static::atLeastOnce())
+            ->method('addToCart')
             ->with(
                 static::callback(
-                    static function (PersistentCartChangeTransfer $persistentCartChangeTransfer) use ($self, $idQuote) {
-                        return $persistentCartChangeTransfer->getCustomer() === $self->customerTransferMock
-                            && $persistentCartChangeTransfer->getIdQuote() === $idQuote
-                            && $persistentCartChangeTransfer->getItems()->count() === 1
-                            && $persistentCartChangeTransfer->getItems()->offsetGet(0) === $self->itemTransferMock;
+                    static function (CartChangeTransfer $cartChangeTransfer) use ($self) {
+                        return $cartChangeTransfer->getQuote() === $self->quoteTransferMock
+                            && $cartChangeTransfer->getItems()->count() === 1
+                            && $cartChangeTransfer->getItems()->offsetGet(0) === $self->itemTransferMock;
                     },
                 ),
             )->willReturn($this->quoteResponseTransferMock);
@@ -112,14 +97,8 @@ class ItemAdderTest extends Unit
      */
     public function testAddMultipleWithEmptyItems(): void
     {
-        $this->quoteTransferMock->expects(static::never())
-            ->method('getCustomer');
-
-        $this->quoteTransferMock->expects(static::never())
-            ->method('getIdQuote');
-
-        $this->persistentCartFacadeMock->expects(static::never())
-            ->method('add');
+        $this->cartFacadeMock->expects(static::never())
+            ->method('addToCart');
 
         $quoteResponseTransfer = $this->itemAdder->addMultiple($this->quoteTransferMock, []);
 
