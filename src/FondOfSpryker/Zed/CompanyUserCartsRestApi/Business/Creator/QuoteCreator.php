@@ -136,7 +136,8 @@ class QuoteCreator implements QuoteCreatorInterface
                 ->setErrors(new ArrayObject([$quoteErrorTransfer]));
         }
 
-        $quoteTransfer = $this->quoteMapper->fromRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
+        $quoteTransfer = $this->quoteMapper->fromRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer)
+            ->setCompanyUser($companyUserTransfer);
         $quoteResponseTransfer = $this->quoteFacade->createQuote($quoteTransfer);
         $quoteTransfer = $quoteResponseTransfer->getQuoteTransfer();
 

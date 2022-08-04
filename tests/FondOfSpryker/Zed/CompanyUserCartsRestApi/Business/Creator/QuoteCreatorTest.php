@@ -221,6 +221,11 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('setCompanyUser')
+            ->with($this->companyUserTransferMock)
+            ->willReturn($this->quoteTransferMock);
+
         $this->quoteFacadeMock->expects(static::atLeastOnce())
             ->method('createQuote')
             ->with($this->quoteTransferMock)
@@ -296,6 +301,11 @@ class QuoteCreatorTest extends Unit
         $this->quoteMapperMock->expects(static::atLeastOnce())
             ->method('fromRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->quoteTransferMock);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('setCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn($this->quoteTransferMock);
 
         $this->quoteFacadeMock->expects(static::atLeastOnce())
@@ -425,6 +435,11 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->quoteTransferMock);
 
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('setCompanyUser')
+            ->with($this->companyUserTransferMock)
+            ->willReturn($this->quoteTransferMock);
+
         $this->quoteFacadeMock->expects(static::atLeastOnce())
             ->method('createQuote')
             ->with($this->quoteTransferMock)
@@ -495,6 +510,11 @@ class QuoteCreatorTest extends Unit
         $this->quoteMapperMock->expects(static::atLeastOnce())
             ->method('fromRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn($this->quoteTransferMock);
+
+        $this->quoteTransferMock->expects(static::atLeastOnce())
+            ->method('setCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn($this->quoteTransferMock);
 
         $this->quoteFacadeMock->expects(static::atLeastOnce())
