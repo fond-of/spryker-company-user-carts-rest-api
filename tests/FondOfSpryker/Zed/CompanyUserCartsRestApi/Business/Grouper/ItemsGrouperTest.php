@@ -2,10 +2,10 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper;
 
+use ArrayObject;
 use Codeception\Test\Unit;
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
-use ArrayObject;
 
 class ItemsGrouperTest extends Unit
 {
@@ -13,10 +13,12 @@ class ItemsGrouperTest extends Unit
      * @var \Generated\Shared\Transfer\QuoteTransfer&\PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $quoteTransferMock;
+
     /**
-     * @var array<ItemTransfer|\PHPUnit\Framework\MockObject\MockObject>
+     * @var array<(\Generated\Shared\Transfer\ItemTransfer|\PHPUnit\Framework\MockObject\MockObject)>
      */
     protected $itemTransferMocks;
+
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouper
      */
@@ -73,7 +75,7 @@ class ItemsGrouperTest extends Unit
 
         static::assertEquals(
             $groupKeys,
-            array_keys($groupedItemTransfers)
+            array_keys($groupedItemTransfers),
         );
     }
 }

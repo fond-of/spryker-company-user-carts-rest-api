@@ -60,7 +60,7 @@ class ItemsCategorizer implements ItemsCategorizerInterface
             $newQuantity = $restCartItemTransfer->getQuantity();
             $oldItemTransfer = $this->itemFinder->findInGroupedItemsByRestCartItem(
                 $groupedItemTransfers,
-                $restCartItemTransfer
+                $restCartItemTransfer,
             );
 
             if ($oldItemTransfer === null && $newQuantity > 0) {

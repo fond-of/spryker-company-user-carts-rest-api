@@ -2,7 +2,6 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder;
 
-use ArrayObject;
 use Codeception\Test\Unit;
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;

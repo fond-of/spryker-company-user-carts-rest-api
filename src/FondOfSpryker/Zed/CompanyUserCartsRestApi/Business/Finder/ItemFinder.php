@@ -3,13 +3,12 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder;
 
 use Generated\Shared\Transfer\ItemTransfer;
-use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCartItemTransfer;
 
 class ItemFinder implements ItemFinderInterface
 {
     /**
-     * @param array<string, ItemTransfer> $groupedItemTransfers
+     * @param array<string, \Generated\Shared\Transfer\ItemTransfer> $groupedItemTransfers
      * @param \Generated\Shared\Transfer\RestCartItemTransfer $restCartItemTransfer
      *
      * @return \Generated\Shared\Transfer\ItemTransfer|null
