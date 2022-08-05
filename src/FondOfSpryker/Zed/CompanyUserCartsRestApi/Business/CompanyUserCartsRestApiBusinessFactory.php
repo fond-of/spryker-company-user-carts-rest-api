@@ -16,6 +16,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouper;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandler;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapper;
@@ -143,6 +145,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
         return new ItemsCategorizer(
             $this->createItemMapper(),
             $this->createItemFinder(),
+            $this->createItemGrouper(),
         );
     }
 
@@ -160,6 +163,14 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function createItemFinder(): ItemFinderInterface
     {
         return new ItemFinder();
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouperInterface
+     */
+    protected function createItemGrouper(): ItemsGrouperInterface
+    {
+        return new ItemsGrouper();
     }
 
     /**
