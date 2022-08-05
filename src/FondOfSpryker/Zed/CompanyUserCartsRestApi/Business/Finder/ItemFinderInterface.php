@@ -9,13 +9,13 @@ use Generated\Shared\Transfer\RestCartItemTransfer;
 interface ItemFinderInterface
 {
     /**
-     * @param \Generated\Shared\Transfer\QuoteTransfer $quoteTransfer
+     * @param array<string, ItemTransfer> $groupedItemTransfers
      * @param \Generated\Shared\Transfer\RestCartItemTransfer $restCartItemTransfer
      *
      * @return \Generated\Shared\Transfer\ItemTransfer|null
      */
-    public function findInQuoteByRestCartItem(
-        QuoteTransfer $quoteTransfer,
+    public function findInGroupedItemsByRestCartItem(
+        array $groupedItemTransfers,
         RestCartItemTransfer $restCartItemTransfer
     ): ?ItemTransfer;
 }

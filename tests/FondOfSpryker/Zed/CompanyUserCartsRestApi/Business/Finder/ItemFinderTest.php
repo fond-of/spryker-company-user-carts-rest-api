@@ -11,11 +11,6 @@ use Generated\Shared\Transfer\RestCartItemTransfer;
 class ItemFinderTest extends Unit
 {
     /**
-     * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $quoteTransferMock;
-
-    /**
      * @var \Generated\Shared\Transfer\RestCartItemTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $restCartItemTransferMock;
@@ -46,13 +41,7 @@ class ItemFinderTest extends Unit
             ->getMock();
 
         $this->itemTransferMocks = [
-            $this->getMockBuilder(ItemTransfer::class)
-                ->disableOriginalConstructor()
-                ->getMock(),
-            $this->getMockBuilder(ItemTransfer::class)
-                ->disableOriginalConstructor()
-                ->getMock(),
-            $this->getMockBuilder(ItemTransfer::class)
+            'foo.bar-1' => $this->getMockBuilder(ItemTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
         ];
@@ -63,36 +52,18 @@ class ItemFinderTest extends Unit
     /**
      * @return void
      */
-    public function testFindInQuoteByRestCartItem(): void
+    public function testFindInGroupedItemsByRestCartItem(): void
     {
-        $groupKeys = [
-            'foo.bar-1',
-            'foo.bar-2',
-            'bar.bar-2',
-        ];
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('serialize')
-            ->willReturn('{...}');
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getItems')
-            ->willReturn(new ArrayObject($this->itemTransferMocks));
-
-        foreach ($this->itemTransferMocks as $index => $itemTransferMock) {
-            $itemTransferMock->expects(static::atLeastOnce())
-                ->method('getGroupKey')
-                ->willReturn($groupKeys[$index]);
-        }
+        $key = array_keys($this->itemTransferMocks)[0];
 
         $this->restCartItemTransferMock->expects(static::atLeastOnce())
             ->method('getGroupKey')
-            ->willReturn($groupKeys[1]);
+            ->willReturn($key);
 
         static::assertEquals(
-            $this->itemTransferMocks[1],
-            $this->itemFinder->findInQuoteByRestCartItem(
-                $this->quoteTransferMock,
+            $this->itemTransferMocks[$key],
+            $this->itemFinder->findInGroupedItemsByRestCartItem(
+                $this->itemTransferMocks,
                 $this->restCartItemTransferMock,
             ),
         );
@@ -103,34 +74,14 @@ class ItemFinderTest extends Unit
      */
     public function testFindInQuoteByRestCartItemWithoutResult(): void
     {
-        $groupKeys = [
-            'foo.bar-1',
-            'foo.bar-2',
-            'bar.bar-2',
-        ];
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('serialize')
-            ->willReturn('{...}');
-
-        $this->quoteTransferMock->expects(static::atLeastOnce())
-            ->method('getItems')
-            ->willReturn(new ArrayObject($this->itemTransferMocks));
-
-        foreach ($this->itemTransferMocks as $index => $itemTransferMock) {
-            $itemTransferMock->expects(static::atLeastOnce())
-                ->method('getGroupKey')
-                ->willReturn($groupKeys[$index]);
-        }
-
         $this->restCartItemTransferMock->expects(static::atLeastOnce())
             ->method('getGroupKey')
             ->willReturn('foo.bar-3');
 
         static::assertEquals(
             null,
-            $this->itemFinder->findInQuoteByRestCartItem(
-                $this->quoteTransferMock,
+            $this->itemFinder->findInGroupedItemsByRestCartItem(
+                $this->itemTransferMocks,
                 $this->restCartItemTransferMock,
             ),
         );

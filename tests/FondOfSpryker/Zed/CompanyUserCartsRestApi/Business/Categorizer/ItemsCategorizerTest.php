@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer;
 use ArrayObject;
 use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinderInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapperInterface;
 use Generated\Shared\Transfer\ItemTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
@@ -22,6 +23,11 @@ class ItemsCategorizerTest extends Unit
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     protected $itemFinderMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouperInterface&\PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected $itemsGrouperMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
@@ -68,6 +74,10 @@ class ItemsCategorizerTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->itemsGrouperMock = $this->getMockBuilder(ItemsGrouperInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->quoteTransferMock = $this->getMockBuilder(QuoteTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -77,10 +87,10 @@ class ItemsCategorizerTest extends Unit
             ->getMock();
 
         $this->itemTransferMocks = [
-            $this->getMockBuilder(ItemTransfer::class)
+            'foo.bar-1' => $this->getMockBuilder(ItemTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
-            $this->getMockBuilder(ItemTransfer::class)
+            'foo.bar-2' => $this->getMockBuilder(ItemTransfer::class)
                 ->disableOriginalConstructor()
                 ->getMock(),
         ];
@@ -112,6 +122,7 @@ class ItemsCategorizerTest extends Unit
         $this->itemsCategorizer = new ItemsCategorizer(
             $this->itemMapperMock,
             $this->itemFinderMock,
+            $this->itemsGrouperMock,
         );
     }
 
@@ -123,20 +134,25 @@ class ItemsCategorizerTest extends Unit
         $newQuantities = [2, 0, 2];
         $currentQuantities = [1, 1];
 
+        $this->itemsGrouperMock->expects(static::atLeastOnce())
+            ->method('groupByQuote')
+            ->with($this->quoteTransferMock)
+            ->willReturn($this->itemTransferMocks);
+
         $this->restCartRequestAttributesTransferMock->expects(static::atLeastOnce())
             ->method('getItems')
             ->willReturn(new ArrayObject($this->restCartItemTransferMocks));
 
         $this->itemFinderMock->expects(static::atLeastOnce())
-            ->method('findInQuoteByRestCartItem')
+            ->method('findInGroupedItemsByRestCartItem')
             ->withConsecutive(
-                [$this->quoteTransferMock, $this->restCartItemTransferMocks[0]],
-                [$this->quoteTransferMock, $this->restCartItemTransferMocks[1]],
-                [$this->quoteTransferMock, $this->restCartItemTransferMocks[2]],
+                [$this->itemTransferMocks, $this->restCartItemTransferMocks[0]],
+                [$this->itemTransferMocks, $this->restCartItemTransferMocks[1]],
+                [$this->itemTransferMocks, $this->restCartItemTransferMocks[2]],
             )->willReturnOnConsecutiveCalls(
                 null,
-                $this->itemTransferMocks[0],
-                $this->itemTransferMocks[1],
+                $this->itemTransferMocks['foo.bar-1'],
+                $this->itemTransferMocks['foo.bar-2'],
             );
 
         $this->itemMapperMock->expects(static::atLeastOnce())
@@ -159,7 +175,7 @@ class ItemsCategorizerTest extends Unit
             ->method('getQuantity')
             ->willReturn($newQuantities[1]);
 
-        $this->itemTransferMocks[0]->expects(static::atLeastOnce())
+        $this->itemTransferMocks['foo.bar-1']->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($currentQuantities[0]);
 
@@ -172,7 +188,7 @@ class ItemsCategorizerTest extends Unit
             ->method('getQuantity')
             ->willReturn($newQuantities[2]);
 
-        $this->itemTransferMocks[1]->expects(static::atLeastOnce())
+        $this->itemTransferMocks['foo.bar-2']->expects(static::atLeastOnce())
             ->method('getQuantity')
             ->willReturn($currentQuantities[1]);
 
