@@ -33,4 +33,9 @@ interface CompanyUserCartsRestApiConstants
      * @var string
      */
     public const ERROR_MESSAGE_ITEMS_NOT_RELOADED = 'quote.validation.error.items_not_reloaded';
+
+    /**
+     * @var string
+     */
+    public const ERROR_MESSAGE_PERMISSION_DENIED = 'quote.validation.error.permission_denied';
 }
