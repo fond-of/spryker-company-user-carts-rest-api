@@ -35,6 +35,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdaterInter
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Spryker\Shared\Log\LoggerTrait;
 use Spryker\Zed\Kernel\Business\AbstractBusinessFactory;
@@ -57,6 +58,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteHandler(),
             $this->createQuoteFinder(),
             $this->getQuoteFacade(),
+            $this->getPermissionFacade(),
             $this->getLogger(),
         );
     }
@@ -219,5 +221,13 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function getCartFacade(): CompanyUserCartsRestApiToCartFacadeInterface
     {
         return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_CART);
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface
+     */
+    protected function getPermissionFacade(): CompanyUserCartsRestApiToPermissionFacadeInterface
+    {
+        return $this->getProvidedDependency(CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION);
     }
 }

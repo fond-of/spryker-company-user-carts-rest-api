@@ -11,7 +11,9 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiDependencyProvider;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeBridge;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Spryker\Shared\Log\Config\LoggerConfigInterface;
 use Spryker\Zed\Kernel\Container;
@@ -19,39 +21,44 @@ use Spryker\Zed\Kernel\Container;
 class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
 {
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig|\PHPUnit\Framework\MockObject\MockObject
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\CompanyUserCartsRestApiConfig&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $configMock;
+    protected MockObject|CompanyUserCartsRestApiConfig $configMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeBridge|\PHPUnit\Framework\MockObject\MockObject
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCartFacadeBridge&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $cartFacadeMock;
+    protected CompanyUserCartsRestApiToCartFacadeBridge|MockObject $cartFacadeMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge|\PHPUnit\Framework\MockObject\MockObject
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeBridge&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteFacadeMock;
+    protected CompanyUserCartsRestApiToQuoteFacadeBridge|MockObject $quoteFacadeMock;
 
     /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge|\PHPUnit\Framework\MockObject\MockObject
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $companyUserReferenceFacadeMock;
+    protected MockObject|CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge $companyUserReferenceFacadeMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Zed\Kernel\Container
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $containerMock;
+    protected CompanyUserCartsRestApiToPermissionFacadeInterface|MockObject $permissionFacadeMock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Psr\Log\LoggerInterface
+     * @var \PHPUnit\Framework\MockObject\MockObject|(\Spryker\Zed\Kernel\Container&\PHPUnit\Framework\MockObject\MockObject)
      */
-    protected $loggerMock;
+    protected MockObject|Container $containerMock;
+
+    /**
+     * @var \PHPUnit\Framework\MockObject\MockObject|(\Psr\Log\LoggerInterface&\PHPUnit\Framework\MockObject\MockObject)
+     */
+    protected LoggerInterface|MockObject $loggerMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\CompanyUserCartsRestApiBusinessFactory
      */
-    protected $factory;
+    protected CompanyUserCartsRestApiBusinessFactory $factory;
 
     /**
      * @return void
@@ -80,6 +87,10 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->permissionFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPermissionFacadeInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->loggerMock = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -88,7 +99,7 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             /**
              * @var \Psr\Log\LoggerInterface
              */
-            protected $logger;
+            protected LoggerInterface $logger;
 
             /**
              * @param \Psr\Log\LoggerInterface $logger
@@ -129,12 +140,14 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
             )->willReturnOnConsecutiveCalls(
                 $this->companyUserReferenceFacadeMock,
                 $this->cartFacadeMock,
                 $this->cartFacadeMock,
                 $this->quoteFacadeMock,
                 $this->quoteFacadeMock,
+                $this->permissionFacadeMock,
             );
 
         static::assertInstanceOf(
