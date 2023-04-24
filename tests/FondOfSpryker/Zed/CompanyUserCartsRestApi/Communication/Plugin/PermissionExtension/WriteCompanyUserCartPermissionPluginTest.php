@@ -28,7 +28,7 @@ class WriteCompanyUserCartPermissionPluginTest extends Unit
     {
         static::assertEquals(
             WriteCompanyUserCartPermissionPlugin::KEY,
-            $this->plugin->getKey()
+            $this->plugin->getKey(),
         );
     }
 }
