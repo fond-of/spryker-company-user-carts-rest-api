@@ -59,8 +59,8 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
             $this->createQuoteMapper(),
             $this->createQuoteHandler(),
             $this->createQuoteFinder(),
+            $this->createWritePermissionChecker(),
             $this->getQuoteFacade(),
-            $this->getPermissionFacade(),
             $this->getLogger(),
         );
     }

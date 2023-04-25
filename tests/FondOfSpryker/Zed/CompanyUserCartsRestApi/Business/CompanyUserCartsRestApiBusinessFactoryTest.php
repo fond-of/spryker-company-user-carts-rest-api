@@ -139,15 +139,17 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
-                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->companyUserReferenceFacadeMock,
                 $this->cartFacadeMock,
                 $this->cartFacadeMock,
                 $this->quoteFacadeMock,
-                $this->quoteFacadeMock,
+                $this->companyUserReferenceFacadeMock,
                 $this->permissionFacadeMock,
+                $this->quoteFacadeMock,
             );
 
         static::assertInstanceOf(

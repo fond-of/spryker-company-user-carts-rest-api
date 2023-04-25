@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Communication\Plugin\PermissionExtension\WriteCompanyUserCartPermissionPlugin;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface;
+use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 
 class WritePermissionChecker implements WritePermissionCheckerInterface
@@ -47,6 +48,32 @@ class WritePermissionChecker implements WritePermissionCheckerInterface
             return false;
         }
 
+        return $this->checkByIdCompanyUser($idCompanyUser);
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\CompanyUserTransfer $companyUserTransfer
+     *
+     * @return bool
+     */
+    public function checkByCompanyUser(CompanyUserTransfer $companyUserTransfer): bool
+    {
+        $idCompanyUser = $companyUserTransfer->getIdCompanyUser();
+
+        if ($idCompanyUser === null) {
+            return false;
+        }
+
+        return $this->checkByIdCompanyUser($idCompanyUser);
+    }
+
+    /**
+     * @param int $idCompanyUser
+     *
+     * @return bool
+     */
+    public function checkByIdCompanyUser(int $idCompanyUser): bool
+    {
         return $this->permissionFacade->can(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser);
     }
 }

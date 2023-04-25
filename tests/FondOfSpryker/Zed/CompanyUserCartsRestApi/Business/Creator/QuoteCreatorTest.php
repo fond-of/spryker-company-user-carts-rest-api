@@ -6,12 +6,11 @@ use ArrayObject;
 use Codeception\Test\Unit;
 use Exception;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Communication\Plugin\PermissionExtension\WriteCompanyUserCartPermissionPlugin;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
@@ -47,14 +46,14 @@ class QuoteCreatorTest extends Unit
     protected MockObject|QuoteHandlerInterface $quoteHandlerMock;
 
     /**
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected WritePermissionCheckerInterface|MockObject $writePermissionCheckerMock;
+
+    /**
      * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
     protected CompanyUserCartsRestApiToQuoteFacadeInterface|MockObject $quoteFacadeMock;
-
-    /**
-     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected CompanyUserCartsRestApiToPermissionFacadeInterface|MockObject $permissionFacadeMock;
 
     /**
      * @var (\Psr\Log\LoggerInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
@@ -123,7 +122,7 @@ class QuoteCreatorTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->permissionFacadeMock = $this->getMockBuilder(CompanyUserCartsRestApiToPermissionFacadeInterface::class)
+        $this->writePermissionCheckerMock = $this->getMockBuilder(WritePermissionCheckerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -160,8 +159,8 @@ class QuoteCreatorTest extends Unit
             $this->quoteMapperMock,
             $this->quoteHandlerMock,
             $this->quoteFinderMock,
+            $this->writePermissionCheckerMock,
             $this->quoteFacadeMock,
-            $this->permissionFacadeMock,
             $this->loggerMock,
             $this->transactionHandlerMock
         ) extends QuoteCreator {
@@ -175,8 +174,8 @@ class QuoteCreatorTest extends Unit
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface $quoteMapper
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface $writePermissionChecker
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
-             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface $permissionFacade
              * @param \Psr\Log\LoggerInterface $logger
              * @param \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface $transactionHandler
              */
@@ -185,8 +184,8 @@ class QuoteCreatorTest extends Unit
                 QuoteMapperInterface $quoteMapper,
                 QuoteHandlerInterface $quoteHandler,
                 QuoteFinderInterface $quoteFinder,
+                WritePermissionCheckerInterface $writePermissionChecker,
                 CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade,
-                CompanyUserCartsRestApiToPermissionFacadeInterface $permissionFacade,
                 LoggerInterface $logger,
                 TransactionHandlerInterface $transactionHandler
             ) {
@@ -195,8 +194,8 @@ class QuoteCreatorTest extends Unit
                     $quoteMapper,
                     $quoteHandler,
                     $quoteFinder,
+                    $writePermissionChecker,
                     $quoteFacade,
-                    $permissionFacade,
                     $logger,
                 );
 
@@ -234,13 +233,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->companyUserTransferMock->expects(static::atLeastOnce())
-            ->method('getIdCompanyUser')
-            ->willReturn($idCompanyUser);
-
-        $this->permissionFacadeMock->expects(static::atLeastOnce())
-            ->method('can')
-            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser, null)
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn(true);
 
         $this->quoteMapperMock->expects(static::atLeastOnce())
@@ -326,13 +321,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->companyUserTransferMock->expects(static::atLeastOnce())
-            ->method('getIdCompanyUser')
-            ->willReturn($idCompanyUser);
-
-        $this->permissionFacadeMock->expects(static::atLeastOnce())
-            ->method('can')
-            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser, null)
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn(true);
 
         $this->quoteMapperMock->expects(static::atLeastOnce())
@@ -411,8 +402,8 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn(null);
 
-        $this->permissionFacadeMock->expects(static::never())
-            ->method('can');
+        $this->writePermissionCheckerMock->expects(static::never())
+            ->method('checkByCompanyUser');
 
         $this->quoteMapperMock->expects(static::never())
             ->method('fromRestCompanyUserCartsRequest');
@@ -471,13 +462,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->companyUserTransferMock->expects(static::atLeastOnce())
-            ->method('getIdCompanyUser')
-            ->willReturn($idCompanyUser);
-
-        $this->permissionFacadeMock->expects(static::atLeastOnce())
-            ->method('can')
-            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser, null)
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn(true);
 
         $this->quoteMapperMock->expects(static::atLeastOnce())
@@ -558,13 +545,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->companyUserTransferMock->expects(static::atLeastOnce())
-            ->method('getIdCompanyUser')
-            ->willReturn($idCompanyUser);
-
-        $this->permissionFacadeMock->expects(static::atLeastOnce())
-            ->method('can')
-            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser, null)
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn(true);
 
         $this->quoteMapperMock->expects(static::atLeastOnce())
@@ -654,8 +637,8 @@ class QuoteCreatorTest extends Unit
         $this->companyUserReaderMock->expects(static::never())
             ->method('getByRestCompanyUserCartsRequest');
 
-        $this->permissionFacadeMock->expects(static::never())
-            ->method('can');
+        $this->writePermissionCheckerMock->expects(static::never())
+            ->method('checkByCompanyUser');
 
         $this->quoteMapperMock->expects(static::never())
             ->method('fromRestCompanyUserCartsRequest');
@@ -717,13 +700,9 @@ class QuoteCreatorTest extends Unit
             ->with($this->restCompanyUserCartsRequestTransferMock)
             ->willReturn($this->companyUserTransferMock);
 
-        $this->companyUserTransferMock->expects(static::atLeastOnce())
-            ->method('getIdCompanyUser')
-            ->willReturn($idCompanyUser);
-
-        $this->permissionFacadeMock->expects(static::atLeastOnce())
-            ->method('can')
-            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser, null)
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByCompanyUser')
+            ->with($this->companyUserTransferMock)
             ->willReturn(false);
 
         $this->quoteMapperMock->expects(static::never())
