@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder;
 
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
@@ -14,14 +15,23 @@ class QuoteFinder implements QuoteFinderInterface
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface
      */
-    protected $quoteReader;
+    protected QuoteReaderInterface $quoteReader;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface
+     */
+    protected ReadPermissionCheckerInterface $readPermissionChecker;
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface $quoteReader
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface $readPermissionChecker
      */
-    public function __construct(QuoteReaderInterface $quoteReader)
-    {
+    public function __construct(
+        QuoteReaderInterface $quoteReader,
+        ReadPermissionCheckerInterface $readPermissionChecker
+    ) {
         $this->quoteReader = $quoteReader;
+        $this->readPermissionChecker = $readPermissionChecker;
     }
 
     /**
@@ -32,6 +42,14 @@ class QuoteFinder implements QuoteFinderInterface
     public function findOneByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
+        if (!$this->readPermissionChecker->checkByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer)) {
+            $quoteErrorTransfer = (new QuoteErrorTransfer())
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_PERMISSION_DENIED);
+
+            return (new RestCompanyUserCartsResponseTransfer())->setIsSuccessful(false)
+                ->addError($quoteErrorTransfer);
+        }
+
         $quoteTransfer = $this->quoteReader->getByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer);
 
         return $this->handleFoundQuote($quoteTransfer);

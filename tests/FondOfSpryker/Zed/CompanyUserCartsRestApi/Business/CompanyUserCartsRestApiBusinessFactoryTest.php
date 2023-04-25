@@ -141,12 +141,16 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->companyUserReferenceFacadeMock,
                 $this->cartFacadeMock,
                 $this->cartFacadeMock,
                 $this->quoteFacadeMock,
+                $this->companyUserReferenceFacadeMock,
+                $this->permissionFacadeMock,
                 $this->companyUserReferenceFacadeMock,
                 $this->permissionFacadeMock,
                 $this->quoteFacadeMock,
@@ -171,6 +175,8 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->method('get')
             ->withConsecutive(
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
@@ -178,6 +184,8 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
+                $this->companyUserReferenceFacadeMock,
+                $this->permissionFacadeMock,
                 $this->cartFacadeMock,
                 $this->cartFacadeMock,
                 $this->companyUserReferenceFacadeMock,
@@ -231,8 +239,15 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
 
         $this->containerMock->expects(static::atLeastOnce())
             ->method('get')
-            ->with(CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE)
-            ->willReturn($this->quoteFacadeMock);
+            ->withConsecutive(
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
+            )->willReturnOnConsecutiveCalls(
+                $this->quoteFacadeMock,
+                $this->companyUserReferenceFacadeMock,
+                $this->permissionFacadeMock,
+            );
 
         static::assertInstanceOf(
             QuoteFinder::class,
