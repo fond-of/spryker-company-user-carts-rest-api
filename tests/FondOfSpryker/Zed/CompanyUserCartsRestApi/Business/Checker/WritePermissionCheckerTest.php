@@ -6,6 +6,7 @@ use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Communication\Plugin\PermissionExtension\WriteCompanyUserCartPermissionPlugin;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface;
+use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use PHPUnit\Framework\MockObject\MockObject;
 
@@ -25,6 +26,11 @@ class WritePermissionCheckerTest extends Unit
      * @var (\Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
      */
     protected MockObject|RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransferMock;
+
+    /**
+     * @var (\Generated\Shared\Transfer\CompanyUserTransfer&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected CompanyUserTransfer|MockObject $companyUserTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionChecker
@@ -49,6 +55,10 @@ class WritePermissionCheckerTest extends Unit
             ->getMock();
 
         $this->restCompanyUserCartsRequestTransferMock = $this->getMockBuilder(RestCompanyUserCartsRequestTransfer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->companyUserTransferMock = $this->getMockBuilder(CompanyUserTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -97,6 +107,65 @@ class WritePermissionCheckerTest extends Unit
             $this->writePermissionChecker->checkByRestCompanyUserCartsRequest(
                 $this->restCompanyUserCartsRequestTransferMock,
             ),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCheckByCompanyUser(): void
+    {
+        $idCompanyUser = 1;
+
+        $this->companyUserTransferMock->expects(static::atLeastOnce())
+            ->method('getIdCompanyUser')
+            ->willReturn($idCompanyUser);
+
+        $this->permissionFacadeMock->expects(static::atLeastOnce())
+            ->method('can')
+            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser)
+            ->willReturn(true);
+
+        static::assertTrue(
+            $this->writePermissionChecker->checkByCompanyUser(
+                $this->companyUserTransferMock,
+            ),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCheckByCompanyUserWithInvalidData(): void
+    {
+        $this->companyUserTransferMock->expects(static::atLeastOnce())
+            ->method('getIdCompanyUser')
+            ->willReturn(null);
+
+        $this->permissionFacadeMock->expects(static::never())
+            ->method('can');
+
+        static::assertFalse(
+            $this->writePermissionChecker->checkByCompanyUser(
+                $this->companyUserTransferMock,
+            ),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testCheckByIdCompanyUser(): void
+    {
+        $idCompanyUser = 1;
+
+        $this->permissionFacadeMock->expects(static::atLeastOnce())
+            ->method('can')
+            ->with(WriteCompanyUserCartPermissionPlugin::KEY, $idCompanyUser)
+            ->willReturn(true);
+
+        static::assertTrue(
+            $this->writePermissionChecker->checkByIdCompanyUser($idCompanyUser),
         );
     }
 }

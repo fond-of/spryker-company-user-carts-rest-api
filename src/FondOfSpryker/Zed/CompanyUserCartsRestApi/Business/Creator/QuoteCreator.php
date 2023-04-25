@@ -4,13 +4,12 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator;
 
 use ArrayObject;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Exception\QuoteNotCreatedException;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReaderInterface;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Communication\Plugin\PermissionExtension\WriteCompanyUserCartPermissionPlugin;
-use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
@@ -44,14 +43,14 @@ class QuoteCreator implements QuoteCreatorInterface
     protected QuoteFinderInterface $quoteFinder;
 
     /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface
+     */
+    protected WritePermissionCheckerInterface $writePermissionChecker;
+
+    /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface
      */
     protected CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade;
-
-    /**
-     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface
-     */
-    protected CompanyUserCartsRestApiToPermissionFacadeInterface $permissionFacade;
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -63,8 +62,8 @@ class QuoteCreator implements QuoteCreatorInterface
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\QuoteMapperInterface $quoteMapper
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface $writePermissionChecker
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
-     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToPermissionFacadeInterface $permissionFacade
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
@@ -72,16 +71,16 @@ class QuoteCreator implements QuoteCreatorInterface
         QuoteMapperInterface $quoteMapper,
         QuoteHandlerInterface $quoteHandler,
         QuoteFinderInterface $quoteFinder,
+        WritePermissionCheckerInterface $writePermissionChecker,
         CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade,
-        CompanyUserCartsRestApiToPermissionFacadeInterface $permissionFacade,
         LoggerInterface $logger
     ) {
         $this->companyUserReader = $companyUserReader;
         $this->quoteMapper = $quoteMapper;
         $this->quoteHandler = $quoteHandler;
         $this->quoteFinder = $quoteFinder;
+        $this->writePermissionChecker = $writePermissionChecker;
         $this->quoteFacade = $quoteFacade;
-        $this->permissionFacade = $permissionFacade;
         $this->logger = $logger;
     }
 
@@ -146,12 +145,7 @@ class QuoteCreator implements QuoteCreatorInterface
                 ->setErrors(new ArrayObject([$quoteErrorTransfer]));
         }
 
-        $canCreate = $this->permissionFacade->can(
-            WriteCompanyUserCartPermissionPlugin::KEY,
-            $companyUserTransfer->getIdCompanyUser(),
-        );
-
-        if (!$canCreate) {
+        if (!$this->writePermissionChecker->checkByCompanyUser($companyUserTransfer)) {
             $quoteErrorTransfer = (new QuoteErrorTransfer())
                 ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_PERMISSION_DENIED);
 
