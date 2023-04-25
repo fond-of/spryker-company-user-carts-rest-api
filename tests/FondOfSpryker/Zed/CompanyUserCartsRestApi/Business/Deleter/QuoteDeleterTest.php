@@ -4,49 +4,56 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter;
 
 use Codeception\Test\Unit;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class QuoteDeleterTest extends Unit
 {
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteReaderMock;
+    protected MockObject|QuoteReaderInterface $quoteReaderMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteExpanderMock;
+    protected QuoteExpanderInterface|MockObject $quoteExpanderMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected WritePermissionCheckerInterface|MockObject $writePermissionCheckerMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteFacadeMock;
+    protected CompanyUserCartsRestApiToQuoteFacadeInterface|MockObject $quoteFacadeMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteResponseTransferMock;
+    protected MockObject|QuoteResponseTransfer $quoteResponseTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteTransferMock;
+    protected MockObject|QuoteTransfer $quoteTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $restCompanyUserCartsRequestTransferMock;
+    protected MockObject|RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Deleter\QuoteDeleter
      */
-    protected $quoteDeleter;
+    protected QuoteDeleter $quoteDeleter;
 
     /**
      * @return void
@@ -60,6 +67,10 @@ class QuoteDeleterTest extends Unit
             ->getMock();
 
         $this->quoteExpanderMock = $this->getMockBuilder(QuoteExpanderInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->writePermissionCheckerMock = $this->getMockBuilder(WritePermissionCheckerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -82,6 +93,7 @@ class QuoteDeleterTest extends Unit
         $this->quoteDeleter = new QuoteDeleter(
             $this->quoteReaderMock,
             $this->quoteExpanderMock,
+            $this->writePermissionCheckerMock,
             $this->quoteFacadeMock,
         );
     }
@@ -91,6 +103,11 @@ class QuoteDeleterTest extends Unit
      */
     public function testDeleteByRestCompanyUserCartsRequest(): void
     {
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -124,6 +141,11 @@ class QuoteDeleterTest extends Unit
      */
     public function testDeleteByRestCompanyUserCartsRequestWithNonExistingQuote(): void
     {
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -153,6 +175,11 @@ class QuoteDeleterTest extends Unit
      */
     public function testDeleteByRestCompanyUserCartsRequestWithError(): void
     {
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -180,6 +207,38 @@ class QuoteDeleterTest extends Unit
         static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
         static::assertEquals(
             CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_DELETED,
+            $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
+        );
+        static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());
+    }
+
+    /**
+     * @return void
+     */
+    public function testDeleteByRestCompanyUserCartsRequestWithoutPermission(): void
+    {
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(false);
+
+        $this->quoteReaderMock->expects(static::never())
+            ->method('getByRestCompanyUserCartsRequest');
+
+        $this->quoteExpanderMock->expects(static::never())
+            ->method('expand');
+
+        $this->quoteFacadeMock->expects(static::never())
+            ->method('deleteQuote');
+
+        $restCompanyUserCartsResponseTransfer = $this->quoteDeleter->deleteByRestCompanyUserCartsRequest(
+            $this->restCompanyUserCartsRequestTransferMock,
+        );
+
+        static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
+        static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
+        static::assertEquals(
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_PERMISSION_DENIED,
             $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
         );
         static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());

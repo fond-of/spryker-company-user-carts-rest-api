@@ -204,9 +204,13 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
             ->method('get')
             ->withConsecutive(
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
+                $this->companyUserReferenceFacadeMock,
+                $this->permissionFacadeMock,
                 $this->quoteFacadeMock,
             );
 
