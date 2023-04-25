@@ -4,31 +4,38 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder;
 
 use Codeception\Test\Unit;
 use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface;
 use Generated\Shared\Transfer\QuoteTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class QuoteFinderTest extends Unit
 {
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\QuoteReaderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteReaderMock;
+    protected MockObject|QuoteReaderInterface $quoteReaderMock;
+
+    /**
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected MockObject|ReadPermissionCheckerInterface $readPermissionCheckerMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $restCompanyUserCartsRequestTransferMock;
+    protected MockObject|RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteTransferMock;
+    protected MockObject|QuoteTransfer $quoteTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinder
      */
-    protected $quoteFinder;
+    protected QuoteFinder $quoteFinder;
 
     /**
      * @return void
@@ -41,6 +48,10 @@ class QuoteFinderTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->readPermissionCheckerMock = $this->getMockBuilder(ReadPermissionCheckerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->restCompanyUserCartsRequestTransferMock = $this->getMockBuilder(RestCompanyUserCartsRequestTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -49,7 +60,10 @@ class QuoteFinderTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->quoteFinder = new QuoteFinder($this->quoteReaderMock);
+        $this->quoteFinder = new QuoteFinder(
+            $this->quoteReaderMock,
+            $this->readPermissionCheckerMock,
+        );
     }
 
     /**
@@ -57,6 +71,11 @@ class QuoteFinderTest extends Unit
      */
     public function testFindOneByRestCompanyUserCartsRequest(): void
     {
+        $this->readPermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -76,6 +95,11 @@ class QuoteFinderTest extends Unit
      */
     public function testFindOneByRestCompanyUserCartsRequestWithError(): void
     {
+        $this->readPermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteReaderMock->expects(static::atLeastOnce())
             ->method('getByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -90,6 +114,32 @@ class QuoteFinderTest extends Unit
         static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
         static::assertEquals(
             CompanyUserCartsRestApiConstants::ERROR_MESSAGE_QUOTE_NOT_FOUND,
+            $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testFindOneByRestCompanyUserCartsRequestWithoutPermission(): void
+    {
+        $this->readPermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(false);
+
+        $this->quoteReaderMock->expects(static::never())
+            ->method('getByRestCompanyUserCartsRequest');
+
+        $restCompanyUserCartsResponseTransfer = $this->quoteFinder->findOneByRestCompanyUserCartsRequest(
+            $this->restCompanyUserCartsRequestTransferMock,
+        );
+
+        static::assertFalse($restCompanyUserCartsResponseTransfer->getIsSuccessful());
+        static::assertEquals(null, $restCompanyUserCartsResponseTransfer->getQuote());
+        static::assertCount(1, $restCompanyUserCartsResponseTransfer->getErrors());
+        static::assertEquals(
+            CompanyUserCartsRestApiConstants::ERROR_MESSAGE_PERMISSION_DENIED,
             $restCompanyUserCartsResponseTransfer->getErrors()->offsetGet(0)->getMessage(),
         );
     }

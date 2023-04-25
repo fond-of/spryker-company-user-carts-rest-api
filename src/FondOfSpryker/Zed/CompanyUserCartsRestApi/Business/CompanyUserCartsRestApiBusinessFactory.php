@@ -6,6 +6,8 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdder;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Adder\ItemAdderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizer;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Categorizer\ItemsCategorizerInterface;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionChecker;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionChecker;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Creator\QuoteCreator;
@@ -100,6 +102,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     {
         return new QuoteFinder(
             $this->createQuoteReader(),
+            $this->createReadPermissionChecker(),
         );
     }
 
@@ -217,6 +220,17 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
     protected function createWritePermissionChecker(): WritePermissionCheckerInterface
     {
         return new WritePermissionChecker(
+            $this->createCompanyUserReader(),
+            $this->getPermissionFacade(),
+        );
+    }
+
+    /**
+     * @return \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\ReadPermissionCheckerInterface
+     */
+    protected function createReadPermissionChecker(): ReadPermissionCheckerInterface
+    {
+        return new ReadPermissionChecker(
             $this->createCompanyUserReader(),
             $this->getPermissionFacade(),
         );
