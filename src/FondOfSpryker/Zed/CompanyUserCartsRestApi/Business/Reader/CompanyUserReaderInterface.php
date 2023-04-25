@@ -15,4 +15,13 @@ interface CompanyUserReaderInterface
     public function getByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequest
     ): ?CompanyUserTransfer;
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequest
+     *
+     * @return int|null
+     */
+    public function getIdByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequest
+    ): ?int;
 }

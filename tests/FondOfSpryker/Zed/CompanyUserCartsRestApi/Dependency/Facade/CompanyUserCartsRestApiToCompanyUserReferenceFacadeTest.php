@@ -6,28 +6,29 @@ use Codeception\Test\Unit;
 use FondOfSpryker\Zed\CompanyUserReference\Business\CompanyUserReferenceFacade;
 use Generated\Shared\Transfer\CompanyUserResponseTransfer;
 use Generated\Shared\Transfer\CompanyUserTransfer;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class CompanyUserCartsRestApiToCompanyUserReferenceFacadeTest extends Unit
 {
     /**
      * @var \FondOfSpryker\Zed\CompanyUserReference\Business\CompanyUserReferenceFacade|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $facadeMock;
+    protected CompanyUserReferenceFacade|MockObject $facadeMock;
 
     /**
      * @var \Generated\Shared\Transfer\CompanyUserTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $companyUserTransferMock;
+    protected MockObject|CompanyUserTransfer $companyUserTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\CompanyUserResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $companyUserResponseTransferMock;
+    protected MockObject|CompanyUserResponseTransfer $companyUserResponseTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge
      */
-    protected $bridge;
+    protected CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge $bridge;
 
     /**
      * @return void
@@ -67,6 +68,29 @@ class CompanyUserCartsRestApiToCompanyUserReferenceFacadeTest extends Unit
             $this->companyUserResponseTransferMock,
             $this->bridge->findCompanyUserByCompanyUserReference(
                 $this->companyUserTransferMock,
+            ),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetIdCompanyUserByCompanyUserReferenceAndIdCustomer(): void
+    {
+        $companyUserReference = 'foo';
+        $idCustomer = 1;
+        $idCompanyUser = 3;
+
+        $this->facadeMock->expects(static::atLeastOnce())
+            ->method('getIdCompanyUserByCompanyUserReferenceAndIdCustomer')
+            ->with($companyUserReference, $idCustomer)
+            ->willReturn($idCompanyUser);
+
+        static::assertEquals(
+            $idCompanyUser,
+            $this->bridge->getIdCompanyUserByCompanyUserReferenceAndIdCustomer(
+                $companyUserReference,
+                $idCustomer,
             ),
         );
     }

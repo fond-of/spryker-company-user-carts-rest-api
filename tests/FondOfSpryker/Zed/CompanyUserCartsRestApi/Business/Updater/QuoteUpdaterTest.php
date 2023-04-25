@@ -5,6 +5,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater;
 use ArrayObject;
 use Codeception\Test\Unit;
 use Exception;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
@@ -12,9 +13,9 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCarts
 use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\QuoteResponseTransfer;
 use Generated\Shared\Transfer\QuoteTransfer;
-use Generated\Shared\Transfer\QuoteUpdateRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface;
 use Throwable;
@@ -24,62 +25,62 @@ class QuoteUpdaterTest extends Unit
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteFinderMock;
+    protected QuoteFinderInterface|MockObject $quoteFinderMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteExpanderMock;
+    protected QuoteExpanderInterface|MockObject $quoteExpanderMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteHandlerMock;
+    protected MockObject|QuoteHandlerInterface $quoteHandlerMock;
+
+    /**
+     * @var (\FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected WritePermissionCheckerInterface|MockObject $writePermissionCheckerMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteFacadeMock;
+    protected CompanyUserCartsRestApiToQuoteFacadeInterface|MockObject $quoteFacadeMock;
 
     /**
      * @var \Psr\Log\LoggerInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $loggerMock;
+    protected LoggerInterface|MockObject $loggerMock;
 
     /**
      * @var \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $transactionHandlerMock;
+    protected TransactionHandlerInterface|MockObject $transactionHandlerMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $restCompanyUserCartsRequestTransferMock;
+    protected MockObject|RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteTransferMock;
-
-    /**
-     * @var \Generated\Shared\Transfer\QuoteUpdateRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected $quoteUpdateRequestTransferMock;
+    protected MockObject|QuoteTransfer $quoteTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\QuoteResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $quoteResponseTransferMock;
+    protected MockObject|QuoteResponseTransfer $quoteResponseTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $restCompanyUserCartsResponseTransferMock;
+    protected RestCompanyUserCartsResponseTransfer|MockObject $restCompanyUserCartsResponseTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater\QuoteUpdater
      */
-    protected $quoteUpdater;
+    protected QuoteUpdater $quoteUpdater;
 
     /**
      * @return void
@@ -97,6 +98,10 @@ class QuoteUpdaterTest extends Unit
             ->getMock();
 
         $this->quoteHandlerMock = $this->getMockBuilder(QuoteHandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->writePermissionCheckerMock = $this->getMockBuilder(WritePermissionCheckerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -120,10 +125,6 @@ class QuoteUpdaterTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->quoteUpdateRequestTransferMock = $this->getMockBuilder(QuoteUpdateRequestTransfer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->quoteResponseTransferMock = $this->getMockBuilder(QuoteResponseTransfer::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -136,6 +137,7 @@ class QuoteUpdaterTest extends Unit
             $this->quoteFinderMock,
             $this->quoteExpanderMock,
             $this->quoteHandlerMock,
+            $this->writePermissionCheckerMock,
             $this->quoteFacadeMock,
             $this->loggerMock,
             $this->transactionHandlerMock
@@ -143,12 +145,13 @@ class QuoteUpdaterTest extends Unit
             /**
              * @var \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface
              */
-            protected $transactionHandler;
+            protected TransactionHandlerInterface $transactionHandler;
 
             /**
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
+             * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface $writePermissionChecker
              * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
              * @param \Psr\Log\LoggerInterface $logger
              * @param \Spryker\Zed\Kernel\Persistence\EntityManager\TransactionHandlerInterface $transactionHandler
@@ -157,6 +160,7 @@ class QuoteUpdaterTest extends Unit
                 QuoteFinderInterface $quoteFinder,
                 QuoteExpanderInterface $quoteExpander,
                 QuoteHandlerInterface $quoteHandler,
+                WritePermissionCheckerInterface $writePermissionChecker,
                 CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade,
                 LoggerInterface $logger,
                 TransactionHandlerInterface $transactionHandler
@@ -165,6 +169,7 @@ class QuoteUpdaterTest extends Unit
                     $quoteFinder,
                     $quoteExpander,
                     $quoteHandler,
+                    $writePermissionChecker,
                     $quoteFacade,
                     $logger,
                 );
@@ -196,6 +201,11 @@ class QuoteUpdaterTest extends Unit
                     $callable();
                 },
             );
+
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
 
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
@@ -271,6 +281,11 @@ class QuoteUpdaterTest extends Unit
                 },
             );
 
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -325,6 +340,11 @@ class QuoteUpdaterTest extends Unit
                     $callable();
                 },
             );
+
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
 
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
@@ -407,6 +427,11 @@ class QuoteUpdaterTest extends Unit
                 },
             );
 
+        $this->writePermissionCheckerMock->expects(static::atLeastOnce())
+            ->method('checkByRestCompanyUserCartsRequest')
+            ->with($this->restCompanyUserCartsRequestTransferMock)
+            ->willReturn(true);
+
         $this->quoteFinderMock->expects(static::atLeastOnce())
             ->method('findOneByRestCompanyUserCartsRequest')
             ->with($this->restCompanyUserCartsRequestTransferMock)
@@ -462,6 +487,9 @@ class QuoteUpdaterTest extends Unit
         $this->transactionHandlerMock->expects(static::atLeastOnce())
             ->method('handleTransaction')
             ->willThrowException($exception);
+
+        $this->writePermissionCheckerMock->expects(static::never())
+            ->method('checkByRestCompanyUserCartsRequest');
 
         $this->quoteFinderMock->expects(static::never())
             ->method('findOneByRestCompanyUserCartsRequest');

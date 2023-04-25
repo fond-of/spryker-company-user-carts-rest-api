@@ -7,33 +7,34 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCarts
 use Generated\Shared\Transfer\CompanyUserResponseTransfer;
 use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class CompanyUserReaderTest extends Unit
 {
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $companyUserReferenceFacadeMock;
+    protected MockObject|CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface $companyUserReferenceFacadeMock;
 
     /**
      * @var \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $restCompanyUserCartsRequestTransferMock;
+    protected MockObject|RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\CompanyUserTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $companyUserTransferMock;
+    protected MockObject|CompanyUserTransfer $companyUserTransferMock;
 
     /**
      * @var \Generated\Shared\Transfer\CompanyUserResponseTransfer|\PHPUnit\Framework\MockObject\MockObject
      */
-    protected $companyUserResponseTransferMock;
+    protected MockObject|CompanyUserResponseTransfer $companyUserResponseTransferMock;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Reader\CompanyUserReader
      */
-    protected $companyUserReader;
+    protected CompanyUserReader $companyUserReader;
 
     /**
      * @return void
@@ -172,6 +173,61 @@ class CompanyUserReaderTest extends Unit
         static::assertEquals(
             null,
             $this->companyUserReader->getByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetIdByRestCompanyUserCartsRequest(): void
+    {
+        $idCustomer = 1;
+        $companyUserReference = 'FOO--CU-1';
+        $idCompanyUser = 3;
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getIdCustomer')
+            ->willReturn($idCustomer);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getCompanyUserReference')
+            ->willReturn($companyUserReference);
+
+        $this->companyUserReferenceFacadeMock->expects(static::atLeastOnce())
+            ->method('getIdCompanyUserByCompanyUserReferenceAndIdCustomer')
+            ->with(
+                $companyUserReference,
+                $idCustomer,
+            )->willReturn($idCompanyUser);
+
+        static::assertEquals(
+            $idCompanyUser,
+            $this->companyUserReader->getIdByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetIdByRestCompanyUserCartsRequestWithInvalidData(): void
+    {
+        $idCustomer = null;
+        $companyUserReference = 'FOO--CU-1';
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getIdCustomer')
+            ->willReturn($idCustomer);
+
+        $this->restCompanyUserCartsRequestTransferMock->expects(static::atLeastOnce())
+            ->method('getCompanyUserReference')
+            ->willReturn($companyUserReference);
+
+        $this->companyUserReferenceFacadeMock->expects(static::never())
+            ->method('getIdCompanyUserByCompanyUserReferenceAndIdCustomer');
+
+        static::assertEquals(
+            null,
+            $this->companyUserReader->getIdByRestCompanyUserCartsRequest($this->restCompanyUserCartsRequestTransferMock),
         );
     }
 }

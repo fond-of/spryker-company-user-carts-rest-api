@@ -2,11 +2,15 @@
 
 namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Updater;
 
+use ArrayObject;
+use FondOfSpryker\Shared\CompanyUserCartsRestApi\CompanyUserCartsRestApiConstants;
+use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Exception\QuoteNotUpdatedException;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface;
+use Generated\Shared\Transfer\QuoteErrorTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer;
 use Generated\Shared\Transfer\RestCompanyUserCartsResponseTransfer;
 use Psr\Log\LoggerInterface;
@@ -20,32 +24,38 @@ class QuoteUpdater implements QuoteUpdaterInterface
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface
      */
-    protected $quoteFinder;
+    protected QuoteFinderInterface $quoteFinder;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface
      */
-    protected $quoteExpander;
+    protected QuoteExpanderInterface $quoteExpander;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface
      */
-    protected $quoteHandler;
+    protected QuoteHandlerInterface $quoteHandler;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface
      */
-    protected $logger;
+    protected WritePermissionCheckerInterface $writePermissionChecker;
 
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface
      */
-    protected $quoteFacade;
+    protected CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected LoggerInterface $logger;
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\QuoteFinderInterface $quoteFinder
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Expander\QuoteExpanderInterface $quoteExpander
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Handler\QuoteHandlerInterface $quoteHandler
+     * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Checker\WritePermissionCheckerInterface $writePermissionChecker
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade
      * @param \Psr\Log\LoggerInterface $logger
      */
@@ -53,14 +63,16 @@ class QuoteUpdater implements QuoteUpdaterInterface
         QuoteFinderInterface $quoteFinder,
         QuoteExpanderInterface $quoteExpander,
         QuoteHandlerInterface $quoteHandler,
+        WritePermissionCheckerInterface $writePermissionChecker,
         CompanyUserCartsRestApiToQuoteFacadeInterface $quoteFacade,
         LoggerInterface $logger
     ) {
         $this->quoteFinder = $quoteFinder;
         $this->quoteExpander = $quoteExpander;
         $this->quoteHandler = $quoteHandler;
-        $this->logger = $logger;
         $this->quoteFacade = $quoteFacade;
+        $this->logger = $logger;
+        $this->writePermissionChecker = $writePermissionChecker;
     }
 
     /**
@@ -112,6 +124,14 @@ class QuoteUpdater implements QuoteUpdaterInterface
     protected function executeUpdateByRestCompanyUserCartsRequest(
         RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequestTransfer
     ): RestCompanyUserCartsResponseTransfer {
+        if (!$this->writePermissionChecker->checkByRestCompanyUserCartsRequest($restCompanyUserCartsRequestTransfer)) {
+            $quoteErrorTransfer = (new QuoteErrorTransfer())
+                ->setMessage(CompanyUserCartsRestApiConstants::ERROR_MESSAGE_PERMISSION_DENIED);
+
+            return (new RestCompanyUserCartsResponseTransfer())->setIsSuccessful(false)
+                ->setErrors(new ArrayObject([$quoteErrorTransfer]));
+        }
+
         $restCompanyUserCartsResponseTransfer = $this->quoteFinder->findOneByRestCompanyUserCartsRequest(
             $restCompanyUserCartsRequestTransfer,
         );
