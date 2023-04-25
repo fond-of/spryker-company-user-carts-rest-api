@@ -171,11 +171,15 @@ class CompanyUserCartsRestApiBusinessFactoryTest extends Unit
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_CART],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_COMPANY_USER_REFERENCE],
+                [CompanyUserCartsRestApiDependencyProvider::FACADE_PERMISSION],
                 [CompanyUserCartsRestApiDependencyProvider::FACADE_QUOTE],
             )->willReturnOnConsecutiveCalls(
                 $this->quoteFacadeMock,
                 $this->cartFacadeMock,
                 $this->cartFacadeMock,
+                $this->companyUserReferenceFacadeMock,
+                $this->permissionFacadeMock,
                 $this->quoteFacadeMock,
             );
 

@@ -11,7 +11,7 @@ class CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge implements Compa
     /**
      * @var \FondOfSpryker\Zed\CompanyUserReference\Business\CompanyUserReferenceFacadeInterface
      */
-    protected $companyUserReferenceFacade;
+    protected CompanyUserReferenceFacadeInterface $companyUserReferenceFacade;
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserReference\Business\CompanyUserReferenceFacadeInterface $companyUserReferenceFacade
@@ -30,5 +30,19 @@ class CompanyUserCartsRestApiToCompanyUserReferenceFacadeBridge implements Compa
     public function findCompanyUserByCompanyUserReference(CompanyUserTransfer $companyUserTransfer): CompanyUserResponseTransfer
     {
         return $this->companyUserReferenceFacade->findCompanyUserByCompanyUserReference($companyUserTransfer);
+    }
+
+    /**
+     * @param string $companyUserReference
+     * @param int $idCustomer
+     *
+     * @return int|null
+     */
+    public function getIdCompanyUserByCompanyUserReferenceAndIdCustomer(string $companyUserReference, int $idCustomer): ?int
+    {
+        return $this->companyUserReferenceFacade->getIdCompanyUserByCompanyUserReferenceAndIdCustomer(
+            $companyUserReference,
+            $idCustomer,
+        );
     }
 }

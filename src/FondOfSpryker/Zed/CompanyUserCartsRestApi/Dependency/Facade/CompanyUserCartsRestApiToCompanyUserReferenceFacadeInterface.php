@@ -15,4 +15,15 @@ interface CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface
     public function findCompanyUserByCompanyUserReference(
         CompanyUserTransfer $companyUserTransfer
     ): CompanyUserResponseTransfer;
+
+    /**
+     * @param string $companyUserReference
+     * @param int $idCustomer
+     *
+     * @return int|null
+     */
+    public function getIdCompanyUserByCompanyUserReferenceAndIdCustomer(
+        string $companyUserReference,
+        int $idCustomer
+    ): ?int;
 }

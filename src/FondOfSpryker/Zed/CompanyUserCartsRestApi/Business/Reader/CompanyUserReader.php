@@ -11,7 +11,7 @@ class CompanyUserReader implements CompanyUserReaderInterface
     /**
      * @var \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface
      */
-    protected $companyUserReferenceFacade;
+    protected CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface $companyUserReferenceFacade;
 
     /**
      * @param \FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade\CompanyUserCartsRestApiToCompanyUserReferenceFacadeInterface $companyUserReferenceFacade
@@ -55,5 +55,26 @@ class CompanyUserReader implements CompanyUserReaderInterface
         }
 
         return $companyUserTransfer;
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequest
+     *
+     * @return int|null
+     */
+    public function getIdByRestCompanyUserCartsRequest(
+        RestCompanyUserCartsRequestTransfer $restCompanyUserCartsRequest
+    ): ?int {
+        $companyUserReference = $restCompanyUserCartsRequest->getCompanyUserReference();
+        $idCustomer = $restCompanyUserCartsRequest->getIdCustomer();
+
+        if ($companyUserReference === null || $idCustomer === null) {
+            return null;
+        }
+
+        return $this->companyUserReferenceFacade->getIdCompanyUserByCompanyUserReferenceAndIdCustomer(
+            $companyUserReference,
+            $idCustomer,
+        );
     }
 }
