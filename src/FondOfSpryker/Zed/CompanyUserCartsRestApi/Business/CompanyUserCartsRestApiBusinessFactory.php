@@ -88,6 +88,7 @@ class CompanyUserCartsRestApiBusinessFactory extends AbstractBusinessFactory
         return new QuoteDeleter(
             $this->createQuoteReader(),
             $this->createQuoteExpander(),
+            $this->createWritePermissionChecker(),
             $this->getQuoteFacade(),
         );
     }
