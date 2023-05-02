@@ -4,7 +4,7 @@ namespace FondOfSpryker\Zed\CompanyUserCartsRestApi\Dependency\Facade;
 
 use Spryker\Zed\Permission\Business\PermissionFacadeInterface;
 
-class CompanyUserCartsRestApiToPermissionFacadeBridge
+class CompanyUserCartsRestApiToPermissionFacadeBridge implements CompanyUserCartsRestApiToPermissionFacadeInterface
 {
     /**
      * @var \Spryker\Zed\Permission\Business\PermissionFacadeInterface
