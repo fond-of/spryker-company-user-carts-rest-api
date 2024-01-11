@@ -6,6 +6,7 @@ use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Finder\ItemFinderInterfac
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Grouper\ItemsGrouperInterface;
 use FondOfSpryker\Zed\CompanyUserCartsRestApi\Business\Mapper\ItemMapperInterface;
 use Generated\Shared\Transfer\QuoteTransfer;
+use Generated\Shared\Transfer\RestCartItemTransfer;
 use Generated\Shared\Transfer\RestCartsRequestAttributesTransfer;
 
 class ItemsCategorizer implements ItemsCategorizerInterface
@@ -57,7 +58,7 @@ class ItemsCategorizer implements ItemsCategorizerInterface
         ];
 
         foreach ($restCartsRequestAttributesTransfer->getItems() as $restCartItemTransfer) {
-            $newQuantity = $restCartItemTransfer->getQuantity();
+            $newQuantity = $this->resolveQuantityFromRequest($restCartItemTransfer);
             $oldItemTransfer = $this->itemFinder->findInGroupedItemsByRestCartItem(
                 $groupedItemTransfers,
                 $restCartItemTransfer,
@@ -87,5 +88,21 @@ class ItemsCategorizer implements ItemsCategorizerInterface
         }
 
         return $categorisedItemTransfers;
+    }
+
+    /**
+     * @param \Generated\Shared\Transfer\RestCartItemTransfer $restCartItemTransfer
+     *
+     * @return int
+     */
+    protected function resolveQuantityFromRequest(RestCartItemTransfer $restCartItemTransfer): int
+    {
+        $newQuantity = $restCartItemTransfer->getQuantity();
+
+        if (is_numeric($newQuantity)) {
+            return (int)$newQuantity;
+        }
+
+        return 0;
     }
 }
