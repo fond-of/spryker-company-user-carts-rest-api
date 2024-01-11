@@ -220,4 +220,99 @@ class ItemsCategorizerTest extends Unit
             $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE][1],
         );
     }
+
+    /**
+     * @return void
+     */
+    public function testCategorizeWithString(): void
+    {
+        $newQuantities = [2, 0, ''];
+        $currentQuantities = [1, 1];
+
+        $this->itemsGrouperMock->expects(static::atLeastOnce())
+            ->method('groupByQuote')
+            ->with($this->quoteTransferMock)
+            ->willReturn($this->itemTransferMocks);
+
+        $this->restCartRequestAttributesTransferMock->expects(static::atLeastOnce())
+            ->method('getItems')
+            ->willReturn(new ArrayObject($this->restCartItemTransferMocks));
+
+        $this->itemFinderMock->expects(static::atLeastOnce())
+            ->method('findInGroupedItemsByRestCartItem')
+            ->withConsecutive(
+                [$this->itemTransferMocks, $this->restCartItemTransferMocks[0]],
+                [$this->itemTransferMocks, $this->restCartItemTransferMocks[1]],
+                [$this->itemTransferMocks, $this->restCartItemTransferMocks[2]],
+            )->willReturnOnConsecutiveCalls(
+                null,
+                $this->itemTransferMocks['foo.bar-1'],
+                $this->itemTransferMocks['foo.bar-2'],
+            );
+
+        $this->itemMapperMock->expects(static::atLeastOnce())
+            ->method('fromRestCartItem')
+            ->withConsecutive(
+                [$this->restCartItemTransferMocks[0]],
+                [$this->restCartItemTransferMocks[1]],
+                [$this->restCartItemTransferMocks[2]],
+            )->willReturnOnConsecutiveCalls(
+                $this->newItemTransferMocks[0],
+                $this->newItemTransferMocks[1],
+                $this->newItemTransferMocks[2],
+            );
+
+        $this->restCartItemTransferMocks[0]->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($newQuantities[0]);
+
+        $this->restCartItemTransferMocks[1]->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($newQuantities[1]);
+
+        $this->itemTransferMocks['foo.bar-1']->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($currentQuantities[0]);
+
+        $this->newItemTransferMocks[1]->expects(static::atLeastOnce())
+            ->method('setQuantity')
+            ->with(1)
+            ->willReturn($this->newItemTransferMocks[1]);
+
+        $this->restCartItemTransferMocks[2]->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($newQuantities[2]);
+
+        $this->itemTransferMocks['foo.bar-2']->expects(static::atLeastOnce())
+            ->method('getQuantity')
+            ->willReturn($currentQuantities[1]);
+
+        $this->newItemTransferMocks[2]->expects(static::atLeastOnce())
+            ->method('setQuantity')
+            ->with(1)
+            ->willReturn($this->newItemTransferMocks[2]);
+
+        $categorisedItemTransfers = $this->itemsCategorizer->categorize(
+            $this->quoteTransferMock,
+            $this->restCartRequestAttributesTransferMock,
+        );
+
+        static::assertCount(1, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE]);
+        static::assertCount(2, $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE]);
+
+        static::assertEquals(
+            $this->newItemTransferMocks[0],
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE][0],
+        );
+
+        static::assertEquals(
+            $this->newItemTransferMocks[1],
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_REMOVABLE][0],
+        );
+
+        static::assertEquals(
+            $this->newItemTransferMocks[2],
+            $categorisedItemTransfers[ItemsCategorizerInterface::CATEGORY_ADDABLE][0],
+        );
+    }
 }
